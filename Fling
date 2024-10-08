@@ -1,55 +1,12 @@
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local flingEvent = ReplicatedStorage:WaitForChild("FlingPlayerEvent")
 
--- Create GUI elements
-local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 200, 0, 300)
-frame.Position = UDim2.new(0.5, -100, 0.5, -150)
-
-local titleLabel = Instance.new("TextLabel", frame)
-titleLabel.Size = UDim2.new(1, 0, 0, 50)
-titleLabel.Text = "Select a Player to Fling"
-
-local dropdown = Instance.new("TextButton", frame)
-dropdown.Size = UDim2.new(1, 0, 0, 50)
-dropdown.Position = UDim2.new(0, 0, 0, 50)
-dropdown.Text = "Select Player"
-
-local playerListFrame = Instance.new("Frame", frame)
-playerListFrame.Size = UDim2.new(1, 0, 0, 200)
-playerListFrame.Position = UDim2.new(0, 0, 0, 100)
-playerListFrame.Visible = false -- Hidden initially
-
-local playerButtons = {}
-
--- Function to update the player list
-local function updatePlayerList()
-    for _, v in pairs(playerButtons) do
-        v:Destroy()
-    end
-    playerButtons = {}
-
-    for _, otherPlayer in pairs(Players:GetPlayers()) do
-        if otherPlayer ~= player then
-            local button = Instance.new("TextButton", playerListFrame)
-            button.Size = UDim2.new(1, 0, 0, 50)
-            button.Text = otherPlayer.Name
-            button.MouseButton1Click:Connect(function()
-                flingPlayer(otherPlayer)
-            end)
-            table.insert(playerButtons, button)
-        end
-    end
-end
-
--- Function to fling a player
-local function flingPlayer(targetPlayer)
+local function flingPlayer(player, targetPlayer)
     if targetPlayer and targetPlayer.Character then
         local humanoidRootPart = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
         if humanoidRootPart then
             local bodyVelocity = Instance.new("BodyVelocity")
-            bodyVelocity.Velocity = Vector3.new(0, 100, 0) -- Change direction and strength
+            bodyVelocity.Velocity = Vector3.new(0, 100, 0) -- Adjust direction and strength
             bodyVelocity.MaxForce = Vector3.new(10000, 10000, 10000)
             bodyVelocity.Parent = humanoidRootPart
             
@@ -59,15 +16,4 @@ local function flingPlayer(targetPlayer)
     end
 end
 
--- Toggle dropdown visibility
-dropdown.MouseButton1Click:Connect(function()
-    playerListFrame.Visible = not playerListFrame.Visible
-    updatePlayerList()
-end)
-
--- Update player list on player addition/removal
-Players.PlayerAdded:Connect(updatePlayerList)
-Players.PlayerRemoving:Connect(updatePlayerList)
-
--- Initial population of player list
-updatePlayerList()
+flingEvent.OnServerEvent:Connect(flingPlayer)
