@@ -2,25 +2,51 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 -- Create GUI elements
-local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local screenGui = Instance.new("ScreenGui")
 local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 200, 0, 150)
-frame.Position = UDim2.new(0.5, -100, 0.5, -75)
+frame.Size = UDim2.new(0, 200, 0, 300)
+frame.Position = UDim2.new(0.5, -100, 0.5, -150)
 
 local titleLabel = Instance.new("TextLabel", frame)
 titleLabel.Size = UDim2.new(1, 0, 0, 50)
-titleLabel.Text = "Fling Yourself"
+titleLabel.Text = "Select Player to Fling"
 
-local flingButton = Instance.new("TextButton", frame)
-flingButton.Size = UDim2.new(1, 0, 0, 50)
-flingButton.Position = UDim2.new(0, 0, 0, 60)
-flingButton.Text = "Fling Me"
+local dropdown = Instance.new("TextButton", frame)
+dropdown.Size = UDim2.new(1, 0, 0, 50)
+dropdown.Position = UDim2.new(0, 0, 0, 50)
+dropdown.Text = "Select Player"
 
--- Function to fling the player
-local function flingPlayer()
-    local character = player.Character
-    if character then
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+local playerListFrame = Instance.new("Frame", frame)
+playerListFrame.Size = UDim2.new(1, 0, 0, 200)
+playerListFrame.Position = UDim2.new(0, 0, 0, 100)
+playerListFrame.Visible = false -- Hidden initially
+
+local playerButtons = {}
+
+-- Function to update the player list
+local function updatePlayerList()
+    for _, v in pairs(playerButtons) do
+        v:Destroy()
+    end
+    playerButtons = {}
+
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= player then
+            local button = Instance.new("TextButton", playerListFrame)
+            button.Size = UDim2.new(1, 0, 0, 50)
+            button.Text = otherPlayer.Name
+            button.MouseButton1Click:Connect(function()
+                flingPlayer(otherPlayer) -- Fling the selected player
+            end)
+            table.insert(playerButtons, button)
+        end
+    end
+end
+
+-- Function to fling the selected player
+local function flingPlayer(targetPlayer)
+    if targetPlayer and targetPlayer.Character then
+        local humanoidRootPart = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
         if humanoidRootPart then
             local bodyVelocity = Instance.new("BodyVelocity")
             bodyVelocity.Velocity = Vector3.new(0, 100, 0) -- Adjust direction and strength as needed
@@ -33,4 +59,11 @@ local function flingPlayer()
     end
 end
 
-flingButton.MouseButton1Click:Connect(flingPlayer)
+-- Toggle dropdown visibility
+dropdown.MouseButton1Click:Connect(function()
+    playerListFrame.Visible = not playerListFrame.Visible
+    updatePlayerList()
+end)
+
+-- Initialize GUI
+screenGui.Parent = player:WaitForChild("PlayerGui")
