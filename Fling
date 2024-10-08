@@ -1,12 +1,29 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local flingEvent = ReplicatedStorage:WaitForChild("FlingPlayerEvent")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 
-local function flingPlayer(player, targetPlayer)
-    if targetPlayer and targetPlayer.Character then
-        local humanoidRootPart = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+-- Create GUI elements
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 200, 0, 150)
+frame.Position = UDim2.new(0.5, -100, 0.5, -75)
+
+local titleLabel = Instance.new("TextLabel", frame)
+titleLabel.Size = UDim2.new(1, 0, 0, 50)
+titleLabel.Text = "Fling Yourself"
+
+local flingButton = Instance.new("TextButton", frame)
+flingButton.Size = UDim2.new(1, 0, 0, 50)
+flingButton.Position = UDim2.new(0, 0, 0, 60)
+flingButton.Text = "Fling Me"
+
+-- Function to fling the player
+local function flingPlayer()
+    local character = player.Character
+    if character then
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
         if humanoidRootPart then
             local bodyVelocity = Instance.new("BodyVelocity")
-            bodyVelocity.Velocity = Vector3.new(0, 100, 0) -- Adjust direction and strength
+            bodyVelocity.Velocity = Vector3.new(0, 100, 0) -- Adjust direction and strength as needed
             bodyVelocity.MaxForce = Vector3.new(10000, 10000, 10000)
             bodyVelocity.Parent = humanoidRootPart
             
@@ -16,4 +33,4 @@ local function flingPlayer(player, targetPlayer)
     end
 end
 
-flingEvent.OnServerEvent:Connect(flingPlayer)
+flingButton.MouseButton1Click:Connect(flingPlayer)
