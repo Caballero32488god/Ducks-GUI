@@ -23,7 +23,7 @@ setupButton(afternoonButton, "Afternoon", UDim2.new(0.5, -100, 0.4, 0))
 setupButton(nightButton, "Night", UDim2.new(0.5, -100, 0.5, 0))
 setupButton(closeButton, "Close", UDim2.new(0.5, -100, 0.6, 0))
 
--- Function to set time and manage moon
+-- Function to set time and manage moon and sun
 local function setTime(hour)
     Lighting.TimeOfDay = string.format("%02d:00:00", hour)
     
@@ -31,17 +31,24 @@ local function setTime(hour)
     if hour >= 18 and hour < 24 or hour < 6 then
         local moon = Workspace:FindFirstChild("CustomMoon")
         if not moon then
-            moon = Instance.new("Part")
+            moon = Instance.new("Model")
             moon.Name = "CustomMoon"
-            moon.Size = Vector3.new(5, 5, 5)  -- Size of the moon
-            moon.Color = Color3.new(1, 1, 1)  -- White color
-            moon.Material = Enum.Material.SmoothPlastic
-            moon.Anchored = true
-            moon.CanCollide = false
-            moon.Position = Vector3.new(0, 100, -50)  -- Position of the moon in the sky
+            local moonAsset = Instance.new("Part")
+            moonAsset.Size = Vector3.new(5, 5, 5)  -- Adjust size if necessary
+            moonAsset.Color = Color3.new(1, 1, 1)  -- White color
+            moonAsset.Material = Enum.Material.SmoothPlastic
+            moonAsset.Anchored = true
+            moonAsset.CanCollide = false
+            moonAsset.Position = Vector3.new(0, 100, -50)  -- Position in the sky
+            moonAsset.Parent = moon
+            
+            local moonMesh = Instance.new("SpecialMesh")
+            moonMesh.MeshId = "rbxassetid://109400637994437"  -- Moon asset ID
+            moonMesh.Parent = moonAsset
+            
             moon.Parent = Workspace
         end
-        moon.Position = Vector3.new(0, 100, -50)  -- Ensure the moon is positioned correctly
+        moon:SetPrimaryPartCFrame(CFrame.new(0, 100, -50))  -- Position the moon correctly
     else
         local moon = Workspace:FindFirstChild("CustomMoon")
         if moon then
