@@ -29,15 +29,15 @@ end
 
 -- Button click events
 morningButton.MouseButton1Click:Connect(function()
-    setTime(6)  -- 6 AM
+    setTime(6)  -- Set to 6 AM for morning
 end)
 
 afternoonButton.MouseButton1Click:Connect(function()
-    setTime(12) -- 12 PM
+    setTime(12) -- Set to 12 PM for afternoon
 end)
 
 nightButton.MouseButton1Click:Connect(function()
-    setTime(18) -- 6 PM
+    setTime(21) -- Set to 9 PM for night
 end)
 
 -- Close button event
