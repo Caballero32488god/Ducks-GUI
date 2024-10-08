@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
 
 -- Create GUI elements
 local screenGui = Instance.new("ScreenGui")
@@ -22,9 +23,31 @@ setupButton(afternoonButton, "Afternoon", UDim2.new(0.5, -100, 0.4, 0))
 setupButton(nightButton, "Night", UDim2.new(0.5, -100, 0.5, 0))
 setupButton(closeButton, "Close", UDim2.new(0.5, -100, 0.6, 0))
 
--- Function to set time
+-- Function to set time and manage moon
 local function setTime(hour)
     Lighting.TimeOfDay = string.format("%02d:00:00", hour)
+    
+    -- Create or update the moon based on the time
+    if hour >= 18 and hour < 24 or hour < 6 then
+        local moon = Workspace:FindFirstChild("CustomMoon")
+        if not moon then
+            moon = Instance.new("Part")
+            moon.Name = "CustomMoon"
+            moon.Size = Vector3.new(5, 5, 5)  -- Size of the moon
+            moon.Color = Color3.new(1, 1, 1)  -- White color
+            moon.Material = Enum.Material.SmoothPlastic
+            moon.Anchored = true
+            moon.CanCollide = false
+            moon.Position = Vector3.new(0, 100, -50)  -- Position of the moon in the sky
+            moon.Parent = Workspace
+        end
+        moon.Position = Vector3.new(0, 100, -50)  -- Ensure the moon is positioned correctly
+    else
+        local moon = Workspace:FindFirstChild("CustomMoon")
+        if moon then
+            moon:Destroy()  -- Remove the moon if it's daytime
+        end
+    end
 end
 
 -- Button click events
