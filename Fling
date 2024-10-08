@@ -1,82 +1,42 @@
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local Lighting = game:GetService("Lighting")
 
 -- Create GUI elements
 local screenGui = Instance.new("ScreenGui")
-local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 200, 0, 400)
-frame.Position = UDim2.new(0.5, -100, 0.5, -200)
+local morningButton = Instance.new("TextButton")
+local afternoonButton = Instance.new("TextButton")
+local nightButton = Instance.new("TextButton")
 
-local titleLabel = Instance.new("TextLabel", frame)
-titleLabel.Size = UDim2.new(1, 0, 0, 50)
-titleLabel.Text = "Options"
-
-local teleportButton = Instance.new("TextButton", frame)
-teleportButton.Size = UDim2.new(1, 0, 0, 50)
-teleportButton.Position = UDim2.new(0, 0, 0, 60)
-teleportButton.Text = "Teleport to Coordinates"
-
-local dropdown = Instance.new("TextButton", frame)
-dropdown.Size = UDim2.new(1, 0, 0, 50)
-dropdown.Position = UDim2.new(0, 0, 0, 120)
-dropdown.Text = "Select Player to Fling"
-
-local playerListFrame = Instance.new("Frame", frame)
-playerListFrame.Size = UDim2.new(1, 0, 0, 200)
-playerListFrame.Position = UDim2.new(0, 0, 0, 180)
-playerListFrame.Visible = false -- Hidden initially
-
-local playerButtons = {}
-
--- Function to teleport the player
-local function teleportToCoordinates()
-    player.Character:MoveTo(Vector3.new(-453, -412, 40))
+-- Set up properties for the buttons
+local function setupButton(button, text, position)
+    button.Size = UDim2.new(0, 200, 0, 50)
+    button.Position = position
+    button.Text = text
+    button.Parent = screenGui
+    button.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)  -- Gray background
 end
 
--- Function to update the player list for flinging
-local function updatePlayerList()
-    for _, v in pairs(playerButtons) do
-        v:Destroy()
-    end
-    playerButtons = {}
+setupButton(morningButton, "Morning", UDim2.new(0.5, -100, 0.3, 0))
+setupButton(afternoonButton, "Afternoon", UDim2.new(0.5, -100, 0.4, 0))
+setupButton(nightButton, "Night", UDim2.new(0.5, -100, 0.5, 0))
 
-    for _, otherPlayer in pairs(Players:GetPlayers()) do
-        if otherPlayer ~= player then
-            local button = Instance.new("TextButton", playerListFrame)
-            button.Size = UDim2.new(1, 0, 0, 50)
-            button.Text = otherPlayer.Name
-            button.MouseButton1Click:Connect(function()
-                flingPlayer(otherPlayer) -- Fling the selected player
-            end)
-            table.insert(playerButtons, button)
-        end
-    end
+-- Function to set time
+local function setTime(hour)
+    Lighting.TimeOfDay = string.format("%02d:00:00", hour)
 end
 
--- Function to fling the selected player
-local function flingPlayer(targetPlayer)
-    if targetPlayer and targetPlayer.Character then
-        local humanoidRootPart = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if humanoidRootPart then
-            local bodyVelocity = Instance.new("BodyVelocity")
-            bodyVelocity.Velocity = Vector3.new(0, 100, 0) -- Adjust direction and strength
-            bodyVelocity.MaxForce = Vector3.new(10000, 10000, 10000)
-            bodyVelocity.Parent = humanoidRootPart
-            
-            wait(0.5) -- Fling duration
-            bodyVelocity:Destroy()
-        end
-    end
-end
-
--- Toggle dropdown visibility
-dropdown.MouseButton1Click:Connect(function()
-    playerListFrame.Visible = not playerListFrame.Visible
-    updatePlayerList()
+-- Button click events
+morningButton.MouseButton1Click:Connect(function()
+    setTime(6)  -- 6 AM
 end)
 
--- Connect teleport button
-teleportButton.MouseButton1Click:Connect(teleportToCoordinates)
+afternoonButton.MouseButton1Click:Connect(function()
+    setTime(12) -- 12 PM
+end)
+
+nightButton.MouseButton1Click:Connect(function()
+    setTime(18) -- 6 PM
+end)
 
 -- Initialize GUI
-screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
