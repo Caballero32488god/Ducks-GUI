@@ -59,7 +59,7 @@ local function flingPlayer(targetPlayer)
         local humanoidRootPart = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
         if humanoidRootPart then
             local bodyVelocity = Instance.new("BodyVelocity")
-            bodyVelocity.Velocity = Vector3.new(0, 100, 0) -- Adjust direction and strength as needed
+            bodyVelocity.Velocity = Vector3.new(0, 100, 0) -- Adjust direction and strength
             bodyVelocity.MaxForce = Vector3.new(10000, 10000, 10000)
             bodyVelocity.Parent = humanoidRootPart
             
