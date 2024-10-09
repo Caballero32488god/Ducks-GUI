@@ -1,101 +1,25 @@
-local Players = game:GetService("Players")
+-- Create a Sky object and set it up
 local Lighting = game:GetService("Lighting")
-local Workspace = game:GetService("Workspace")
 
--- Create GUI elements
-local screenGui = Instance.new("ScreenGui")
-local morningButton = Instance.new("TextButton")
-local afternoonButton = Instance.new("TextButton")
-local nightButton = Instance.new("TextButton")
-local closeButton = Instance.new("TextButton")
+-- Create a new Sky instance
+local sky = Instance.new("Sky")
 
--- Set up properties for the buttons
-local function setupButton(button, text, position)
-    button.Size = UDim2.new(0, 200, 0, 50)
-    button.Position = position
-    button.Text = text
-    button.Parent = screenGui
-    button.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)  -- Gray background
+-- Set the textures for the skybox
+sky.SkyboxUp = "rbxassetid://109400637994437"  -- Replace with your sun texture ID
+sky.SkyboxDn = "rbxassetid://109400637994437"  -- Replace with your ground texture ID if needed
+sky.SkyboxLt = "rbxassetid://109400637994437"  -- Replace with your left texture ID if needed
+sky.SkyboxRt = "rbxassetid://109400637994437"  -- Replace with your right texture ID if needed
+sky.SkyboxFt = "rbxassetid://109400637994437"  -- Replace with your front texture ID if needed
+sky.SkyboxBk = "rbxassetid://109400637994437"  -- Replace with your back texture ID if needed
+
+-- Parent the Sky object to Lighting
+sky.Parent = Lighting
+
+-- Set the time of day
+Lighting.TimeOfDay = "12:00:00"  -- Change to desired time (e.g., "06:00:00" for morning)
+
+-- Optional: Clean up the sky if it's already there
+local existingSky = Lighting:FindFirstChildOfClass("Sky")
+if existingSky then
+    existingSky:Destroy()  -- Remove existing sky before adding new one
 end
-
-setupButton(morningButton, "Morning", UDim2.new(0.5, -100, 0.3, 0))
-setupButton(afternoonButton, "Afternoon", UDim2.new(0.5, -100, 0.4, 0))
-setupButton(nightButton, "Night", UDim2.new(0.5, -100, 0.5, 0))
-setupButton(closeButton, "Close", UDim2.new(0.5, -100, 0.6, 0))
-
--- Function to set time and manage moon and sun
-local function setTime(hour)
-    Lighting.TimeOfDay = string.format("%02d:00:00", hour)
-    
-    local sun = Workspace:FindFirstChild("CustomSun")
-    local moon = Workspace:FindFirstChild("CustomMoon")
-
-    if hour >= 6 and hour < 18 then  -- Daytime
-        if not sun then
-            sun = Instance.new("Part")
-            sun.Name = "CustomSun"
-            sun.Size = Vector3.new(5, 5, 5)  -- Size of the sun
-            sun.Shape = Enum.PartType.Ball  -- Make it a sphere
-            sun.Color = Color3.new(1, 1, 0)  -- Yellow color for the sun
-            sun.Anchored = true
-            sun.CanCollide = false
-            
-            -- Create a decal for the sun
-            local sunDecal = Instance.new("Decal")
-            sunDecal.Texture = "rbxassetid://109400637994437"  -- Sun asset ID
-            sunDecal.Parent = sun
-            
-            sun.Position = Vector3.new(0, 100, 50)  -- Position in the sky
-            sun.Parent = Workspace
-        end
-
-        -- Remove the moon if it's daytime
-        if moon then
-            moon:Destroy()
-        end
-    else  -- Night time
-        if not moon then
-            moon = Instance.new("Part")
-            moon.Name = "CustomMoon"
-            moon.Size = Vector3.new(5, 5, 5)  -- Size of the moon
-            moon.Shape = Enum.PartType.Ball  -- Make it a sphere
-            moon.Color = Color3.new(1, 1, 1)  -- White color for the moon
-            moon.Anchored = true
-            moon.CanCollide = false
-            
-            -- Create a decal for the moon
-            local moonDecal = Instance.new("Decal")
-            moonDecal.Texture = "rbxassetid://109400637994437"  -- Moon asset ID
-            moonDecal.Parent = moon
-            
-            moon.Position = Vector3.new(0, 100, -50)  -- Position in the sky
-            moon.Parent = Workspace
-        end
-
-        -- Remove the sun if it's nighttime
-        if sun then
-            sun:Destroy()
-        end
-    end
-end
-
--- Button click events
-morningButton.MouseButton1Click:Connect(function()
-    setTime(6)  -- Set to 6 AM for morning
-end)
-
-afternoonButton.MouseButton1Click:Connect(function()
-    setTime(12) -- Set to 12 PM for afternoon
-end)
-
-nightButton.MouseButton1Click:Connect(function()
-    setTime(21) -- Set to 9 PM for night
-end)
-
--- Close button event
-closeButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()  -- Remove the GUI when the close button is clicked
-end)
-
--- Initialize GUI
-screenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
