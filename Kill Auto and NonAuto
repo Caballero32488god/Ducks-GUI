@@ -42,21 +42,25 @@ local function equipAndPunch()
     end
 end
 
--- Function to teleport all players' heads and freeze them
-local function teleportAndFreezeAll()
-    local myPosition = LocalPlayer.Character.HumanoidRootPart.Position
-    local targetPosition = myPosition + Vector3.new(0, 0, 3) -- Adjust as needed
+-- Function to continuously teleport all players' heads in front of the local player
+local function teleportHeadsInFront()
+    local myCharacter = LocalPlayer.Character
+    local targetPositionOffset = Vector3.new(0, 0, 3) -- Adjust this offset as needed
 
-    for _, targetPlayer in pairs(Players:GetPlayers()) do
-        if targetPlayer ~= LocalPlayer then
-            local targetCharacter = targetPlayer.Character
-            if targetCharacter and targetCharacter:FindFirstChild("Head") then
-                local head = targetCharacter.Head
-                head.CFrame = CFrame.new(targetPosition) -- Teleport the head
-                targetCharacter.HumanoidRootPart.Anchored = true -- Freeze them
-                print(targetPlayer.Name .. " has been teleported and frozen.")
+    while isEnabled do
+        local myPosition = myCharacter.HumanoidRootPart.Position
+
+        for _, targetPlayer in pairs(Players:GetPlayers()) do
+            if targetPlayer ~= LocalPlayer then
+                local targetCharacter = targetPlayer.Character
+                if targetCharacter and targetCharacter:FindFirstChild("Head") then
+                    local head = targetCharacter.Head
+                    head.CFrame = CFrame.new(myPosition + targetPositionOffset) -- Teleport the head in front
+                end
             end
         end
+
+        wait(0.1) -- Adjust the loop frequency as needed
     end
 end
 
@@ -66,16 +70,10 @@ LocalPlayer.Chatted:Connect(function(message)
 
     if args[1]:lower() == "on" then
         isEnabled = true
-        teleportAndFreezeAll() -- Teleport and freeze all players
+        teleportHeadsInFront() -- Start teleporting heads
         equipAndPunch() -- Start punching if enabled
     elseif args[1]:lower() == "off" then
         isEnabled = false
-        for _, targetPlayer in pairs(Players:GetPlayers()) do
-            local targetCharacter = targetPlayer.Character
-            if targetCharacter then
-                targetCharacter.HumanoidRootPart.Anchored = false -- Unfreeze them
-            end
-        end
         print("Feature is now OFF.")
     elseif args[1]:lower() == "status" then
         print("Feature is currently " .. (isEnabled and "ON" or "OFF"))
