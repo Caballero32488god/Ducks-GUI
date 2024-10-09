@@ -43,7 +43,7 @@ local function teleportPlayersToLocalPlayer()
                 makePlayerInvisible(player) -- Make the player invisible
             end
         end
-        wait(0.1) -- Adjust the wait time for how frequently to teleport players
+        wait(2) -- Adjust the wait time to 2 seconds to reduce lag
     end
 end
 
