@@ -19,14 +19,50 @@ nightButton.Position = UDim2.new(0.5, -100, 0.5, 10)
 nightButton.Text = "Night"
 nightButton.Parent = screenGui
 
--- Function to set it to day
+-- Function to set it to day and apply the sky
 local function setDay()
     Lighting.TimeOfDay = "12:00:00"  -- Set time to noon (daytime)
+    
+    -- Check if a Sky object exists and remove it
+    local existingSky = Lighting:FindFirstChildOfClass("Sky")
+    if existingSky then
+        existingSky:Destroy()
+    end
+    
+    -- Create a new Sky instance
+    local sky = Instance.new("Sky")
+    sky.SkyboxUp = "rbxassetid://109400637994437"  -- Top (sun)
+    sky.SkyboxDn = "rbxassetid://109400637994437"  -- Bottom
+    sky.SkyboxLt = "rbxassetid://109400637994437"  -- Left
+    sky.SkyboxRt = "rbxassetid://109400637994437"  -- Right
+    sky.SkyboxFt = "rbxassetid://109400637994437"  -- Front
+    sky.SkyboxBk = "rbxassetid://109400637994437"  -- Back
+    
+    -- Parent the Sky object to Lighting
+    sky.Parent = Lighting
 end
 
 -- Function to set it to night
 local function setNight()
     Lighting.TimeOfDay = "00:00:00"  -- Set time to midnight (nighttime)
+    
+    -- Check if a Sky object exists and remove it
+    local existingSky = Lighting:FindFirstChildOfClass("Sky")
+    if existingSky then
+        existingSky:Destroy()
+    end
+    
+    -- Create a new Sky instance
+    local sky = Instance.new("Sky")
+    sky.SkyboxUp = "rbxassetid://109400637994437"  -- Set this to a night texture if you have one
+    sky.SkyboxDn = "rbxassetid://109400637994437"  -- Bottom
+    sky.SkyboxLt = "rbxassetid://109400637994437"  -- Left
+    sky.SkyboxRt = "rbxassetid://109400637994437"  -- Right
+    sky.SkyboxFt = "rbxassetid://109400637994437"  -- Front
+    sky.SkyboxBk = "rbxassetid://109400637994437"  -- Back
+    
+    -- Parent the Sky object to Lighting
+    sky.Parent = Lighting
 end
 
 -- Connect buttons to functions
