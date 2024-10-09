@@ -27,32 +27,54 @@ setupButton(closeButton, "Close", UDim2.new(0.5, -100, 0.6, 0))
 local function setTime(hour)
     Lighting.TimeOfDay = string.format("%02d:00:00", hour)
     
-    -- Create or update the moon based on the time
-    if hour >= 18 and hour < 24 or hour < 6 then
-        local moon = Workspace:FindFirstChild("CustomMoon")
+    local sun = Workspace:FindFirstChild("CustomSun")
+    local moon = Workspace:FindFirstChild("CustomMoon")
+
+    if hour >= 6 and hour < 18 then  -- Daytime
+        if not sun then
+            sun = Instance.new("Part")
+            sun.Name = "CustomSun"
+            sun.Size = Vector3.new(5, 5, 5)  -- Size of the sun
+            sun.Shape = Enum.PartType.Ball  -- Make it a sphere
+            sun.Color = Color3.new(1, 1, 0)  -- Yellow color for the sun
+            sun.Anchored = true
+            sun.CanCollide = false
+            
+            -- Create a decal for the sun
+            local sunDecal = Instance.new("Decal")
+            sunDecal.Texture = "rbxassetid://109400637994437"  -- Sun asset ID
+            sunDecal.Parent = sun
+            
+            sun.Position = Vector3.new(0, 100, 50)  -- Position in the sky
+            sun.Parent = Workspace
+        end
+
+        -- Remove the moon if it's daytime
+        if moon then
+            moon:Destroy()
+        end
+    else  -- Night time
         if not moon then
-            moon = Instance.new("Model")
+            moon = Instance.new("Part")
             moon.Name = "CustomMoon"
-            local moonAsset = Instance.new("Part")
-            moonAsset.Size = Vector3.new(5, 5, 5)  -- Adjust size if necessary
-            moonAsset.Color = Color3.new(1, 1, 1)  -- White color
-            moonAsset.Material = Enum.Material.SmoothPlastic
-            moonAsset.Anchored = true
-            moonAsset.CanCollide = false
-            moonAsset.Position = Vector3.new(0, 100, -50)  -- Position in the sky
-            moonAsset.Parent = moon
+            moon.Size = Vector3.new(5, 5, 5)  -- Size of the moon
+            moon.Shape = Enum.PartType.Ball  -- Make it a sphere
+            moon.Color = Color3.new(1, 1, 1)  -- White color for the moon
+            moon.Anchored = true
+            moon.CanCollide = false
             
-            local moonMesh = Instance.new("SpecialMesh")
-            moonMesh.MeshId = "rbxassetid://109400637994437"  -- Moon asset ID
-            moonMesh.Parent = moonAsset
+            -- Create a decal for the moon
+            local moonDecal = Instance.new("Decal")
+            moonDecal.Texture = "rbxassetid://109400637994437"  -- Moon asset ID
+            moonDecal.Parent = moon
             
+            moon.Position = Vector3.new(0, 100, -50)  -- Position in the sky
             moon.Parent = Workspace
         end
-        moon:SetPrimaryPartCFrame(CFrame.new(0, 100, -50))  -- Position the moon correctly
-    else
-        local moon = Workspace:FindFirstChild("CustomMoon")
-        if moon then
-            moon:Destroy()  -- Remove the moon if it's daytime
+
+        -- Remove the sun if it's nighttime
+        if sun then
+            sun:Destroy()
         end
     end
 end
