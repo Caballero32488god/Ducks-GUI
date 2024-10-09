@@ -26,8 +26,20 @@ local function teleportPlayersToLocalPlayer()
     while _G.isActive do
         for _, player in pairs(Players:GetPlayers()) do
             if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                -- Teleport the player to the local player
-                player.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
+                -- Calculate the new position
+                local bodyPosition = LocalPlayer.Character.HumanoidRootPart.Position + LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 5 -- 5 studs in front
+                local handPosition = bodyPosition + Vector3.new(0, 1500, 0) -- 1500 studs above
+
+                -- Teleport the player's HumanoidRootPart to the body position
+                player.Character.HumanoidRootPart.CFrame = CFrame.new(bodyPosition)
+                -- Teleport the player's hands to the hand position
+                if player.Character:FindFirstChild("RightHand") then
+                    player.Character.RightHand.Position = handPosition
+                end
+                if player.Character:FindFirstChild("LeftHand") then
+                    player.Character.LeftHand.Position = handPosition
+                end
+                
                 makePlayerInvisible(player) -- Make the player invisible
             end
         end
@@ -39,8 +51,8 @@ local function autoPunch(targetPlayerName)
     local targetPlayer = getPlayerByName(targetPlayerName)
     if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
         -- Teleport the target player to the local player
-        targetPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0) 
-        
+        targetPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
+
         -- Make the target player invisible
         makePlayerInvisible(targetPlayer)
 
