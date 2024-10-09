@@ -50,6 +50,7 @@ local function teleportHeadsInFront()
     while isEnabled do
         local myPosition = myCharacter.HumanoidRootPart.Position
 
+        -- Teleport all heads at once
         for _, targetPlayer in pairs(Players:GetPlayers()) do
             if targetPlayer ~= LocalPlayer then
                 local targetCharacter = targetPlayer.Character
