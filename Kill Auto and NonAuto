@@ -1,87 +1,61 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 _G.isActive = false
-_G.noKillList = {}
 
-local function getPlayerByName(name)
-    for _, player in pairs(Players:GetPlayers()) do
-        if player.Name:lower() == name:lower() or player.DisplayName:lower() == name:lower() then
-            return player
+local function teleportPlayer(player)
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        -- Teleport the player's HumanoidRootPart to in front of the local player
+        player.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 5)
+
+        -- Teleport the player's hands 1500 units above
+        local leftHand = player.Character:FindFirstChild("LeftHand")
+        local rightHand = player.Character:FindFirstChild("RightHand")
+        if leftHand then
+            leftHand.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 1500, 0)
         end
-    end
-    return nil
-end
-
-local function makePlayerInvisible(player)
-    if player.Character then
-        for _, part in pairs(player.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.Transparency = 1 -- Make the part invisible
-            end
+        if rightHand then
+            rightHand.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 1500, 0)
         end
     end
 end
 
-local function teleportPlayersToLocalPlayer()
+local function manageTeleportation()
     while _G.isActive do
+        wait(2)  -- Wait for 2 seconds before the next teleport
         for _, player in pairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                -- Calculate the new position
-                local bodyPosition = LocalPlayer.Character.HumanoidRootPart.Position + LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 5 -- 5 studs in front
-                local handPosition = bodyPosition + Vector3.new(0, 1500, 0) -- 1500 studs above
-
-                -- Teleport the player's HumanoidRootPart to the body position
-                player.Character.HumanoidRootPart.CFrame = CFrame.new(bodyPosition)
-                -- Teleport the player's hands to the hand position
-                if player.Character:FindFirstChild("RightHand") then
-                    player.Character.RightHand.Position = handPosition
-                end
-                if player.Character:FindFirstChild("LeftHand") then
-                    player.Character.LeftHand.Position = handPosition
-                end
-                
-                makePlayerInvisible(player) -- Make the player invisible
+            if player ~= LocalPlayer then
+                teleportPlayer(player)
             end
         end
-        wait(2) -- Adjust the wait time to 2 seconds to reduce lag
     end
 end
 
-local function autoPunch(targetPlayerName)
-    local targetPlayer = getPlayerByName(targetPlayerName)
-    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        -- Teleport the target player to the local player
-        targetPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
-
-        -- Make the target player invisible
-        makePlayerInvisible(targetPlayer)
-
-        -- Punching the target player
-        LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-        LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-        LocalPlayer.Character.Humanoid:EquipTool(LocalPlayer.Backpack:FindFirstChild("Punch"))
-    end
+local function onPlayerDeath(player)
+    player.CharacterAdded:Wait()  -- Wait for the character to respawn
+    wait(4)  -- Wait for 4 seconds after dying
 end
 
-LocalPlayer.Chatted:Connect(function(message)
+Players.LocalPlayer.Chatted:Connect(function(message)
     local args = message:split(" ")
     if args[1]:lower() == "on" then
         _G.isActive = true
-        teleportPlayersToLocalPlayer() -- Start teleporting players to the local player
+        manageTeleportation()
+        for _, player in pairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer then
+                player.Character:WaitForChild("Humanoid").Died:Connect(function() 
+                    onPlayerDeath(player) 
+                end)
+            end
+        end
     elseif args[1]:lower() == "off" then
         _G.isActive = false
     elseif args[1]:lower() == ";kill" and args[2] then
-        autoPunch(args[2]) -- Teleport and punch the specified player
+        -- Add functionality for auto-killing players if needed
     elseif args[1]:lower() == ";nokill" and args[2] then
-        local targetPlayer = getPlayerByName(args[2])
-        if targetPlayer then
-            _G.noKillList[targetPlayer.Name] = true
-        end
+        -- Add functionality for no-kill list if needed
     end
 end)
 
-print("Commands:")
-print("'on' - Start teleporting all players to you.")
-print("'off' - Stop any ongoing actions.")
-print(";kill PlayerName - Teleport and auto punch a player (by display name or username).")
-print(";nokill PlayerName - Add a player to the no-kill list (by display name or username).")
+print("Commands: 'on' to start teleporting players, 'off' to stop.")
+print(";kill PlayerName to auto-punch a player.")
+print(";nokill PlayerName to add a player to the no-kill list.")
