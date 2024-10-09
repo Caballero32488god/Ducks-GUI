@@ -20,5 +20,32 @@ local function setAttackTime()
     end
 end
 
--- Call the function
+-- Function to equip the Punch tool and perform the punch action
+local function equipAndPunch()
+    while true do
+        local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+
+        if punchTool then
+            -- Equip the Punch tool
+            LocalPlayer.Character.Humanoid:EquipTool(punchTool)
+            wait(0.1) -- Wait briefly to ensure the tool is equipped
+
+            -- Start the punching action after a 5-second wait
+            wait(5)  -- Initial wait
+
+            -- Punching loop
+            while true do
+                LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                wait(3)  -- Wait for 3 seconds before the next punch
+            end
+        else
+            print("Punch tool not found in Backpack. Waiting...")
+            wait(2) -- Wait before checking again
+        end
+    end
+end
+
+-- Call the functions to set the attackTime and start punching
 setAttackTime()
+equipAndPunch()
