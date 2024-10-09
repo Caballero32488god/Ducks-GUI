@@ -1,19 +1,17 @@
-local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-local function tap()
-    while true do
-        wait(5) -- Wait for 5 seconds
-
-        -- Create a new InputObject for the tap
-        local tapInput = Instance.new("InputObject")
-        tapInput.UserInputType = Enum.UserInputType.Touch
-        tapInput.Position = Vector2.new(0, 0) -- Change this if you want to tap at a specific position
-
-        -- Fire the UserInputService touch events
-        UserInputService.InputBegan:Fire(tapInput)
-        UserInputService.InputEnded:Fire(tapInput)
+-- Function to equip the Punch tool
+local function equipPunchTool()
+    local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+    
+    if punchTool then
+        LocalPlayer.Character.Humanoid:EquipTool(punchTool)
+        print("Equipped Punch tool.")
+    else
+        print("Punch tool not found in Backpack.")
     end
 end
 
--- Start the auto-tapping
-tap()
+-- Call the function to equip the tool
+equipPunchTool()
