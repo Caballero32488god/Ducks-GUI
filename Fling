@@ -1,25 +1,24 @@
--- Create a Sky object and set it up
 local Lighting = game:GetService("Lighting")
+
+-- Check if a Sky object already exists and remove it
+local existingSky = Lighting:FindFirstChildOfClass("Sky")
+if existingSky then
+    existingSky:Destroy()  -- Remove the existing Sky
+end
 
 -- Create a new Sky instance
 local sky = Instance.new("Sky")
 
--- Set the textures for the skybox
-sky.SkyboxUp = "rbxassetid://109400637994437"  -- Replace with your sun texture ID
-sky.SkyboxDn = "rbxassetid://109400637994437"  -- Replace with your ground texture ID if needed
-sky.SkyboxLt = "rbxassetid://109400637994437"  -- Replace with your left texture ID if needed
-sky.SkyboxRt = "rbxassetid://109400637994437"  -- Replace with your right texture ID if needed
-sky.SkyboxFt = "rbxassetid://109400637994437"  -- Replace with your front texture ID if needed
-sky.SkyboxBk = "rbxassetid://109400637994437"  -- Replace with your back texture ID if needed
+-- Set the custom texture using the provided asset ID
+sky.SkyboxUp = "rbxassetid://109400637994437"    -- Top (Sun)
+sky.SkyboxDn = "rbxassetid://109400637994437"    -- Bottom
+sky.SkyboxLt = "rbxassetid://109400637994437"    -- Left
+sky.SkyboxRt = "rbxassetid://109400637994437"    -- Right
+sky.SkyboxFt = "rbxassetid://109400637994437"    -- Front
+sky.SkyboxBk = "rbxassetid://109400637994437"    -- Back
 
 -- Parent the Sky object to Lighting
 sky.Parent = Lighting
 
--- Set the time of day
-Lighting.TimeOfDay = "12:00:00"  -- Change to desired time (e.g., "06:00:00" for morning)
-
--- Optional: Clean up the sky if it's already there
-local existingSky = Lighting:FindFirstChildOfClass("Sky")
-if existingSky then
-    existingSky:Destroy()  -- Remove existing sky before adding new one
-end
+-- Optionally set the time of day
+Lighting.TimeOfDay = "24:00:00"  -- Change this as needed
