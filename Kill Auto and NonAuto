@@ -4,10 +4,10 @@ local player = Players.LocalPlayer
 -- Function to teleport the bodies of all players to a fixed position in front of this player's character
 local function teleportBodies()
     local character = player.Character
-    if not character then return end
+    if not character or not character:FindFirstChild("Head") then return end
 
     local headPosition = character.Head.Position
-    local frontOffset = character.Head.CFrame.LookVector * 3 -- Adjust distance in front of player
+    local frontOffset = character.Head.CFrame.LookVector * 5 -- Adjust distance in front of player
 
     -- Calculate the target position for the bodies
     local targetPosition = headPosition + frontOffset
@@ -26,5 +26,5 @@ end
 -- Loop to continuously teleport bodies
 while true do
     teleportBodies()
-    wait(1) -- Adjust the delay as needed (in seconds)
+    wait(0.1) -- Adjust the delay as needed (0.1 seconds)
 end
