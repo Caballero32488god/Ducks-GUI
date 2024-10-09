@@ -21,4 +21,4 @@ sky.SkyboxBk = "rbxassetid://109400637994437"    -- Back
 sky.Parent = Lighting
 
 -- Optionally set the time of day
-Lighting.TimeOfDay = "24:00:00"  -- Change this as needed
+Lighting.TimeOfDay = "12:00:00"  -- Change this as needed
