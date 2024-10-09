@@ -1,0 +1,29 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local isEnabled = false -- Variable to track if the feature is enabled
+
+-- Function to handle chat commands
+LocalPlayer.Chatted:Connect(function(message)
+    local args = message:split(" ")
+
+    if args[1]:lower() == "on" then
+        isEnabled = true
+        print("Feature is now ON.") -- Replace with your functionality
+    elseif args[1]:lower() == "off" then
+        isEnabled = false
+        print("Feature is now OFF.") -- Replace with your functionality
+    elseif args[1]:lower() == "status" then
+        print("Feature is currently " .. (isEnabled and "ON" or "OFF"))
+    end
+end)
+
+-- Add a button to control cooldown
+local Button1 = Section2:CreateButton("Change Tool CoolDown", function()
+    if isEnabled then
+        -- Example: Set cooldown value
+        game:GetService("Players").LocalPlayer.Backpack.Punch:FindFirstChildOfClass("NumberValue").Value = 0.1 -- Adjust as needed
+        print("Cooldown set to 0.1 seconds.")
+    else
+        print("Feature is OFF. Cannot change cooldown.")
+    end
+end)
