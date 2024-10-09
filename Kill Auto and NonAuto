@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local friendsList = {}
 _G.isActive = false
 _G.noKillList = {}
 
@@ -13,12 +12,17 @@ local function getPlayerByName(name)
     return nil
 end
 
+local function teleportPlayersToLocalPlayer()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0) -- Adjust Y to avoid clipping
+        end
+    end
+end
+
 local function autoPunch(targetPlayerName)
     local targetPlayer = getPlayerByName(targetPlayerName)
     if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        -- Teleport the target player to the local player
-        targetPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0) -- Adjust Y to avoid clipping
-        wait(0.1) -- Short wait to ensure teleport completes
         -- Punching the target player
         LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
         LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
@@ -26,21 +30,11 @@ local function autoPunch(targetPlayerName)
     end
 end
 
-local function manageFriends()
-    while _G.isActive do
-        wait(5)
-        friendsList = {}
-        for _, friend in pairs(LocalPlayer:GetFriends()) do
-            table.insert(friendsList, friend.Name)
-        end
-    end
-end
-
 LocalPlayer.Chatted:Connect(function(message)
     local args = message:split(" ")
     if args[1]:lower() == "on" then
         _G.isActive = true
-        manageFriends()
+        teleportPlayersToLocalPlayer() -- Teleport all players to the local player
     elseif args[1]:lower() == "off" then
         _G.isActive = false
     elseif args[1]:lower() == ";kill" and args[2] then
@@ -54,7 +48,7 @@ LocalPlayer.Chatted:Connect(function(message)
 end)
 
 print("Commands:")
-print("'on' - Start auto punch.")
-print("'off' - Stop auto punch.")
-print(";kill PlayerName - Teleport and auto punch a player (by display name or username).")
+print("'on' - Teleport all players to you.")
+print("'off' - Stop any ongoing actions.")
+print(";kill PlayerName - Auto punch a player (by display name or username).")
 print(";nokill PlayerName - Add a player to the no-kill list (by display name or username).")
