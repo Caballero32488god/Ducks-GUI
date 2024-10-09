@@ -1,47 +1,52 @@
 local player = game.Players.LocalPlayer
 local Lighting = game:GetService("Lighting")
 
--- Create a Screen GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- Create Morning Button
 local morningButton = Instance.new("TextButton")
 morningButton.Size = UDim2.new(0, 200, 0, 50)
 morningButton.Position = UDim2.new(0.5, -100, 0.5, -100)
 morningButton.Text = "Morning"
 morningButton.Parent = screenGui
 
--- Create Afternoon Button
 local afternoonButton = Instance.new("TextButton")
 afternoonButton.Size = UDim2.new(0, 200, 0, 50)
 afternoonButton.Position = UDim2.new(0.5, -100, 0.5, -30)
 afternoonButton.Text = "Afternoon"
 afternoonButton.Parent = screenGui
 
--- Create Night Button
 local nightButton = Instance.new("TextButton")
 nightButton.Size = UDim2.new(0, 200, 0, 50)
 nightButton.Position = UDim2.new(0.5, -100, 0.5, 40)
 nightButton.Text = "Night"
 nightButton.Parent = screenGui
 
--- Function to set it to morning
 local function setMorning()
-    Lighting.TimeOfDay = "06:30:00"  -- Set time to 6:30 AM (morning)
+    Lighting.TimeOfDay = "06:30:00"
 end
 
--- Function to set it to afternoon
 local function setAfternoon()
-    Lighting.TimeOfDay = "12:00:00"  -- Set time to noon (afternoon)
+    Lighting.TimeOfDay = "12:00:00"
 end
 
--- Function to set it to night
 local function setNight()
-    Lighting.TimeOfDay = "21:00:00"  -- Set time to 9 PM (nighttime)
+    Lighting.TimeOfDay = "21:00:00"
 end
 
--- Connect buttons to functions
 morningButton.MouseButton1Click:Connect(setMorning)
 afternoonButton.MouseButton1Click:Connect(setAfternoon)
 nightButton.MouseButton1Click:Connect(setNight)
+
+local function onChat(message)
+    local args = message:split(" ")
+    if args[1]:lower() == ";morning" then
+        setMorning()
+    elseif args[1]:lower() == ";afternoon" then
+        setAfternoon()
+    elseif args[1]:lower() == ";night" then
+        setNight()
+    end
+end
+
+player.Chatted:Connect(onChat)
