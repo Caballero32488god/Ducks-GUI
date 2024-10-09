@@ -16,9 +16,18 @@ local function equipAndPunch()
         -- Look for the punchScript inside the Punch tool
         local punchScript = punchTool:FindFirstChild("punchScript")
         if punchScript and punchScript:IsA("LocalScript") then
-            -- Run the punch script
-            punchScript:Invoke()  -- Adjust this line if the script requires a different method to run
-            print("Executed Punch script.")
+            while true do
+                -- Run the punch script
+                local success, errorMessage = pcall(function()
+                    punchScript:Invoke()  -- Adjust this line if needed
+                end)
+                
+                if not success then
+                    print("Error running punchScript: " .. errorMessage)
+                end
+                
+                wait(0.5)  -- Adjust the wait time as necessary
+            end
         else
             print("No punchScript found in the Punch tool.")
         end
