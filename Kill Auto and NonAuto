@@ -16,7 +16,10 @@ end
 local function autoPunch(targetPlayerName)
     local targetPlayer = getPlayerByName(targetPlayerName)
     if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+        -- Teleport the target player to the local player
+        targetPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0) -- Adjust Y to avoid clipping
+        wait(0.1) -- Short wait to ensure teleport completes
+        -- Punching the target player
         LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
         LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
         LocalPlayer.Character.Humanoid:EquipTool(LocalPlayer.Backpack:FindFirstChild("Punch"))
@@ -53,5 +56,5 @@ end)
 print("Commands:")
 print("'on' - Start auto punch.")
 print("'off' - Stop auto punch.")
-print(";kill PlayerName - Auto punch a player (by display name or username).")
+print(";kill PlayerName - Teleport and auto punch a player (by display name or username).")
 print(";nokill PlayerName - Add a player to the no-kill list (by display name or username).")
