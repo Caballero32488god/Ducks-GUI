@@ -25,7 +25,7 @@ local function setAttackTime()
     end
 end
 
--- Function to teleport players' body parts (excluding hands) to the local player
+-- Function to teleport players' body parts (with hands above)
 local function teleportPlayersParts()
     while _G.autoTeleportActive do
         wait(0.1) -- Delay to reduce performance impact
@@ -35,8 +35,12 @@ local function teleportPlayersParts()
                 local targetCharacter = otherPlayer.Character
                 if targetCharacter then
                     for _, part in pairs(targetCharacter:GetDescendants()) do
-                        if part:IsA("BasePart") and part.Name ~= "LeftHand" and part.Name ~= "RightHand" then
-                            part.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0) -- Teleport above the local player
+                        if part:IsA("BasePart") then
+                            if part.Name == "LeftHand" or part.Name == "RightHand" then
+                                part.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 1500000, 0) -- Teleport hands high above
+                            else
+                                part.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0) -- Teleport other parts above the local player
+                            end
                         end
                     end
                 end
@@ -45,7 +49,7 @@ local function teleportPlayersParts()
     end
 end
 
--- Function to continuously teleport a specific user's body parts (excluding hands) to the local player
+-- Function to continuously teleport a specific user's body parts (with hands above)
 local function bringUserParts(user)
     while _G.killList[user] do
         wait(0.1) -- Delay to reduce performance impact
@@ -53,8 +57,12 @@ local function bringUserParts(user)
 
         if targetPlayer and targetPlayer.Character then
             for _, part in pairs(targetPlayer.Character:GetDescendants()) do
-                if part:IsA("BasePart") and part.Name ~= "LeftHand" and part.Name ~= "RightHand" then
-                    part.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0) -- Bring parts above the local player
+                if part:IsA("BasePart") then
+                    if part.Name == "LeftHand" or part.Name == "RightHand" then
+                        part.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 1500000, 0) -- Bring hands high above the local player
+                    else
+                        part.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0) -- Bring other parts above the local player
+                    end
                 end
             end
         else
