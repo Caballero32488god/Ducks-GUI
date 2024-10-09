@@ -15,15 +15,19 @@ local function equipAndPunch()
 
         -- Function to perform the punch action
         local function performPunch()
-            -- Replace this with the actual function or method to punch
-            LocalPlayer.muscleEvent:FireServer("punch", "leftHand")  -- Example action
-            LocalPlayer.muscleEvent:FireServer("punch", "rightHand") -- Example action
+            LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+            LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
         end
 
-        -- Start the punching loop
-        while true do
-            performPunch()
-            wait(0.5)  -- Adjust the wait time as necessary
+        -- Start multiple punching loops
+        for i = 1, 10 do
+            -- Create a new coroutine for each instance
+            coroutine.wrap(function()
+                while true do
+                    performPunch()
+                    wait(0.5)  -- Adjust the wait time as necessary
+                end
+            end)()
         end
     else
         print("Punch tool not found in Backpack.")
