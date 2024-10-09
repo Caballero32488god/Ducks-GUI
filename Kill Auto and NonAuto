@@ -1,19 +1,23 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
--- Function to teleport the heads of all players to this player's head
+-- Function to teleport the heads of all players to a fixed position in front of this player's head
 local function teleportHeads()
     local character = player.Character
     if not character then return end
 
     local headPosition = character.Head.Position
+    local frontOffset = character.Head.CFrame.LookVector * 3 -- Adjust distance in front of player
+
+    -- Calculate the target position for the heads
+    local targetPosition = headPosition + frontOffset
 
     for _, otherPlayer in pairs(Players:GetPlayers()) do
         if otherPlayer ~= player and otherPlayer.Character then
             local otherHead = otherPlayer.Character:FindFirstChild("Head")
             if otherHead then
-                -- Teleport the other player's head to this player's head position
-                otherHead.Position = headPosition + Vector3.new(0, 3, 0) -- Adjust height if needed
+                -- Teleport the other player's head to the target position
+                otherHead.Position = targetPosition
             end
         end
     end
