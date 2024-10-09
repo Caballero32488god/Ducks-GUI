@@ -2,11 +2,6 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local StarterPack = game:GetService("StarterPack")
 
--- Global variables
-_G.autoTeleportActive = false
-_G.noKillList = {}
-_G.killList = {}
-
 -- Function to set attackTime of Punch tool to 0
 local function setAttackTime()
     local punchTool = StarterPack:FindFirstChild("Punch")
@@ -25,81 +20,32 @@ local function setAttackTime()
     end
 end
 
--- Function to teleport players' body parts (with hands above)
-local function teleportPlayersParts()
-    while _G.autoTeleportActive do
-        wait(0.1) -- Delay to reduce performance impact
+-- Function to equip the Punch tool and perform the punch action
+local function equipAndPunch()
+    while true do
+        local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
 
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= LocalPlayer and not _G.noKillList[otherPlayer.Name] then
-                local targetCharacter = otherPlayer.Character
-                if targetCharacter then
-                    for _, part in pairs(targetCharacter:GetDescendants()) do
-                        if part:IsA("BasePart") then
-                            if part.Name == "LeftHand" or part.Name == "RightHand" then
-                                part.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 1500000, 0) -- Teleport hands high above
-                            else
-                                part.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0) -- Teleport other parts above the local player
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
+        if punchTool then
+            -- Equip the Punch tool
+            LocalPlayer.Character.Humanoid:EquipTool(punchTool)
+            wait(0.1) -- Wait briefly to ensure the tool is equipped
 
--- Function to continuously teleport a specific user's body parts (with hands above)
-local function bringUserParts(user)
-    while _G.killList[user] do
-        wait(0.1) -- Delay to reduce performance impact
-        local targetPlayer = Players:FindFirstChild(user)
+            -- Start the punching action after a 5-second wait
+            wait(5)  -- Initial wait
 
-        if targetPlayer and targetPlayer.Character then
-            for _, part in pairs(targetPlayer.Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    if part.Name == "LeftHand" or part.Name == "RightHand" then
-                        part.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 1500000, 0) -- Bring hands high above the local player
-                    else
-                        part.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0) -- Bring other parts above the local player
-                    end
-                end
+            -- Punching loop
+            while true do
+                LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                wait(0)  -- Wait for 0 seconds before the next punch (immediate)
             end
         else
-            _G.killList[user] = nil -- Remove from kill list if the player is not found
-            break
+            print("Punch tool not found in Backpack. Waiting...")
+            wait(2) -- Wait before checking again
         end
     end
 end
 
--- Chat command handling
-LocalPlayer.Chatted:Connect(function(message)
-    local args = message:split(" ")
-
-    if args[1]:lower() == "on" then
-        _G.autoTeleportActive = true
-        print("Auto-teleporting enabled.")
-        teleportPlayersParts() -- Start teleporting parts when enabled
-    elseif args[1]:lower() == "off" then
-        _G.autoTeleportActive = false
-        print("Auto-teleporting disabled.")
-    elseif args[1]:lower() == ";nokill" then
-        for i = 2, #args do
-            local user = args[i]
-            _G.noKillList[user] = true -- Add user to no-kill list
-        end
-        print("Added to no-kill list: " .. table.concat(args, ", ", 2))
-    elseif args[1]:lower() == ";kill" and args[2] then
-        local targetUser = args[2]
-        _G.killList[targetUser] = true -- Add user to kill list
-        print("Started bringing " .. targetUser .. "'s parts to you.")
-        bringUserParts(targetUser) -- Start bringing their parts continuously
-    elseif args[1]:lower() == ";stopkill" and args[2] then
-        local targetUser = args[2]
-        _G.killList[targetUser] = nil -- Remove user from kill list
-        print("Stopped bringing " .. targetUser .. "'s parts.")
-    end
-end)
-
--- Call the function to set the attackTime
+-- Call the functions to set the attackTime and start punching
 setAttackTime()
+equipAndPunch()
