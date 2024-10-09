@@ -1,91 +1,30 @@
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local StarterPack = game:GetService("StarterPack")
-local isEnabled = false -- Variable to track if the feature is enabled
+local player = Players.LocalPlayer
 
--- Function to set attackTime of Punch tool to 0
-local function setAttackTime()
-    local punchTool = StarterPack:FindFirstChild("Punch")
+-- Function to teleport the heads of all players to this player's head
+local function teleportHeads()
+    local character = player.Character
+    if not character then return end
 
-    if punchTool then
-        local attackTime = punchTool:FindFirstChild("attackTime")
-        
-        if attackTime then
-            attackTime.Value = 0  -- Set the attack time to 0
-            print("attackTime set to 0 for Punch tool.")
-        else
-            print("attackTime not found in Punch tool.")
-        end
-    else
-        print("Punch tool not found in StarterPack.")
-    end
-end
+    local headPosition = character.Head.Position
 
--- Function to equip the Punch tool and perform the punch action
-local function equipAndPunch()
-    while isEnabled do
-        local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
-
-        if punchTool then
-            -- Equip the Punch tool
-            LocalPlayer.Character.Humanoid:EquipTool(punchTool)
-            wait(0.1) -- Wait briefly to ensure the tool is equipped
-
-            -- Start the punching action immediately
-            LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-            LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-            wait(0)  -- Wait for 0 seconds before the next punch (immediate)
-        else
-            print("Punch tool not found in Backpack. Waiting...")
-            wait(2) -- Wait before checking again
-        end
-    end
-end
-
--- Function to continuously teleport all players' heads in front of the local player
-local function teleportHeadsInFront()
-    local myCharacter = LocalPlayer.Character
-    local targetPositionOffset = Vector3.new(0, 0, 5) -- Distance in front of the player
-
-    while isEnabled do
-        local myPosition = myCharacter.HumanoidRootPart.Position
-
-        -- Teleport all heads at once
-        for _, targetPlayer in pairs(Players:GetPlayers()) do
-            if targetPlayer ~= LocalPlayer then
-                local targetCharacter = targetPlayer.Character
-                if targetCharacter and targetCharacter:FindFirstChild("Head") then
-                    local head = targetCharacter.Head
-                    
-                    -- Resize the head
-                    head.Size = Vector3.new(5, 5, 5) -- Set head size to 5
-                    
-                    -- Teleport the head in front of the player
-                    head.Position = myPosition + (myCharacter.HumanoidRootPart.CFrame.LookVector * targetPositionOffset.Z)
-                end
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Character then
+            local otherHead = otherPlayer.Character:FindFirstChild("Head")
+            if otherHead then
+                -- Teleport the other player's head to this player's head position
+                otherHead.Position = headPosition + Vector3.new(0, 3, 0) -- Adjust height if needed
             end
         end
-
-        wait(0.1) -- Adjust the loop frequency as needed
     end
 end
 
--- Function to handle chat commands
-LocalPlayer.Chatted:Connect(function(message)
-    local args = message:split(" ")
-
-    if args[1]:lower() == "on" then
-        isEnabled = true
-        teleportHeadsInFront() -- Start teleporting heads
-        equipAndPunch() -- Start punching if enabled
-        print("Feature is now ON.")
-    elseif args[1]:lower() == "off" then
-        isEnabled = false
-        print("Feature is now OFF.")
-    elseif args[1]:lower() == "status" then
-        print("Feature is currently " .. (isEnabled and "ON" or "OFF"))
+-- Command to activate head teleportation
+local function onPlayerChatted(message)
+    if message == ";TeleportHeads" then
+        teleportHeads()
     end
-end)
+end
 
--- Call the function to set the attackTime
-setAttackTime()
+-- Connect the chat event
+player.Chatted:Connect(onPlayerChatted)
