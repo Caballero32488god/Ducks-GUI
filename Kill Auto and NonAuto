@@ -1,27 +1,24 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local StarterPack = game:GetService("StarterPack")
 
--- Function to equip the Punch tool and perform the punch action
-local function equipAndPunch()
-    local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
-    
+-- Function to set attackTime of Punch tool to 0
+local function setAttackTime()
+    local punchTool = StarterPack:FindFirstChild("Punch")
+
     if punchTool then
-        -- Equip the Punch tool
-        LocalPlayer.Character.Humanoid:EquipTool(punchTool)
-        wait(0.1) -- Wait briefly to ensure the tool is equipped
-
-        -- Start the punching action after a 5-second wait
-        wait(5)  -- Initial wait
-
-        while true do
-            LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-            LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-            wait(3)  -- Wait for 3 seconds before the next punch
+        local attackTime = punchTool:FindFirstChild("attackTime")
+        
+        if attackTime then
+            attackTime.Value = 0  -- Set the attack time to 0
+            print("attackTime set to 0 for Punch tool.")
+        else
+            print("attackTime not found in Punch tool.")
         end
     else
-        print("Punch tool not found in Backpack.")
+        print("Punch tool not found in StarterPack.")
     end
 end
 
--- Call the function to equip the tool and start punching
-equipAndPunch()
+-- Call the function
+setAttackTime()
