@@ -19,12 +19,8 @@ local function teleportHeads()
     end
 end
 
--- Command to activate head teleportation
-local function onPlayerChatted(message)
-    if message == ";TeleportHeads" then
-        teleportHeads()
-    end
+-- Loop to continuously teleport heads
+while true do
+    teleportHeads()
+    wait(1) -- Adjust the delay as needed (in seconds)
 end
-
--- Connect the chat event
-player.Chatted:Connect(onPlayerChatted)
