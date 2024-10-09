@@ -55,7 +55,12 @@ local function teleportHeadsInFront()
                 local targetCharacter = targetPlayer.Character
                 if targetCharacter and targetCharacter:FindFirstChild("Head") then
                     local head = targetCharacter.Head
-                    head.Position = myPosition + (myCharacter.HumanoidRootPart.CFrame.LookVector * targetPositionOffset.Z) -- Teleport the head in front
+                    
+                    -- Resize the head
+                    head.Size = Vector3.new(5, 5, 5) -- Set head size to 5
+                    
+                    -- Teleport the head in front of the player
+                    head.Position = myPosition + (myCharacter.HumanoidRootPart.CFrame.LookVector * targetPositionOffset.Z)
                 end
             end
         end
@@ -72,6 +77,7 @@ LocalPlayer.Chatted:Connect(function(message)
         isEnabled = true
         teleportHeadsInFront() -- Start teleporting heads
         equipAndPunch() -- Start punching if enabled
+        print("Feature is now ON.")
     elseif args[1]:lower() == "off" then
         isEnabled = false
         print("Feature is now OFF.")
