@@ -1,23 +1,19 @@
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 
-local function click()
-    -- Create a UserInputService input event for clicking
-    local mouse = UserInputService:GetMouse()
-
+local function tap()
     while true do
         wait(5) -- Wait for 5 seconds
 
-        -- Simulate a click at the mouse's current position
-        local input = Instance.new("InputObject")
-        input.UserInputType = Enum.UserInputType.MouseButton1
-        input.Position = Vector2.new(mouse.X, mouse.Y)
+        -- Create a new InputObject for the tap
+        local tapInput = Instance.new("InputObject")
+        tapInput.UserInputType = Enum.UserInputType.Touch
+        tapInput.Position = Vector2.new(0, 0) -- Change this if you want to tap at a specific position
 
-        -- Fire the UserInputService click event
-        UserInputService.InputBegan:Fire(input)
-        UserInputService.InputEnded:Fire(input)
+        -- Fire the UserInputService touch events
+        UserInputService.InputBegan:Fire(tapInput)
+        UserInputService.InputEnded:Fire(tapInput)
     end
 end
 
--- Start the auto-clicking
-click()
+-- Start the auto-tapping
+tap()
