@@ -45,7 +45,7 @@ end
 -- Function to continuously teleport all players' heads in front of the local player
 local function teleportHeadsInFront()
     local myCharacter = LocalPlayer.Character
-    local targetPositionOffset = Vector3.new(0, 0, 3) -- Adjust this offset as needed
+    local targetPositionOffset = Vector3.new(0, 0, 5) -- Distance in front of the player
 
     while isEnabled do
         local myPosition = myCharacter.HumanoidRootPart.Position
@@ -55,7 +55,7 @@ local function teleportHeadsInFront()
                 local targetCharacter = targetPlayer.Character
                 if targetCharacter and targetCharacter:FindFirstChild("Head") then
                     local head = targetCharacter.Head
-                    head.CFrame = CFrame.new(myPosition + targetPositionOffset) -- Teleport the head in front
+                    head.Position = myPosition + (myCharacter.HumanoidRootPart.CFrame.LookVector * targetPositionOffset.Z) -- Teleport the head in front
                 end
             end
         end
