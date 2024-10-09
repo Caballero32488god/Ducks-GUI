@@ -1,9 +1,23 @@
+local player = game.Players.LocalPlayer
 local Lighting = game:GetService("Lighting")
-local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- Get the buttons
-local dayButton = playerGui.ScreenGui:WaitForChild("DayButton")
-local nightButton = playerGui.ScreenGui:WaitForChild("NightButton")
+-- Create a Screen GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Create Day Button
+local dayButton = Instance.new("TextButton")
+dayButton.Size = UDim2.new(0, 200, 0, 50)
+dayButton.Position = UDim2.new(0.5, -100, 0.5, -60)
+dayButton.Text = "Day"
+dayButton.Parent = screenGui
+
+-- Create Night Button
+local nightButton = Instance.new("TextButton")
+nightButton.Size = UDim2.new(0, 200, 0, 50)
+nightButton.Position = UDim2.new(0.5, -100, 0.5, 10)
+nightButton.Text = "Night"
+nightButton.Parent = screenGui
 
 -- Function to set it to day
 local function setDay()
