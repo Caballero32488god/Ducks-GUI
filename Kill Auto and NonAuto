@@ -1,36 +1,11 @@
--- Define services
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local StarterPack = game:GetService("StarterPack")
-local ScreenGui = Instance.new("ScreenGui")
-local Notification = Instance.new("TextLabel")
 
--- Global variables for toggle state and lists
-_G.punchingActive = false
+-- Global variables
+_G.autoPunchActive = false
 _G.noKillList = {}
 _G.killList = {}
-
--- Function to create and display notification
-local function showNotification(message)
-    Notification.Text = message
-    Notification.Size = UDim2.new(0.3, 0, 0.1, 0)
-    Notification.Position = UDim2.new(0.5, -75, 0.1, 0)
-    Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Notification.TextScaled = true
-    Notification.Parent = ScreenGui
-
-    ScreenGui.Parent = game.CoreGui
-
-    -- Fade out effect
-    for i = 1, 10 do
-        wait(0.1)
-        Notification.TextTransparency = i / 10
-    end
-
-    -- Remove notification after fading out
-    ScreenGui:Destroy()
-end
 
 -- Function to set attackTime of Punch tool to 0
 local function setAttackTime()
@@ -64,7 +39,7 @@ local function equipAndPunch()
             wait(5)  -- Initial wait
 
             -- Punching loop
-            while _G.punchingActive do
+            while _G.autoPunchActive do
                 LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
                 LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
                 wait(0)  -- Wait for 0 seconds before the next punch (immediate)
@@ -76,42 +51,31 @@ local function equipAndPunch()
     end
 end
 
--- Chat command to manage punching and giving presents
+-- Chat command handling
 LocalPlayer.Chatted:Connect(function(message)
     local args = message:split(" ")
 
     if args[1]:lower() == "on" then
-        _G.punchingActive = true
-        equipAndPunch() -- Start punching
-        showNotification("Punching activated! Everyone gets a free present!")
-
-        -- Add your logic to give everyone a present here
-        for _, player in pairs(Players:GetPlayers()) do
-            -- Example: Give a present to each player
-            -- Replace with your own logic for giving presents
-            print("Giving present to " .. player.Name)
-        end
+        _G.autoPunchActive = true
+        print("Auto-punching enabled.")
+        equipAndPunch() -- Start punching when enabled
     elseif args[1]:lower() == "off" then
-        _G.punchingActive = false -- Stop punching
-        showNotification("Punching deactivated.")
+        _G.autoPunchActive = false
+        print("Auto-punching disabled.")
     elseif args[1]:lower() == ";nokill" then
         for i = 2, #args do
             local user = args[i]
-            if not _G.noKillList[user] then
-                _G.noKillList[user] = true -- Add each user to no-kill list
-            end
+            _G.noKillList[user] = true -- Add user to no-kill list
         end
-        showNotification("Added to no-kill list: " .. table.concat(args, ", ", 2))
+        print("Added to no-kill list: " .. table.concat(args, ", ", 2))
     elseif args[1]:lower() == ";kill" and args[2] then
         local targetUser = args[2]
-        if not _G.killList[targetUser] then
-            _G.killList[targetUser] = true -- Add user to kill list
-            showNotification("Started bringing " .. targetUser .. "'s parts to you.")
-            -- Add logic for bringing parts here
-        else
-            _G.killList[targetUser] = nil -- Remove the user from the kill list
-            showNotification("Stopped bringing " .. targetUser .. "'s parts.")
-        end
+        _G.killList[targetUser] = true -- Add user to kill list
+        print("Started bringing " .. targetUser .. "'s parts to you.")
+    elseif args[1]:lower() == ";stopkill" and args[2] then
+        local targetUser = args[2]
+        _G.killList[targetUser] = nil -- Remove user from kill list
+        print("Stopped bringing " .. targetUser .. "'s parts.")
     end
 end)
 
