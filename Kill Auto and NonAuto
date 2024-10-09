@@ -1,17 +1,31 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Function to equip the Punch tool
-local function equipPunchTool()
+-- Function to equip the Punch tool and run its punchScript
+local function equipAndPunch()
     local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
     
     if punchTool then
+        -- Equip the Punch tool
         LocalPlayer.Character.Humanoid:EquipTool(punchTool)
         print("Equipped Punch tool.")
+
+        -- Wait a moment for the tool to be equipped
+        wait(0.1)
+
+        -- Look for the punchScript inside the Punch tool
+        local punchScript = punchTool:FindFirstChild("punchScript")
+        if punchScript and punchScript:IsA("LocalScript") then
+            -- Run the punch script
+            punchScript:Invoke()  -- Adjust this line if the script requires a different method to run
+            print("Executed Punch script.")
+        else
+            print("No punchScript found in the Punch tool.")
+        end
     else
         print("Punch tool not found in Backpack.")
     end
 end
 
--- Call the function to equip the tool
-equipPunchTool()
+-- Call the function to equip the tool and run the punch script
+equipAndPunch()
