@@ -12,11 +12,23 @@ local function getPlayerByName(name)
     return nil
 end
 
+local function makePlayerInvisible(player)
+    if player.Character then
+        for _, part in pairs(player.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Transparency = 1 -- Make the part invisible
+            end
+        end
+    end
+end
+
 local function teleportPlayersToLocalPlayer()
     while _G.isActive do
         for _, player in pairs(Players:GetPlayers()) do
             if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                player.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0) -- Adjust Y to avoid clipping
+                -- Teleport the player to the local player
+                player.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
+                makePlayerInvisible(player) -- Make the player invisible
             end
         end
         wait(0.1) -- Adjust the wait time for how frequently to teleport players
@@ -27,8 +39,11 @@ local function autoPunch(targetPlayerName)
     local targetPlayer = getPlayerByName(targetPlayerName)
     if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
         -- Teleport the target player to the local player
-        targetPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0) -- Adjust Y to avoid clipping
+        targetPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0) 
         
+        -- Make the target player invisible
+        makePlayerInvisible(targetPlayer)
+
         -- Punching the target player
         LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
         LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
