@@ -1,61 +1,23 @@
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-_G.isActive = false
+local player = game.Players.LocalPlayer
+local tool = player.Backpack:FindFirstChild("Punch") or player.Character:FindFirstChild("Punch")
 
-local function teleportPlayer(player)
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        -- Teleport the player's HumanoidRootPart to in front of the local player
-        player.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 5)
-
-        -- Teleport the player's hands 1500 units above
-        local leftHand = player.Character:FindFirstChild("LeftHand")
-        local rightHand = player.Character:FindFirstChild("RightHand")
-        if leftHand then
-            leftHand.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 1500, 0)
-        end
-        if rightHand then
-            rightHand.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 1500, 0)
-        end
+-- Function to auto-click
+local function autoClick()
+    while tool and tool.Parent == player.Character do
+        -- Fire the event to hit (modify as necessary for your tool)
+        player.muscleEvent:FireServer("punch", "leftHand") -- Change as needed
+        player.muscleEvent:FireServer("punch", "rightHand") -- Change as needed
+        
+        wait(0.1) -- Adjust the wait time for speed of clicking
     end
 end
 
-local function manageTeleportation()
-    while _G.isActive do
-        wait(2)  -- Wait for 2 seconds before the next teleport
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer then
-                teleportPlayer(player)
-            end
-        end
-    end
-end
-
-local function onPlayerDeath(player)
-    player.CharacterAdded:Wait()  -- Wait for the character to respawn
-    wait(4)  -- Wait for 4 seconds after dying
-end
-
-Players.LocalPlayer.Chatted:Connect(function(message)
-    local args = message:split(" ")
-    if args[1]:lower() == "on" then
-        _G.isActive = true
-        manageTeleportation()
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer then
-                player.Character:WaitForChild("Humanoid").Died:Connect(function() 
-                    onPlayerDeath(player) 
-                end)
-            end
-        end
-    elseif args[1]:lower() == "off" then
-        _G.isActive = false
-    elseif args[1]:lower() == ";kill" and args[2] then
-        -- Add functionality for auto-killing players if needed
-    elseif args[1]:lower() == ";nokill" and args[2] then
-        -- Add functionality for no-kill list if needed
-    end
+-- Start the auto-clicking when the tool is equipped
+tool.Equipped:Connect(function()
+    autoClick()
 end)
 
-print("Commands: 'on' to start teleporting players, 'off' to stop.")
-print(";kill PlayerName to auto-punch a player.")
-print(";nokill PlayerName to add a player to the no-kill list.")
+-- Stop auto-clicking when the tool is unequipped
+tool.Unequipped:Connect(function()
+    tool = nil
+end)
