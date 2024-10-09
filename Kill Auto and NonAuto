@@ -1,6 +1,7 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local StarterPack = game:GetService("StarterPack")
+local isEnabled = false -- Variable to track if the feature is enabled
 
 -- Function to set attackTime of Punch tool to 0
 local function setAttackTime()
@@ -22,7 +23,7 @@ end
 
 -- Function to equip the Punch tool and perform the punch action
 local function equipAndPunch()
-    while true do
+    while isEnabled do
         local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
 
         if punchTool then
@@ -30,15 +31,10 @@ local function equipAndPunch()
             LocalPlayer.Character.Humanoid:EquipTool(punchTool)
             wait(0.1) -- Wait briefly to ensure the tool is equipped
 
-            -- Start the punching action after a 5-second wait
-            wait(5)  -- Initial wait
-
-            -- Punching loop
-            while true do
-                LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-                LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-                wait(0)  -- Wait for 0 seconds before the next punch (immediate)
-            end
+            -- Start the punching action immediately
+            LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+            LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+            wait(0)  -- Wait for 0 seconds before the next punch (immediate)
         else
             print("Punch tool not found in Backpack. Waiting...")
             wait(2) -- Wait before checking again
@@ -46,6 +42,45 @@ local function equipAndPunch()
     end
 end
 
--- Call the functions to set the attackTime and start punching
+-- Function to teleport all players' heads and freeze them
+local function teleportAndFreezeAll()
+    local myPosition = LocalPlayer.Character.HumanoidRootPart.Position
+    local targetPosition = myPosition + Vector3.new(0, 0, 3) -- Adjust as needed
+
+    for _, targetPlayer in pairs(Players:GetPlayers()) do
+        if targetPlayer ~= LocalPlayer then
+            local targetCharacter = targetPlayer.Character
+            if targetCharacter and targetCharacter:FindFirstChild("Head") then
+                local head = targetCharacter.Head
+                head.CFrame = CFrame.new(targetPosition) -- Teleport the head
+                targetCharacter.HumanoidRootPart.Anchored = true -- Freeze them
+                print(targetPlayer.Name .. " has been teleported and frozen.")
+            end
+        end
+    end
+end
+
+-- Function to handle chat commands
+LocalPlayer.Chatted:Connect(function(message)
+    local args = message:split(" ")
+
+    if args[1]:lower() == "on" then
+        isEnabled = true
+        teleportAndFreezeAll() -- Teleport and freeze all players
+        equipAndPunch() -- Start punching if enabled
+    elseif args[1]:lower() == "off" then
+        isEnabled = false
+        for _, targetPlayer in pairs(Players:GetPlayers()) do
+            local targetCharacter = targetPlayer.Character
+            if targetCharacter then
+                targetCharacter.HumanoidRootPart.Anchored = false -- Unfreeze them
+            end
+        end
+        print("Feature is now OFF.")
+    elseif args[1]:lower() == "status" then
+        print("Feature is currently " .. (isEnabled and "ON" or "OFF"))
+    end
+end)
+
+-- Call the function to set the attackTime
 setAttackTime()
-equipAndPunch()
