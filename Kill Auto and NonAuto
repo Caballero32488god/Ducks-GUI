@@ -1,7 +1,7 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Function to equip the Punch tool and run its punchScript
+-- Function to equip the Punch tool and perform the punch action
 local function equipAndPunch()
     local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
     
@@ -13,28 +13,22 @@ local function equipAndPunch()
         -- Wait a moment for the tool to be equipped
         wait(0.1)
 
-        -- Look for the punchScript inside the Punch tool
-        local punchScript = punchTool:FindFirstChild("punchScript")
-        if punchScript and punchScript:IsA("LocalScript") then
-            while true do
-                -- Run the punch script
-                local success, errorMessage = pcall(function()
-                    punchScript:Invoke()  -- Adjust this line if needed
-                end)
-                
-                if not success then
-                    print("Error running punchScript: " .. errorMessage)
-                end
-                
-                wait(0.5)  -- Adjust the wait time as necessary
-            end
-        else
-            print("No punchScript found in the Punch tool.")
+        -- Function to perform the punch action
+        local function performPunch()
+            -- Replace this with the actual function or method to punch
+            LocalPlayer.muscleEvent:FireServer("punch", "leftHand")  -- Example action
+            LocalPlayer.muscleEvent:FireServer("punch", "rightHand") -- Example action
+        end
+
+        -- Start the punching loop
+        while true do
+            performPunch()
+            wait(0.5)  -- Adjust the wait time as necessary
         end
     else
         print("Punch tool not found in Backpack.")
     end
 end
 
--- Call the function to equip the tool and run the punch script
+-- Call the function to equip the tool and start punching
 equipAndPunch()
