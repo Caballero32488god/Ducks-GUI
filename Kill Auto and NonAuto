@@ -1,29 +1,27 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local punchTool = LocalPlayer.Backpack:WaitForChild("Punch")
-local animationFolder = LocalPlayer:WaitForChild("attackMoveAnims")
-local doublePunchAnimation = animationFolder:WaitForChild("doublePunch")
 
-local function performPunch()
-    -- Play the double punch animation
-    local anim = Instance.new("Animation")
-    anim.AnimationId = doublePunchAnimation.AnimationId
-    LocalPlayer.Character.Humanoid:LoadAnimation(anim):Play()
+-- Function to equip the Punch tool and perform the punch action
+local function equipAndPunch()
+    local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+    
+    if punchTool then
+        -- Equip the Punch tool
+        LocalPlayer.Character.Humanoid:EquipTool(punchTool)
+        wait(0.1) -- Wait briefly to ensure the tool is equipped
 
-    -- Create a visual punch effect
-    local punchEffect = Instance.new("Part")
-    punchEffect.Size = Vector3.new(1, 1, 1)
-    punchEffect.Color = Color3.fromRGB(255, 0, 0) -- Red color for the effect
-    punchEffect.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 1, 0)
-    punchEffect.Anchored = true
-    punchEffect.CanCollide = false
-    punchEffect.Parent = workspace
+        -- Start the punching action after a 5-second wait
+        wait(5)  -- Initial wait
 
-    -- Destroy the visual effect after a short duration
-    game:GetService("Debris"):AddItem(punchEffect, 0.5)
+        while true do
+            LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+            LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+            wait(3)  -- Wait for 3 seconds before the next punch
+        end
+    else
+        print("Punch tool not found in Backpack.")
+    end
 end
 
-while true do
-    performPunch()
-    wait(5) -- Wait 5 seconds before punching again
-end
+-- Call the function to equip the tool and start punching
+equipAndPunch()
