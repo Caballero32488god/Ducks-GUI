@@ -8,26 +8,15 @@ local function equipAndPunch()
     if punchTool then
         -- Equip the Punch tool
         LocalPlayer.Character.Humanoid:EquipTool(punchTool)
-        print("Equipped Punch tool.")
+        wait(0.1) -- Wait briefly to ensure the tool is equipped
 
-        -- Wait a moment for the tool to be equipped
-        wait(0.1)
+        -- Start the punching action after a 5-second wait
+        wait(5)  -- Initial wait
 
-        -- Function to perform the punch action
-        local function performPunch()
+        while true do
             LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
             LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-        end
-
-        -- Start multiple punching loops
-        for i = 1, 10 do
-            -- Create a new coroutine for each instance
-            coroutine.wrap(function()
-                while true do
-                    performPunch()
-                    wait(0.5)  -- Adjust the wait time as necessary
-                end
-            end)()
+            wait(3)  -- Wait for 3 seconds before the next punch
         end
     else
         print("Punch tool not found in Backpack.")
