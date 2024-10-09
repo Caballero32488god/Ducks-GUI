@@ -1,24 +1,20 @@
 local Lighting = game:GetService("Lighting")
+local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- Check if a Sky object already exists and remove it
-local existingSky = Lighting:FindFirstChildOfClass("Sky")
-if existingSky then
-    existingSky:Destroy()  -- Remove the existing Sky
+-- Get the buttons
+local dayButton = playerGui.ScreenGui:WaitForChild("DayButton")
+local nightButton = playerGui.ScreenGui:WaitForChild("NightButton")
+
+-- Function to set it to day
+local function setDay()
+    Lighting.TimeOfDay = "12:00:00"  -- Set time to noon (daytime)
 end
 
--- Create a new Sky instance
-local sky = Instance.new("Sky")
+-- Function to set it to night
+local function setNight()
+    Lighting.TimeOfDay = "00:00:00"  -- Set time to midnight (nighttime)
+end
 
--- Set the custom texture using the provided asset ID
-sky.SkyboxUp = "rbxassetid://109400637994437"    -- Top (Sun)
-sky.SkyboxDn = "rbxassetid://109400637994437"    -- Bottom
-sky.SkyboxLt = "rbxassetid://109400637994437"    -- Left
-sky.SkyboxRt = "rbxassetid://109400637994437"    -- Right
-sky.SkyboxFt = "rbxassetid://109400637994437"    -- Front
-sky.SkyboxBk = "rbxassetid://109400637994437"    -- Back
-
--- Parent the Sky object to Lighting
-sky.Parent = Lighting
-
--- Optionally set the time of day
-Lighting.TimeOfDay = "12:00:00"  -- Change this as needed
+-- Connect buttons to functions
+dayButton.MouseButton1Click:Connect(setDay)
+nightButton.MouseButton1Click:Connect(setNight)
