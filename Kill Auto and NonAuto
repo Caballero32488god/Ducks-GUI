@@ -2,34 +2,12 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local StarterPack = game:GetService("StarterPack")
-local ScreenGui = Instance.new("ScreenGui")
-local Notification = Instance.new("TextLabel")
+local RunService = game:GetService("RunService")
 
 -- Global variables for toggle state
 _G.teleportPlayersActive = false
 local isEnabled = false -- Variable to track if the punching feature is enabled
-
--- Function to create and display notification
-local function showNotification(message)
-    Notification.Text = message
-    Notification.Size = UDim2.new(0.3, 0, 0.1, 0)
-    Notification.Position = UDim2.new(0.5, -75, 0.1, 0)
-    Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Notification.TextScaled = true
-    Notification.Parent = ScreenGui
-
-    ScreenGui.Parent = game.CoreGui
-
-    -- Fade out effect
-    for i = 1, 10 do
-        wait(0.1)
-        Notification.TextTransparency = i / 10
-    end
-
-    -- Remove notification after fading out
-    ScreenGui:Destroy()
-end
+local affectedPlayers = {} -- Table to track affected players
 
 -- Function to set attackTime of Punch tool to 0
 local function setAttackTime()
@@ -75,25 +53,37 @@ local function equipAndPunch()
     end
 end
 
--- Function to continuously teleport players to the local player
-local function teleportAllPlayersContinuously()
+-- Function to update hitbox size of players based on a 5x5x5 area
+local function updateHitbox()
     while _G.teleportPlayersActive do
+        local myPosition = LocalPlayer.Character.HumanoidRootPart.Position
+        
         for _, player in pairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character then
-                local targetRootPart = player.Character:FindFirstChild("HumanoidRootPart")
-                if targetRootPart then
-                    -- Teleport above the local player
-                    targetRootPart.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
-
-                    -- Check for non-normal size and adjust
-                    local humanoid = player.Character:FindFirstChild("Humanoid")
-                    if humanoid and humanoid.BodyTypeScale ~= 1 then
-                        humanoid.BodyTypeScale = 2 -- Set to size 2
+            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local targetPosition = player.Character.HumanoidRootPart.Position
+                
+                -- Check if the player is within a 5x5x5 area around the local player
+                if (math.abs(targetPosition.X - myPosition.X) <= 2.5 and
+                    math.abs(targetPosition.Y - myPosition.Y) <= 2.5 and
+                    math.abs(targetPosition.Z - myPosition.Z) <= 2.5) then
+                    
+                    local targetHumanoid = player.Character:FindFirstChild("Humanoid")
+                    if targetHumanoid then
+                        -- Increase hitbox size
+                        targetHumanoid.BodyTypeScale = 2 -- Set to size 2
+                        affectedPlayers[player.Name] = true -- Mark player as affected
+                    end
+                elseif affectedPlayers[player.Name] then
+                    local targetHumanoid = player.Character:FindFirstChild("Humanoid")
+                    if targetHumanoid then
+                        -- Reset hitbox size
+                        targetHumanoid.BodyTypeScale = 1 -- Reset to normal size
+                        affectedPlayers[player.Name] = nil -- Mark player as no longer affected
                     end
                 end
             end
         end
-        wait(0.1) -- Delay to reduce performance impact
+        wait(0.1) -- Delay for performance
     end
 end
 
@@ -103,17 +93,12 @@ LocalPlayer.Chatted:Connect(function(message)
 
     if args[1]:lower() == "on" then
         isEnabled = true
-        _G.teleportPlayersActive = true
         equipAndPunch() -- Start punching if enabled
-        showNotification("Started punching.")
     elseif args[1]:lower() == "off" then
-        isEnabled = false
-        _G.teleportPlayersActive = false
-        showNotification("Stopped punching.")
+        isEnabled = false -- Stop punching
     elseif args[1]:lower() == "rip" then
-        _G.teleportPlayersActive = true -- Start teleporting players continuously
-        showNotification("Started teleporting all players to you.")
-        teleportAllPlayersContinuously() -- Start the continuous teleporting
+        _G.teleportPlayersActive = true -- Start affecting players
+        updateHitbox() -- Start updating hitbox sizes
     end
 end)
 
@@ -122,4 +107,4 @@ setAttackTime()
 
 print("Type 'on' to start punching.")
 print("Type 'off' to stop punching.")
-print("Type 'rip' to start teleporting all players to you.")
+print("Type 'rip' to start affecting players within a 5x5x5 area.")
