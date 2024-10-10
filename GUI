@@ -56,95 +56,6 @@ ConsoleTab:CreateConsoleAlert({
     RobberyLocation = "UserName",
     RobberyStatus = "Status - "
 })
-local LocationsTab = Window:CreateLocationsTab({
-    Name = "Locations",
-    Icon = "rbxassetid://14290812747",
-    FirstWindow = false
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Jewelery Store",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Bank",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Museum",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Powerplant",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Casino",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Tomb",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Cargo Plane",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Cargo Ship",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Cargo Train",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Donut Shop",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Gas Station",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Airdrop",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
 local MiscellaneousTab = Window:CreateMiscellaneousTab({
     Name = "Miscellaneous",
     Icon = "rbxassetid://14290820935",
@@ -408,11 +319,11 @@ UserTab:SetExecutionText({
 })
 UserTab:SetMoneyText({
     Text = "9999"
-local UserTab = {} -- Replace this with your actual UserTab initialization
+})
 UserTab:SetTimeText({
-    Text = "0:0:00"
+    Text = "99:99"
 })
 
 UserTab:CreateCredit({
-    Text = "Credit Masterboy123 (aka) Pro_Gamerxm"
+    Text = "im a credit"
 })
