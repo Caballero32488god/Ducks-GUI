@@ -403,14 +403,16 @@ local UserTab = Window:CreateUserTab({
     Icon = "rbxassetid://14290844857",
     FirstWindow = false
 })
-for _, p in Players:GetPlayers() do update(p) end
+UserTab:SetExecutionText({
+    Text = "9999"
+})
+UserTab:SetMoneyText({
+    Text = "9999"
+})
+UserTab:SetTimeText({
+    Text = "99:99"
+})
 
-local t = 0
-while true do 
-    wait(1) 
-    UserTab:SetTimeText({ Text = tostring(t + 1) }) 
-    t += 1
-end
 UserTab:CreateCredit({
-    Text = "Credit: Masterboy123"
+    Text = "im a credit"
 })
