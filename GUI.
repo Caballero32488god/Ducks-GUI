@@ -7,156 +7,44 @@ local Window = HorizonLibrary:CreateWindow({
     Version = "1.2"
 })
 
-local ConsoleTab = Window:CreateConsoleTab({
-    Name = "Console",
-    Icon = "rbxassetid://14290789640",
+local StatsTab = Window:CreateMiscellaneousTab({
+    Name = "Stats",
+    Icon = "rbxassetid://14290827572",
     FirstWindow = true
 })
 
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Strength",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Durability",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Agility",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Rebirths",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Brawls",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Evil Karma",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Good Karma",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Total Kills",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Gems",
-    RobberyStatus = "Status - "
-})
-
-local LocationsTab = Window:CreateLocationsTab({
-    Name = "Locations",
-    Icon = "rbxassetid://14290812747",
-    FirstWindow = false
-})
-
-LocationsTab:CreateToggle({
-    RobberyLocation = "Strength",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Durability",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Agility",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Rebirths",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Brawls",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Evil Karma",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Good Karma",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Total Kills",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Gems",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-
-local function updateStats()
-    local stats = LocalPlayer:FindFirstChild("leaderstats")
-    if stats then
-        local function updateAlert(statName)
-            local stat = stats:FindFirstChild(statName)
-            if stat and stat:IsA("IntValue") then
-                ConsoleTab:CreateConsoleAlert({
-                    RobberyLocation = statName,
-                    RobberyStatus = "Status - " .. tostring(stat.Value)
-                })
-                stat.Changed:Connect(function()
-                    ConsoleTab:CreateConsoleAlert({
-                        RobberyLocation = statName,
-                        RobberyStatus = "Status - " .. tostring(stat.Value)
-                    })
-                end)
+local function createStatButton(statName)
+    StatsTab:CreateButton({
+        Name = statName,
+        Callback = function()
+            local stats = LocalPlayer:FindFirstChild("leaderstats")
+            if stats then
+                local stat = stats:FindFirstChild(statName)
+                if stat and stat:IsA("IntValue") then
+                    print(statName .. ": " .. tostring(stat.Value))
+                else
+                    print(statName .. " not found.")
+                end
+            else
+                print("leaderstats not found for player.")
             end
         end
-
-        updateAlert("Strength")
-        updateAlert("Durability")
-        updateAlert("Agility")
-        updateAlert("Rebirths")
-        updateAlert("Brawls")
-        updateAlert("Evil Karma")
-        updateAlert("Good Karma")
-        updateAlert("Total Kills")
-        updateAlert("Gems")
-    end
+    })
 end
 
-LocalPlayer.CharacterAdded:Connect(function()
-    wait(1) -- Wait for leaderstats to load
-    updateStats()
-end)
+-- Create buttons for the selected stats
+local statNames = {"Strength", "Rebirths", "Total Kills", "Brawls", "Gems", "Evil Karma"}
+for _, statName in ipairs(statNames) do
+    createStatButton(statName)
+end
 
-updateStats()
+-- Ensure leaderstats are ready
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Wait()
+    for _, statName in ipairs(statNames) do
+        createStatButton(statName)
+    end
+end)
 
 local MiscellaneousTab = Window:CreateMiscellaneousTab({
     Name = "Miscellaneous",
