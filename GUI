@@ -408,11 +408,11 @@ UserTab:SetExecutionText({
 })
 UserTab:SetMoneyText({
     Text = "9999"
-})
+local UserTab = {} -- Replace this with your actual UserTab initialization
 UserTab:SetTimeText({
-    Text = "99:99"
+    Text = "0:0:00"
 })
 
 UserTab:CreateCredit({
-    Text = "im a credit"
+    Text = "Credit Masterboy123 (aka) Pro_Gamerxm"
 })
