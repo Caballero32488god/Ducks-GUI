@@ -8519,65 +8519,6 @@ local function Title()\
 \9\9theme = theme,\
 \9\9size = px(326, 184),\
 \9\9position = UDim2.new(0, 0, 1, -648 - 48),\
-\9}, {\
-\9\9Roact.createElement(ParallaxImage, {\
-\9\9\9image = \"rbxassetid://9049308243\",\
-\9\9\9imageSize = Vector2.new(652, 368),\
-\9\9\9padding = Vector2.new(30, 30),\
-\9\9\9offset = offset,\
-\9\9}, {\
-\9\9\9Roact.createElement(\"UICorner\", {\
-\9\9\9\9CornerRadius = UDim.new(0, 12),\
-\9\9\9}),\
-\9\9}),\
-\9\9Roact.createElement(\"ImageLabel\", {\
-\9\9\9Image = \"rbxassetid://9048947177\",\
-\9\9\9Size = scale(1, 1),\
-\9\9\9ImageTransparency = 0.3,\
-\9\9\9BackgroundTransparency = 1,\
-\9\9}, {\
-\9\9\9Roact.createElement(\"UICorner\", {\
-\9\9\9\9CornerRadius = UDim.new(0, 12),\
-\9\9\9}),\
-\9\9}),\
-\9\9Roact.createElement(Canvas, {\
-\9\9\9padding = {\
-\9\9\9\9top = 24,\
-\9\9\9\9left = 24,\
-\9\9\9},\
-\9\9}, {\
-\9\9\9Roact.createElement(Label, {\
-\9\9\9\9index = 0,\
-\9\9\9\9text = \"Orca\",\
-\9\9\9\9font = Enum.Font.GothamBlack,\
-\9\9\9\9size = 20,\
-\9\9\9\9position = px(0, 0),\
-\9\9\9}),\
-\9\9\9Roact.createElement(Label, {\
-\9\9\9\9index = 1,\
-\9\9\9\9text = VERSION_TAG,\
-\9\9\9\9position = px(0, 40),\
-\9\9\9}),\
-\9\9\9Roact.createElement(Label, {\
-\9\9\9\9index = 2,\
-\9\9\9\9text = \"By 0866\",\
-\9\9\9\9position = px(0, 63),\
-\9\9\9\9transparency = 0.15,\
-\9\9\9}),\
-\9\9\9Roact.createElement(Label, {\
-\9\9\9\9index = 3,\
-\9\9\9\9text = \"Pls star repo\",\
-\9\9\9\9position = px(0, 86),\
-\9\9\9\9transparency = 0.3,\
-\9\9\9}),\
-\9\9\9Roact.createElement(Label, {\
-\9\9\9\9index = 4,\
-\9\9\9\9text = \"richie0866/orca\",\
-\9\9\9\9position = UDim2.new(0, 0, 1, -40),\
-\9\9\9\9transparency = 0.45,\
-\9\9\9}),\
-\9\9}),\
-\9})\
 end\
 local default = hooked(Title)\
 local function LabelComponent(props)\
