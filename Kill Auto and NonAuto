@@ -85,14 +85,16 @@ local function teleportPlayers()
         for _, otherPlayer in pairs(Players:GetPlayers()) do
             local targetCharacter = otherPlayer.Character
 
-            if otherPlayer ~= LocalPlayer then
+            if otherPlayer ~= LocalPlayer and targetCharacter then
                 if _G.noKillList[otherPlayer.Name] then
                     continue -- Skip players in the no-kill list
                 end
                 
-                if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-                    -- Teleport all other players not in the no-kill list
-                    targetCharacter:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
+                local targetRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
+                if targetRootPart then
+                    -- Teleport all other players not in the no-kill list to a position in front of the local player
+                    local positionInFront = LocalPlayer.Character.HumanoidRootPart.Position + LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 5
+                    targetRootPart.Position = positionInFront + Vector3.new(0, 5, 0) -- Raise them above
                 end
             end
         end
