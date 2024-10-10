@@ -1,7 +1,7 @@
-local function changeMeshPartsToCyanBlocks()
+local function changeSeaPartsToCyanBlocks()
     -- Iterate through all parts in the workspace
     for _, part in pairs(workspace:GetDescendants()) do
-        if part:IsA("MeshPart") then
+        if part:IsA("SeaPart") then
             -- Create a new Part
             local cyanBlock = Instance.new("Part")
             cyanBlock.Size = part.Size
@@ -9,13 +9,16 @@ local function changeMeshPartsToCyanBlocks()
             cyanBlock.Position = part.Position
             cyanBlock.Anchored = false -- Make it walkable
             cyanBlock.CanCollide = true
+            cyanBlock.Material = Enum.Material.SmoothPlastic -- Optional: adjust material
+
+            -- Parent the new Part to the workspace
             cyanBlock.Parent = workspace
 
-            -- Optionally, you can remove the original MeshPart
-            part:Destroy() -- Comment this line if you want to keep the original MeshPart
+            -- Optionally, you can remove the original SeaPart
+            part:Destroy() -- Comment this line if you want to keep the original SeaPart
         end
     end
 end
 
--- Call the function to change MeshParts to cyan blocks
-changeMeshPartsToCyanBlocks()
+-- Call the function to change SeaParts to cyan blocks
+changeSeaPartsToCyanBlocks()
