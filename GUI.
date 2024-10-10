@@ -1,6 +1,8 @@
 local HorizonLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/6ayy/HorizonLibrary/main/Library.lua"))()
+local Players = game:GetService("Players")
+
 local Window = HorizonLibrary:CreateWindow({
-    Name = "Ducks Are Cool",
+    Name = "Game Utility Script",
     Version = "1.2"
 })
 
@@ -10,42 +12,49 @@ local ConsoleTab = Window:CreateConsoleTab({
     FirstWindow = true
 })
 
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Strength",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Durability",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Agility",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Rebirths",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Brawls",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Evil Karma",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Good Karma",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Total Kills",
-    RobberyStatus = "Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Gems",
-    RobberyStatus = "Status - "
-})
+local function updateStatus(player)
+    local stats = player:FindFirstChild("leaderstats")
+    if stats then
+        local statuses = {
+            Strength = stats:FindFirstChild("Strength"),
+            Durability = stats:FindFirstChild("Durability"),
+            Agility = stats:FindFirstChild("Agility"),
+            Rebirths = stats:FindFirstChild("Rebirths"),
+            Brawls = stats:FindFirstChild("Brawls"),
+            EvilKarma = stats:FindFirstChild("Evil Karma"),
+            GoodKarma = stats:FindFirstChild("Good Karma"),
+            TotalKills = stats:FindFirstChild("Total Kills"),
+            Gems = stats:FindFirstChild("Gems"),
+        }
+        
+        for key, value in pairs(statuses) do
+            if value then
+                ConsoleTab:CreateConsoleAlert({
+                    RobberyLocation = key,
+                    RobberyStatus = "Status - " .. tostring(value.Value)
+                })
+                value.Changed:Connect(function()
+                    ConsoleTab:CreateConsoleAlert({
+                        RobberyLocation = key,
+                        RobberyStatus = "Status - " .. tostring(value.Value)
+                    })
+                end)
+            end
+        end
+    end
+end
+
+Players.PlayerAdded:Connect(function(player)
+    player:WaitForChild("leaderstats")
+    updateStatus(player)
+    player.leaderstats.ChildAdded:Connect(function(child)
+        updateStatus(player)
+    end)
+end)
+
+for _, player in Players:GetPlayers() do
+    updateStatus(player)
+end
 
 local LocationsTab = Window:CreateLocationsTab({
     Name = "Locations",
@@ -112,6 +121,86 @@ LocationsTab:CreateToggle({
 LocationsTab:CreateToggle({
     RobberyLocation = "Gems",
     Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+
+local MiscellaneousTab = Window:CreateMiscellaneousTab({
+    Name = "Miscellaneous",
+    Icon = "rbxassetid://14290820935",
+    FirstWindow = false
+})
+
+MiscellaneousTab:CreateSection({
+    Name = "Player Stats"
+})
+MiscellaneousTab:CreateToggle({
+    Name = "Notify Status Updates",
+    Value = false,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+MiscellaneousTab:CreateToggle({
+    Name = "Chat Status Updates",
+    Value = false,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+
+MiscellaneousTab:CreateSection({
+    Name = "Character"
+})
+MiscellaneousTab:CreateToggle({
+    Name = "Kill Aura",
+    Value = false,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+MiscellaneousTab:CreateGunsDropdown({
+    Name = "Kill Aura Gun",
+    Callback = function(Option)
+        print(Option)
+    end
+})
+
+local SettingsTab = Window:CreateSettingsTab({
+    Name = "Settings",
+    Icon = "rbxassetid://14290827572",
+    FirstWindow = false
+})
+
+SettingsTab:CreateSection({
+    Name = "Teleportation"
+})
+SettingsTab:CreateToggle({
+    Name = "Instant Teleport",
+    Value = false,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+SettingsTab:CreateSlider({
+    Name = "TP Walkspeed",
+    Max = 110,
+    Min = 50,
+    Increment = 5,
+    DecimalPrecision = 0,
+    CurrentValue = 70,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+SettingsTab:CreateSlider({
+    Name = "TP Sky Speed",
+    Max = 130,
+    Min = 60,
+    Increment = 5,
+    DecimalPrecision = 0,
+    CurrentValue = 80,
     Callback = function(Value)
         print(Value)
     end
