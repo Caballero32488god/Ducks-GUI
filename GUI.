@@ -13,103 +13,98 @@ local ConsoleTab = Window:CreateConsoleTab({
     FirstWindow = true
 })
 
-local function updateStats()
-    local stats = LocalPlayer:FindFirstChild("leaderstats")
-    if stats then
-        local statNames = {
-            "Strength", "Durability", "Agility", "Rebirths", 
-            "Brawls", "Evil Karma", "Good Karma", "Total Kills", "Gems"
-        }
-        for _, statName in ipairs(statNames) do
-            local stat = stats:FindFirstChild(statName)
-            if stat and stat:IsA("IntValue") then
-                ConsoleTab:CreateConsoleAlert({
-                    RobberyLocation = statName,
-                    RobberyStatus = "Status - " .. tostring(stat.Value)
-                })
-                stat.Changed:Connect(function()
-                    ConsoleTab:CreateConsoleAlert({
-                        RobberyLocation = statName,
-                        RobberyStatus = "Status - " .. tostring(stat.Value)
-                    })
-                end)
-            end
-        end
-    end
-end
+ConsoleTab:CreateConsoleAlert({
+    RobberyLocation = "Strength",
+    RobberyStatus = "Status - "
+})
+ConsoleTab:CreateConsoleAlert({
+    RobberyLocation = "Durability",
+    RobberyStatus = "Status - "
+})
+ConsoleTab:CreateConsoleAlert({
+    RobberyLocation = "Agility",
+    RobberyStatus = "Status - "
+})
+ConsoleTab:CreateConsoleAlert({
+    RobberyLocation = "Rebirths",
+    RobberyStatus = "Status - "
+})
+ConsoleTab:CreateConsoleAlert({
+    RobberyLocation = "Brawls",
+    RobberyStatus = "Status - "
+})
+ConsoleTab:CreateConsoleAlert({
+    RobberyLocation = "Evil Karma",
+    RobberyStatus = "Status - "
+})
+ConsoleTab:CreateConsoleAlert({
+    RobberyLocation = "Good Karma",
+    RobberyStatus = "Status - "
+})
+ConsoleTab:CreateConsoleAlert({
+    RobberyLocation = "Total Kills",
+    RobberyStatus = "Status - "
+})
+ConsoleTab:CreateConsoleAlert({
+    RobberyLocation = "Gems",
+    RobberyStatus = "Status - "
+})
 
--- Update stats when the player's character is added
-LocalPlayer.CharacterAdded:Connect(function()
-    wait(1) -- Wait for leaderstats to load
-    updateStats()
-end)
-
--- Initial stats update
-updateStats()
-
-local MiscellaneousTab = Window:CreateMiscellaneousTab({
-    Name = "Miscellaneous",
-    Icon = "rbxassetid://14290820935",
+local LocationsTab = Window:CreateLocationsTab({
+    Name = "Locations",
+    Icon = "rbxassetid://14290812747",
     FirstWindow = false
 })
 
-MiscellaneousTab:CreateSection({
-    Name = "Player Stats"
-})
-MiscellaneousTab:CreateToggle({
-    Name = "Notify Status Updates",
-    Value = false,
+LocationsTab:CreateToggle({
+    RobberyLocation = "Strength",
+    Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
-MiscellaneousTab:CreateToggle({
-    Name = "Chat Status Updates",
-    Value = false,
+LocationsTab:CreateToggle({
+    RobberyLocation = "Durability",
+    Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
-
-local SettingsTab = Window:CreateSettingsTab({
-    Name = "Settings",
-    Icon = "rbxassetid://14290827572",
-    FirstWindow = false
-})
-
-SettingsTab:CreateSection({
-    Name = "Teleportation"
-})
-SettingsTab:CreateToggle({
-    Name = "Instant Teleport",
-    Value = false,
+LocationsTab:CreateToggle({
+    RobberyLocation = "Agility",
+    Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
-SettingsTab:CreateSlider({
-    Name = "TP Walkspeed",
-    Max = 110,
-    Min = 50,
-    Increment = 5,
-    DecimalPrecision = 0,
-    CurrentValue = 70,
+LocationsTab:CreateToggle({
+    RobberyLocation = "Rebirths",
+    Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
-SettingsTab:CreateSlider({
-    Name = "TP Sky Speed",
-    Max = 130,
-    Min = 60,
-    Increment = 5,
-    DecimalPrecision = 0,
-    CurrentValue = 80,
+LocationsTab:CreateToggle({
+    RobberyLocation = "Brawls",
+    Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
-
+LocationsTab:CreateToggle({
+    RobberyLocation = "Evil Karma",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Good Karma",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
 LocationsTab:CreateToggle({
     RobberyLocation = "Total Kills",
     Value = true,
@@ -125,30 +120,103 @@ LocationsTab:CreateToggle({
     end
 })
 
+local function updateStats()
+    local stats = LocalPlayer:FindFirstChild("leaderstats")
+    if stats then
+        local function updateAlert(statName)
+            local stat = stats:FindFirstChild(statName)
+            if stat and stat:IsA("IntValue") then
+                ConsoleTab:CreateConsoleAlert({
+                    RobberyLocation = statName,
+                    RobberyStatus = "Status - " .. tostring(stat.Value)
+                })
+                stat.Changed:Connect(function()
+                    ConsoleTab:CreateConsoleAlert({
+                        RobberyLocation = statName,
+                        RobberyStatus = "Status - " .. tostring(stat.Value)
+                    })
+                end)
+            end
+        end
+
+        updateAlert("Strength")
+        updateAlert("Durability")
+        updateAlert("Agility")
+        updateAlert("Rebirths")
+        updateAlert("Brawls")
+        updateAlert("Evil Karma")
+        updateAlert("Good Karma")
+        updateAlert("Total Kills")
+        updateAlert("Gems")
+    end
+end
+
+LocalPlayer.CharacterAdded:Connect(function()
+    wait(1) -- Wait for leaderstats to load
+    updateStats()
+end)
+
+updateStats()
+
 local MiscellaneousTab = Window:CreateMiscellaneousTab({
     Name = "Miscellaneous",
     Icon = "rbxassetid://14290820935",
     FirstWindow = false
 })
-
 MiscellaneousTab:CreateSection({
-    Name = "Player Stats"
+    Name = "Robbery Statuses"
 })
 MiscellaneousTab:CreateToggle({
-    Name = "Notify Status Updates",
+    Name = "Notify Store Openings",
     Value = false,
     Callback = function(Value)
         print(Value)
     end
 })
 MiscellaneousTab:CreateToggle({
-    Name = "Chat Status Updates",
+    Name = "Chat Store Openings",
     Value = false,
     Callback = function(Value)
         print(Value)
     end
 })
-
+MiscellaneousTab:CreateSection({
+    Name = "Safes"
+})
+MiscellaneousTab:CreateSlider({
+    Name = "Safe Rarity",
+    Max = 5,
+    Min = 1,
+    Increment = 1,
+    DecimalPrecision = 0,
+    CurrentValue = 3,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+MiscellaneousTab:CreateSlider({
+    Name = "Buy Safe Amount",
+    Max = 10,
+    Min = 1,
+    Increment = 1,
+    DecimalPrecision = 0,
+    CurrentValue = 8,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+MiscellaneousTab:CreateButton({
+    Name = "Buy Safes",
+    Callback = function()
+        print("button hehe")
+    end
+})
+MiscellaneousTab:CreateButton({
+    Name = "Open All Safes",
+    Callback = function()
+        print("button hehe")
+    end
+})
 MiscellaneousTab:CreateSection({
     Name = "Character"
 })
@@ -165,13 +233,51 @@ MiscellaneousTab:CreateGunsDropdown({
         print(Option)
     end
 })
-
+MiscellaneousTab:CreateSection({
+    Name = "Vehicle"
+})
+MiscellaneousTab:CreateToggle({
+    Name = "Auto Lock Vehicle",
+    Value = false,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+MiscellaneousTab:CreateToggle({
+    Name = "Auto Kick Passengers",
+    Value = false,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+MiscellaneousTab:CreateToggle({
+    Name = "Loop Tire Pop",
+    Value = false,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+MiscellaneousTab:CreateSection({
+    Name = "Game"
+})
+MiscellaneousTab:CreateToggle({
+    Name = "Render Game",
+    Value = false,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+MiscellaneousTab:CreateButton({
+    Name = "Remove Textures",
+    Callback = function()
+        print("button hehe")
+    end
+})
 local SettingsTab = Window:CreateSettingsTab({
     Name = "Settings",
     Icon = "rbxassetid://14290827572",
     FirstWindow = false
 })
-
 SettingsTab:CreateSection({
     Name = "Teleportation"
 })
@@ -204,82 +310,16 @@ SettingsTab:CreateSlider({
         print(Value)
     end
 })
-
-local MiscellaneousTab = Window:CreateMiscellaneousTab({
-    Name = "Miscellaneous",
-    Icon = "rbxassetid://14290820935",
-    FirstWindow = false
-})
-
-MiscellaneousTab:CreateSection({
-    Name = "Player Stats"
-})
-MiscellaneousTab:CreateToggle({
-    Name = "Notify Status Updates",
-    Value = false,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-MiscellaneousTab:CreateToggle({
-    Name = "Chat Status Updates",
-    Value = false,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-
-MiscellaneousTab:CreateSection({
-    Name = "Character"
-})
-MiscellaneousTab:CreateToggle({
-    Name = "Kill Aura",
-    Value = false,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-MiscellaneousTab:CreateGunsDropdown({
-    Name = "Kill Aura Gun",
-    Callback = function(Option)
-        print(Option)
-    end
-})
-
-local SettingsTab = Window:CreateSettingsTab({
-    Name = "Settings",
-    Icon = "rbxassetid://14290827572",
-    FirstWindow = false
-})
-
 SettingsTab:CreateSection({
-    Name = "Teleportation"
-})
-SettingsTab:CreateToggle({
-    Name = "Instant Teleport",
-    Value = false,
-    Callback = function(Value)
-        print(Value)
-    end
+    Name = "Robbery"
 })
 SettingsTab:CreateSlider({
-    Name = "TP Walkspeed",
-    Max = 110,
-    Min = 50,
+    Name = "Robbery Cooldown",
+    Max = 100,
+    Min = 10,
     Increment = 5,
     DecimalPrecision = 0,
-    CurrentValue = 70,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-SettingsTab:CreateSlider({
-    Name = "TP Sky Speed",
-    Max = 130,
-    Min = 60,
-    Increment = 5,
-    DecimalPrecision = 0,
-    CurrentValue = 80,
+    CurrentValue = 50,
     Callback = function(Value)
         print(Value)
     end
