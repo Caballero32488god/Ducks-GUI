@@ -1,61 +1,149 @@
 local HorizonLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/6ayy/HorizonLibrary/main/Library.lua"))()
 local Window = HorizonLibrary:CreateWindow({
-    Name = "Duck Muscle Legend Script",
-    Version = "MLS 2.0"
+    Name = "Jailbreak Script",
+    Version = "1.2"
 })
 local ConsoleTab = Window:CreateConsoleTab({
     Name = "Console",
     Icon = "rbxassetid://14290789640",
     FirstWindow = true
-local player = game.Players.LocalPlayer -- Adjust as necessary
-local strengthValue = player.leaderstats and player.leaderstats.Strength and player.leaderstats.Strength.Value or "N/A"
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Strength",
-    RobberyStatus = "Status - " .. tostring(strengthValue)
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Durability",
-    RobberyStatus = "Status - "
+    RobberyLocation = "Jewelery Store",
+    RobberyStatus = "Robbery Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Agility",
-    RobberyStatus = "Status - "
+    RobberyLocation = "Bank",
+    RobberyStatus = "Robbery Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Kills",
-    RobberyStatus = "Status - "
+    RobberyLocation = "Museum",
+    RobberyStatus = "Robbery Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Rebirths",
-    RobberyStatus = "Status - "
+    RobberyLocation = "Powerplant",
+    RobberyStatus = "Robbery Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Good Karma",
-    RobberyStatus = "Status - "
+    RobberyLocation = "Casino",
+    RobberyStatus = "Robbery Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Bad Karma",
-    RobberyStatus = "Status - "
+    RobberyLocation = "Tomb",
+    RobberyStatus = "Robbery Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Brawls",
-    RobberyStatus = "Status - "
+    RobberyLocation = "Cargo Plane",
+    RobberyStatus = "Robbery Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Gems",
-    RobberyStatus = "Status - "
+    RobberyLocation = "Cargo Ship",
+    RobberyStatus = "Robbery Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Rebirth Multiplier",
-    RobberyStatus = "Status - "
+    RobberyLocation = "Cargo Train",
+    RobberyStatus = "Robbery Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "DisplayName",
-    RobberyStatus = "Status - "
+    RobberyLocation = "Donut Shop",
+    RobberyStatus = "Robbery Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "UserName",
-    RobberyStatus = "Status - "
+    RobberyLocation = "Gas Station",
+    RobberyStatus = "Robbery Status - "
+})
+ConsoleTab:CreateConsoleAlert({
+    RobberyLocation = "Airdrop",
+    RobberyStatus = "Robbery Status - "
+})
+local LocationsTab = Window:CreateLocationsTab({
+    Name = "Locations",
+    Icon = "rbxassetid://14290812747",
+    FirstWindow = false
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Jewelery Store",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Bank",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Museum",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Powerplant",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Casino",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Tomb",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Cargo Plane",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Cargo Ship",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Cargo Train",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Donut Shop",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Gas Station",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
+})
+LocationsTab:CreateToggle({
+    RobberyLocation = "Airdrop",
+    Value = true,
+    Callback = function(Value)
+        print(Value)
+    end
 })
 local MiscellaneousTab = Window:CreateMiscellaneousTab({
     Name = "Miscellaneous",
@@ -321,10 +409,12 @@ UserTab:SetExecutionText({
 UserTab:SetMoneyText({
     Text = "9999"
 })
-UserTab:SetTimeText({
-    Text = "99:99"
-})
-
+local t = 0
+while true do 
+    wait(1) 
+    UserTab:SetTimeText({ Text = tostring(t + 1) }) 
+    t += 1
+end
 UserTab:CreateCredit({
-    Text = "im a credit"
+    Text = "Credit: Masterboy123"
 })
