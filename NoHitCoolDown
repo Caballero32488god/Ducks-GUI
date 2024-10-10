@@ -1,29 +1,24 @@
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local isEnabled = false -- Variable to track if the feature is enabled
+local player = game.Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+local button = Instance.new("TextButton")
 
--- Function to handle chat commands
-LocalPlayer.Chatted:Connect(function(message)
-    local args = message:split(" ")
+-- Set button properties
+button.Size = UDim2.new(0, 100, 0, 50) -- Size: Width 100px, Height 50px
+button.Position = UDim2.new(0.5, -50, 0.5, -25) -- Center the button
+button.Text = "No Tool CoolDown"
+button.BackgroundColor3 = Color3.fromRGB(0, 170, 255) -- Button color
+button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Text color
+button.Font = Enum.Font.SourceSans
+button.TextSize = 24
+button.AnchorPoint = Vector2.new(0.5, 0.5) -- Anchor the button to the center
 
-    if args[1]:lower() == "on" then
-        isEnabled = true
-        print("Feature is now ON.") -- Replace with your functionality
-    elseif args[1]:lower() == "off" then
-        isEnabled = false
-        print("Feature is now OFF.") -- Replace with your functionality
-    elseif args[1]:lower() == "status" then
-        print("Feature is currently " .. (isEnabled and "ON" or "OFF"))
-    end
+-- Function to handle button click
+button.MouseButton1Click:Connect(function()
+    -- Your original function call
+    local c = function() end -- Define c() as needed
+    c()
+    game:GetService("Players").LocalPlayer.Backpack.Punch:FindFirstChildOfClass("NumberValue").Value = 0
 end)
 
--- Add a button to control cooldown
-local Button1 = Section2:CreateButton("Change Tool CoolDown", function()
-    if isEnabled then
-        -- Example: Set cooldown value
-        game:GetService("Players").LocalPlayer.Backpack.Punch:FindFirstChildOfClass("NumberValue").Value = 0.1 -- Adjust as needed
-        print("Cooldown set to 0.1 seconds.")
-    else
-        print("Feature is OFF. Cannot change cooldown.")
-    end
-end)
+-- Parent the button to the ScreenGui
+button.Parent = screenGui
