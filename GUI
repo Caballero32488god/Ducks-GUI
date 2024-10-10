@@ -7,10 +7,11 @@ local ConsoleTab = Window:CreateConsoleTab({
     Name = "Console",
     Icon = "rbxassetid://14290789640",
     FirstWindow = true
-})
+local player = game.Players.LocalPlayer -- Adjust as necessary
+local strengthValue = player.leaderstats and player.leaderstats.Strength and player.leaderstats.Strength.Value or "N/A"
 ConsoleTab:CreateConsoleAlert({
     RobberyLocation = "Strength",
-    RobberyStatus = "Statue - "
+    RobberyStatus = "Status - " .. tostring(strengthValue)
 })
 ConsoleTab:CreateConsoleAlert({
     RobberyLocation = "Durability",
