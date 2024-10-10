@@ -1,52 +1,43 @@
-local player = game.Players.LocalPlayer
-local service = game:GetService("Players")
- 
-local isResizing = false
- 
-function resizeHeadHitbox(character)
-    local head = character:WaitForChild("Head", 5) -- Wait for head to load, with a timeout of 5 seconds
-    if head then
-        -- Increase head size
-        head.Size = Vector3.new(5, 5, 5)
-        -- Decrease transparency
-        head.Transparency = 0.5
-    end
-end
- 
-function resetHeadHitbox(character)
-    local head = character:FindFirstChild("Head")
-    if head then
-        -- Reset head size
-        head.Size = Vector3.new(1, 1, 1)
-        -- Reset transparency
-        head.Transparency = 0
-    end
-end
- 
-for _, otherPlayer in ipairs(service:GetPlayers()) do
-    otherPlayer.CharacterAdded:Connect(function(character)
-        if isResizing then
-            wait(1) -- Wait a second before resizing head to ensure character has fully loaded
-            resizeHeadHitbox(character)
-        end
-    end)
-end
- 
-game:GetService("UserInputService").InputBegan:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.M then
-        isResizing = not isResizing -- Toggle resizing
-        if isResizing then
-            for _, otherPlayer in ipairs(service:GetPlayers()) do
-                resizeHeadHitbox(otherPlayer.Character)
-            end
-        else
-            for _, otherPlayer in ipairs(service:GetPlayers()) do
-                resetHeadHitbox(otherPlayer.Character)
-            end
-        end
-    end
+local InfiniteJumpEnabled = true
+game:GetService("UserInputService").JumpRequest:connect(function()
+	if InfiniteJumpEnabled then
+		game:GetService"Players".LocalPlayer.Character:FindFirstChildOfClass'Humanoid':ChangeState("Jumping")
+	end
+end)
+
+local vu = game:GetService("VirtualUser")
+game:GetService("Players").LocalPlayer.Idled:connect(function()
+    vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    wait(1)
+    vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
 end)
  
--- Adding fog removal (you can remove this if not needed)
-game:GetService("Lighting").FogEnd = 99999
-game:GetService("Lighting").FogStart = 99999
+game.StarterGui:SetCore("SendNotification", {
+    Title = "made by Masterboy123";
+ 
+   
+})
+wait(1)
+game.StarterGui:SetCore("SendNotification", {
+    Title = "Enjoy Killing Duck";
+    Text = "Enjoy"; -- what the text says (ofc)
+    Duration = 60;
+})
+_G.HeadSize = 90
+_G.Disabled = true
+
+game:GetService('RunService').RenderStepped:connect(function()
+if _G.Disabled then
+for i,v in next, game:GetService('Players'):GetPlayers() do
+if v.Name ~= game:GetService('Players').LocalPlayer.Name then
+pcall(function()
+v.Character.HumanoidRootPart.Size = Vector3.new(_G.HeadSize,_G.HeadSize,_G.HeadSize)
+v.Character.HumanoidRootPart.Transparency = 0.7
+v.Character.HumanoidRootPart.BrickColor = BrickColor.new("Really black")
+v.Character.HumanoidRootPart.Material = "Neon"
+v.Character.HumanoidRootPart.CanCollide = false
+end)
+end
+end
+end
+end)
