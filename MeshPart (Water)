@@ -1,24 +1,118 @@
-local function changeSeaPartsToCyanBlocks()
-    -- Iterate through all parts in the workspace
-    for _, part in pairs(workspace:GetDescendants()) do
-        if part:IsA("SeaPart") then
-            -- Create a new Part
-            local cyanBlock = Instance.new("Part")
-            cyanBlock.Size = part.Size
-            cyanBlock.Color = Color3.fromRGB(0, 255, 255) -- Cyan color
-            cyanBlock.Position = part.Position
-            cyanBlock.Anchored = false -- Make it walkable
-            cyanBlock.CanCollide = true
-            cyanBlock.Material = Enum.Material.SmoothPlastic -- Optional: adjust material
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local StarterPack = game:GetService("StarterPack")
+local ScreenGui = Instance.new("ScreenGui")
+local Notification = Instance.new("TextLabel")
 
-            -- Parent the new Part to the workspace
-            cyanBlock.Parent = workspace
+-- Global variables for toggle state and no-kill list
+_G.teleportPlayersActive = false
+_G.noKillList = {}
+_G.killList = {}
+local isEnabled = false -- Variable to track if the punching feature is enabled
 
-            -- Optionally, you can remove the original SeaPart
-            part:Destroy() -- Comment this line if you want to keep the original SeaPart
+-- Function to create and display notification
+local function showNotification(message)
+    Notification.Text = message
+    Notification.Size = UDim2.new(0.3, 0, 0.1, 0)
+    Notification.Position = UDim2.new(0.5, -75, 0.1, 0)
+    Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Notification.TextScaled = true
+    Notification.Parent = ScreenGui
+
+    ScreenGui.Parent = game.CoreGui
+
+    -- Fade out effect
+    for i = 1, 10 do
+        wait(0.1)
+        Notification.TextTransparency = i / 10
+    end
+
+    -- Remove notification after fading out
+    ScreenGui:Destroy()
+end
+
+-- Function to set attackTime of Punch tool to 0
+local function setAttackTime()
+    local punchTool = StarterPack:FindFirstChild("Punch")
+
+    if punchTool then
+        local attackTime = punchTool:FindFirstChild("attackTime")
+        
+        if attackTime then
+            attackTime.Value = 0  -- Set the attack time to 0
+            print("attackTime set to 0 for Punch tool.")
+        else
+            print("attackTime not found in Punch tool.")
+        end
+    else
+        print("Punch tool not found in StarterPack.")
+    end
+end
+
+-- Function to equip the Punch tool and perform the punch action
+local function equipAndPunch()
+    while isEnabled do
+        local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+
+        if punchTool then
+            -- Equip the Punch tool
+            LocalPlayer.Character.Humanoid:EquipTool(punchTool)
+            wait(0.1) -- Wait briefly to ensure the tool is equipped
+
+            -- Start the punching action after a 5-second wait
+            wait(5)  -- Initial wait
+
+            -- Punching loop
+            while isEnabled do
+                LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                wait(0)  -- Wait for 0 seconds before the next punch (immediate)
+            end
+        else
+            print("Punch tool not found in Backpack. Waiting...")
+            wait(2) -- Wait before checking again
         end
     end
 end
 
--- Call the function to change SeaParts to cyan blocks
-changeSeaPartsToCyanBlocks()
+-- Function to teleport all players to the local player
+local function teleportAllPlayersToMe()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local targetRootPart = player.Character:FindFirstChild("HumanoidRootPart")
+            if targetRootPart then
+                targetRootPart.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0) -- Teleport above the local player
+            end
+        end
+    end
+end
+
+-- Function to handle chat commands
+LocalPlayer.Chatted:Connect(function(message)
+    local args = message:split(" ")
+
+    if args[1]:lower() == "on" then
+        isEnabled = true
+        _G.teleportPlayersActive = true
+        equipAndPunch() -- Start punching if enabled
+        showNotification("Started teleporting players and punching.")
+    elseif args[1]:lower() == "off" then
+        isEnabled = false
+        _G.teleportPlayersActive = false
+        showNotification("Stopped teleporting players and punching.")
+    elseif args[1]:lower() == "status" then
+        print("Punching is currently " .. (isEnabled and "ON" or "OFF"))
+        print("Teleporting players is currently " .. (_G.teleportPlayersActive and "ON" or "OFF"))
+    elseif args[1]:lower() == "rip" then
+        teleportAllPlayersToMe() -- Teleport all players to the local player
+        showNotification("Teleported all players to you for testing.")
+    end
+end)
+
+-- Call the function to set the attackTime
+setAttackTime()
+
+print("Type 'on' to start teleporting players and punching.")
+print("Type 'off' to stop teleporting players and punching.")
+print("Type 'rip' to teleport all players to you for testing.")
