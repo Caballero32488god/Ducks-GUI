@@ -1,0 +1,21 @@
+local function changeMeshPartsToCyanBlocks()
+    -- Iterate through all parts in the workspace
+    for _, part in pairs(workspace:GetDescendants()) do
+        if part:IsA("MeshPart") then
+            -- Create a new Part
+            local cyanBlock = Instance.new("Part")
+            cyanBlock.Size = part.Size
+            cyanBlock.Color = Color3.fromRGB(0, 255, 255) -- Cyan color
+            cyanBlock.Position = part.Position
+            cyanBlock.Anchored = false -- Make it walkable
+            cyanBlock.CanCollide = true
+            cyanBlock.Parent = workspace
+
+            -- Optionally, you can remove the original MeshPart
+            part:Destroy() -- Comment this line if you want to keep the original MeshPart
+        end
+    end
+end
+
+-- Call the function to change MeshParts to cyan blocks
+changeMeshPartsToCyanBlocks()
