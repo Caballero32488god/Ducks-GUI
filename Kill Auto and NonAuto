@@ -75,17 +75,22 @@ local function equipAndPunch()
     end
 end
 
--- Function to continuously teleport all players to the local player
+-- Function to teleport all players to the local player
 local function teleportAllPlayersToMe()
-    while _G.teleportPlayersActive do
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character then
-                local targetRootPart = player.Character:FindFirstChild("HumanoidRootPart")
-                if targetRootPart then
-                    targetRootPart.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0) -- Teleport above the local player
-                end
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local targetRootPart = player.Character:FindFirstChild("HumanoidRootPart")
+            if targetRootPart then
+                targetRootPart.Position = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0) -- Teleport above the local player
             end
         end
+    end
+end
+
+-- Function to continuously teleport players to the local player
+local function teleportPlayersContinuously()
+    while _G.teleportPlayersActive do
+        teleportAllPlayersToMe()
         wait(0.1) -- Delay to reduce performance impact
     end
 end
@@ -98,15 +103,12 @@ LocalPlayer.Chatted:Connect(function(message)
         isEnabled = true
         _G.teleportPlayersActive = true
         equipAndPunch() -- Start punching if enabled
-        teleportAllPlayersToMe() -- Start teleporting players
+        teleportPlayersContinuously() -- Start teleporting players
         showNotification("Started teleporting players and punching.")
     elseif args[1]:lower() == "off" then
         isEnabled = false
         _G.teleportPlayersActive = false
         showNotification("Stopped teleporting players and punching.")
-    elseif args[1]:lower() == "status" then
-        print("Punching is currently " .. (isEnabled and "ON" or "OFF"))
-        print("Teleporting players is currently " .. (_G.teleportPlayersActive and "ON" or "OFF"))
     elseif args[1]:lower() == "rip" then
         teleportAllPlayersToMe() -- Teleport all players to the local player
         showNotification("Teleported all players to you for testing.")
