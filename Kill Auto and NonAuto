@@ -1,27 +1,24 @@
 local Players = game:GetService("Players")
 
-local function expandHitbox(player)
-    local character = player.Character
-    if character then
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            -- Expand the hitbox
-            humanoid.HipWidth = humanoid.HipWidth + 10
-            humanoid.HipHeight = humanoid.HipHeight + 10
+local function expandHitbox(humanoid)
+    -- Expand the hitbox
+    humanoid.HipWidth = humanoid.HipWidth + 10
+    humanoid.HipHeight = humanoid.HipHeight + 10
+end
+
+local function checkAndExpandHitboxes()
+    while true do
+        for _, player in pairs(Players:GetPlayers()) do
+            if player.Character then
+                local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    expandHitbox(humanoid)
+                end
+            end
         end
+        -- No wait time for instantaneous effect
     end
 end
 
--- Connect the function to the PlayerAdded event to expand hitbox when a player joins
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function(character)
-        expandHitbox(player)
-    end)
-end)
-
--- Expand hitbox for players who are already in the game
-for _, player in pairs(Players:GetPlayers()) do
-    if player.Character then
-        expandHitbox(player)
-    end
-end
+-- Start the loop
+checkAndExpandHitboxes()
