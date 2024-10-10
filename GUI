@@ -1,7 +1,7 @@
 local HorizonLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/6ayy/HorizonLibrary/main/Library.lua"))()
 local Window = HorizonLibrary:CreateWindow({
-    Name = "Jailbreak Script",
-    Version = "1.2"
+    Name = "Duck Muscle Legend Script",
+    Version = "MLS 2.0"
 })
 local ConsoleTab = Window:CreateConsoleTab({
     Name = "Console",
@@ -9,52 +9,52 @@ local ConsoleTab = Window:CreateConsoleTab({
     FirstWindow = true
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Jewelery Store",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Strength",
+    RobberyStatus = "Statue - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Bank",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Durability",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Museum",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Agility",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Powerplant",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Kills",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Casino",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Rebirths",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Tomb",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Good Karma",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Cargo Plane",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Bad Karma",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Cargo Ship",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Brawls",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Cargo Train",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Gems",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Donut Shop",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Rebirth Multiplier",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Gas Station",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "DisplayName",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Airdrop",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "UserName",
+    RobberyStatus = "Status - "
 })
 local LocationsTab = Window:CreateLocationsTab({
     Name = "Locations",
