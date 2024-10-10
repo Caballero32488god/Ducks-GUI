@@ -1,110 +1,27 @@
--- Define services
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local StarterPack = game:GetService("StarterPack")
-local RunService = game:GetService("RunService")
 
--- Global variables for toggle state
-_G.teleportPlayersActive = false
-local isEnabled = false -- Variable to track if the punching feature is enabled
-local affectedPlayers = {} -- Table to track affected players
-
--- Function to set attackTime of Punch tool to 0
-local function setAttackTime()
-    local punchTool = StarterPack:FindFirstChild("Punch")
-
-    if punchTool then
-        local attackTime = punchTool:FindFirstChild("attackTime")
-        
-        if attackTime then
-            attackTime.Value = 0  -- Set the attack time to 0
-            print("attackTime set to 0 for Punch tool.")
-        else
-            print("attackTime not found in Punch tool.")
-        end
-    else
-        print("Punch tool not found in StarterPack.")
-    end
-end
-
--- Function to equip the Punch tool and perform the punch action
-local function equipAndPunch()
-    while isEnabled do
-        local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
-
-        if punchTool then
-            -- Equip the Punch tool
-            LocalPlayer.Character.Humanoid:EquipTool(punchTool)
-            wait(0.1) -- Wait briefly to ensure the tool is equipped
-
-            -- Start the punching action after a 5-second wait
-            wait(5)  -- Initial wait
-
-            -- Punching loop
-            while isEnabled do
-                LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-                LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-                wait(0)  -- Wait for 0 seconds before the next punch (immediate)
-            end
-        else
-            print("Punch tool not found in Backpack. Waiting...")
-            wait(2) -- Wait before checking again
+local function expandHitbox(player)
+    local character = player.Character
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            -- Expand the hitbox
+            humanoid.HipWidth = humanoid.HipWidth + 10
+            humanoid.HipHeight = humanoid.HipHeight + 10
         end
     end
 end
 
--- Function to update hitbox size of players based on a 5x5x5 area
-local function updateHitbox()
-    while _G.teleportPlayersActive do
-        local myPosition = LocalPlayer.Character.HumanoidRootPart.Position
-        
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local targetPosition = player.Character.HumanoidRootPart.Position
-                
-                -- Check if the player is within a 5x5x5 area around the local player
-                if (math.abs(targetPosition.X - myPosition.X) <= 2.5 and
-                    math.abs(targetPosition.Y - myPosition.Y) <= 2.5 and
-                    math.abs(targetPosition.Z - myPosition.Z) <= 2.5) then
-                    
-                    local targetHumanoid = player.Character:FindFirstChild("Humanoid")
-                    if targetHumanoid then
-                        -- Increase hitbox size
-                        targetHumanoid.BodyTypeScale = 2 -- Set to size 2
-                        affectedPlayers[player.Name] = true -- Mark player as affected
-                    end
-                elseif affectedPlayers[player.Name] then
-                    local targetHumanoid = player.Character:FindFirstChild("Humanoid")
-                    if targetHumanoid then
-                        -- Reset hitbox size
-                        targetHumanoid.BodyTypeScale = 1 -- Reset to normal size
-                        affectedPlayers[player.Name] = nil -- Mark player as no longer affected
-                    end
-                end
-            end
-        end
-        wait(0.1) -- Delay for performance
-    end
-end
-
--- Function to handle chat commands
-LocalPlayer.Chatted:Connect(function(message)
-    local args = message:split(" ")
-
-    if args[1]:lower() == "on" then
-        isEnabled = true
-        equipAndPunch() -- Start punching if enabled
-    elseif args[1]:lower() == "off" then
-        isEnabled = false -- Stop punching
-    elseif args[1]:lower() == "rip" then
-        _G.teleportPlayersActive = true -- Start affecting players
-        updateHitbox() -- Start updating hitbox sizes
-    end
+-- Connect the function to the PlayerAdded event to expand hitbox when a player joins
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        expandHitbox(player)
+    end)
 end)
 
--- Call the function to set the attackTime
-setAttackTime()
-
-print("Type 'on' to start punching.")
-print("Type 'off' to stop punching.")
-print("Type 'rip' to start affecting players within a 5x5x5 area.")
+-- Expand hitbox for players who are already in the game
+for _, player in pairs(Players:GetPlayers()) do
+    if player.Character then
+        expandHitbox(player)
+    end
+end
