@@ -1,209 +1,146 @@
 local HorizonLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/6ayy/HorizonLibrary/main/Library.lua"))()
 local Window = HorizonLibrary:CreateWindow({
-    Name = "Jailbreak Script",
+    Name = "Ducks Are Cool",
     Version = "1.2"
 })
+
 local ConsoleTab = Window:CreateConsoleTab({
     Name = "Console",
     Icon = "rbxassetid://14290789640",
     FirstWindow = true
 })
+
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Jewelery Store",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Strength",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Bank",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Durability",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Museum",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Agility",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Powerplant",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Rebirths",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Casino",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Brawls",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Tomb",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Evil Karma",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Cargo Plane",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Good Karma",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Cargo Ship",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Total Kills",
+    RobberyStatus = "Status - "
 })
 ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Cargo Train",
-    RobberyStatus = "Robbery Status - "
+    RobberyLocation = "Gems",
+    RobberyStatus = "Status - "
 })
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Donut Shop",
-    RobberyStatus = "Robbery Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Gas Station",
-    RobberyStatus = "Robbery Status - "
-})
-ConsoleTab:CreateConsoleAlert({
-    RobberyLocation = "Airdrop",
-    RobberyStatus = "Robbery Status - "
-})
+
 local LocationsTab = Window:CreateLocationsTab({
     Name = "Locations",
     Icon = "rbxassetid://14290812747",
     FirstWindow = false
 })
+
 LocationsTab:CreateToggle({
-    RobberyLocation = "Jewelery Store",
+    RobberyLocation = "Strength",
     Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
 LocationsTab:CreateToggle({
-    RobberyLocation = "Bank",
+    RobberyLocation = "Durability",
     Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
 LocationsTab:CreateToggle({
-    RobberyLocation = "Museum",
+    RobberyLocation = "Agility",
     Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
 LocationsTab:CreateToggle({
-    RobberyLocation = "Powerplant",
+    RobberyLocation = "Rebirths",
     Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
 LocationsTab:CreateToggle({
-    RobberyLocation = "Casino",
+    RobberyLocation = "Brawls",
     Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
 LocationsTab:CreateToggle({
-    RobberyLocation = "Tomb",
+    RobberyLocation = "Evil Karma",
     Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
 LocationsTab:CreateToggle({
-    RobberyLocation = "Cargo Plane",
+    RobberyLocation = "Good Karma",
     Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
 LocationsTab:CreateToggle({
-    RobberyLocation = "Cargo Ship",
+    RobberyLocation = "Total Kills",
     Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
 LocationsTab:CreateToggle({
-    RobberyLocation = "Cargo Train",
+    RobberyLocation = "Gems",
     Value = true,
     Callback = function(Value)
         print(Value)
     end
 })
-LocationsTab:CreateToggle({
-    RobberyLocation = "Donut Shop",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Gas Station",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-LocationsTab:CreateToggle({
-    RobberyLocation = "Airdrop",
-    Value = true,
-    Callback = function(Value)
-        print(Value)
-    end
-})
+
 local MiscellaneousTab = Window:CreateMiscellaneousTab({
     Name = "Miscellaneous",
     Icon = "rbxassetid://14290820935",
     FirstWindow = false
 })
+
 MiscellaneousTab:CreateSection({
-    Name = "Robbery Statuses"
+    Name = "Player Stats"
 })
 MiscellaneousTab:CreateToggle({
-    Name = "Notify Store Openings",
+    Name = "Notify Status Updates",
     Value = false,
     Callback = function(Value)
         print(Value)
     end
 })
 MiscellaneousTab:CreateToggle({
-    Name = "Chat Store Openings",
+    Name = "Chat Status Updates",
     Value = false,
     Callback = function(Value)
         print(Value)
     end
 })
-MiscellaneousTab:CreateSection({
-    Name = "Safes"
-})
-MiscellaneousTab:CreateSlider({
-    Name = "Safe Rarity",
-    Max = 5,
-    Min = 1,
-    Increment = 1,
-    DecimalPrecision = 0,
-    CurrentValue = 3,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-MiscellaneousTab:CreateSlider({
-    Name = "Buy Safe Amount",
-    Max = 10,
-    Min = 1,
-    Increment = 1,
-    DecimalPrecision = 0,
-    CurrentValue = 8,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-MiscellaneousTab:CreateButton({
-    Name = "Buy Safes",
-    Callback = function()
-        print("button hehe")
-    end
-})
-MiscellaneousTab:CreateButton({
-    Name = "Open All Safes",
-    Callback = function()
-        print("button hehe")
-    end
-})
+
 MiscellaneousTab:CreateSection({
     Name = "Character"
 })
@@ -220,51 +157,13 @@ MiscellaneousTab:CreateGunsDropdown({
         print(Option)
     end
 })
-MiscellaneousTab:CreateSection({
-    Name = "Vehicle"
-})
-MiscellaneousTab:CreateToggle({
-    Name = "Auto Lock Vehicle",
-    Value = false,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-MiscellaneousTab:CreateToggle({
-    Name = "Auto Kick Passengers",
-    Value = false,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-MiscellaneousTab:CreateToggle({
-    Name = "Loop Tire Pop",
-    Value = false,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-MiscellaneousTab:CreateSection({
-    Name = "Game"
-})
-MiscellaneousTab:CreateToggle({
-    Name = "Render Game",
-    Value = false,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-MiscellaneousTab:CreateButton({
-    Name = "Remove Textures",
-    Callback = function()
-        print("button hehe")
-    end
-})
+
 local SettingsTab = Window:CreateSettingsTab({
     Name = "Settings",
     Icon = "rbxassetid://14290827572",
     FirstWindow = false
 })
+
 SettingsTab:CreateSection({
     Name = "Teleportation"
 })
@@ -293,20 +192,6 @@ SettingsTab:CreateSlider({
     Increment = 5,
     DecimalPrecision = 0,
     CurrentValue = 80,
-    Callback = function(Value)
-        print(Value)
-    end
-})
-SettingsTab:CreateSection({
-    Name = "Robbery"
-})
-SettingsTab:CreateSlider({
-    Name = "Robbery Cooldown",
-    Max = 100,
-    Min = 10,
-    Increment = 5,
-    DecimalPrecision = 0,
-    CurrentValue = 50,
     Callback = function(Value)
         print(Value)
     end
