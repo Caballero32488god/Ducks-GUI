@@ -1,43 +1,87 @@
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local LocalPlayer = Players.LocalPlayer
+local StarterPack = game:GetService("StarterPack")
+local isEnabled = false -- Variable to track if the feature is enabled
 
--- Create a model to hold cloned bodies
-local clones = Instance.new("Model")
-clones.Name = "Clones"
-clones.Parent = workspace
+-- Function to set attackTime of Punch tool to 0
+local function setAttackTime()
+    local punchTool = StarterPack:FindFirstChild("Punch")
 
--- Function to teleport the bodies of all players to a fixed position directly in front of this player's character
-local function teleportBodies()
-    local character = player.Character
-    if not character or not character:FindFirstChild("Head") then return end
+    if punchTool then
+        local attackTime = punchTool:FindFirstChild("attackTime")
+        
+        if attackTime then
+            attackTime.Value = 0  -- Set the attack time to 0
+            print("attackTime set to 0 for Punch tool.")
+        else
+            print("attackTime not found in Punch tool.")
+        end
+    else
+        print("Punch tool not found in StarterPack.")
+    end
+end
 
-    local headPosition = character.Head.Position
-    local frontOffset = character.Head.CFrame.LookVector * 5 -- Distance in front of the player
+-- Function to equip the Punch tool and perform the punch action
+local function equipAndPunch()
+    while true do
+        local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
 
-    -- Calculate the target position for the bodies
-    local targetPosition = headPosition + frontOffset
+        if punchTool then
+            -- Equip the Punch tool
+            LocalPlayer.Character.Humanoid:EquipTool(punchTool)
+            wait(0.1) -- Wait briefly to ensure the tool is equipped
 
-    for _, otherPlayer in pairs(Players:GetPlayers()) do
-        if otherPlayer ~= player and otherPlayer.Character then
-            local humanoidRootPart = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if humanoidRootPart then
-                -- Clone the other player's character if not already cloned
-                local clonedCharacter = clones:FindFirstChild(otherPlayer.Name)
-                if not clonedCharacter then
-                    clonedCharacter = otherPlayer.Character:Clone()
-                    clonedCharacter.Parent = clones
-                    clonedCharacter:SetPrimaryPartCFrame(CFrame.new(targetPosition))
-                else
-                    -- Update the cloned character's position
-                    clonedCharacter:SetPrimaryPartCFrame(CFrame.new(targetPosition))
-                end
+            -- Start the punching action after a 5-second wait
+            wait(5)  -- Initial wait
+
+            -- Punching loop
+            while isEnabled do
+                LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                wait(0)  -- Wait for 0 seconds before the next punch (immediate)
             end
+        else
+            print("Punch tool not found in Backpack. Waiting...")
+            wait(2) -- Wait before checking again
         end
     end
 end
 
--- Loop to continuously teleport bodies
-while true do
-    teleportBodies()
-    wait(0.1) -- Adjust the delay as needed (0.1 seconds)
-end
+-- Function to handle chat commands
+LocalPlayer.Chatted:Connect(function(message)
+    local args = message:split(" ")
+
+    if args[1]:lower() == "on" then
+        isEnabled = true
+        print("Feature is now ON.")
+        equipAndPunch() -- Start punching if enabled
+    elseif args[1]:lower() == "off" then
+        isEnabled = false
+        print("Feature is now OFF.")
+    elseif args[1]:lower() == "status" then
+        print("Feature is currently " .. (isEnabled and "ON" or "OFF"))
+    end
+end)
+
+-- Call the function to set the attackTime
+setAttackTime()
+
+-- Example button creation for cooldown change (adjust according to your UI framework)
+local Button1 = Section2:CreateButton("Change Tool CoolDown", function()
+    if isEnabled then
+        -- Example: Set cooldown value
+        local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+        if punchTool then
+            local attackTime = punchTool:FindFirstChild("attackTime")
+            if attackTime then
+                attackTime.Value = 0.1 -- Adjust as needed
+                print("Cooldown set to 0.1 seconds.")
+            end
+        end
+    else
+        print("Feature is OFF. Cannot change cooldown.")
+    end
+end)
+
+-- Call the function to set the attackTime initially
+setAttackTime()
