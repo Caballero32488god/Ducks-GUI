@@ -403,21 +403,6 @@ local UserTab = Window:CreateUserTab({
     Icon = "rbxassetid://14290844857",
     FirstWindow = false
 })
-UserTab:SetExecutionText({
-    Text = "9999"
-local Players = game:GetService("Players")
-
-local function update(p)
-    local g = p:FindFirstChild("leaderstats") and p.leaderstats:FindFirstChild("Gems")
-    if g then UserTab:SetMoneyText({ Text = tostring(g.Value) }) end
-end
-
-Players.PlayerAdded:Connect(function(p)
-    p:WaitForChild("leaderstats")
-    update(p)
-    if p.leaderstats.Gems then p.leaderstats.Gems.Changed:Connect(function() update(p) end) end
-end)
-
 for _, p in Players:GetPlayers() do update(p) end
 
 local t = 0
