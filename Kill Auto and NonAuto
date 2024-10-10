@@ -1,24 +1,52 @@
-local Players = game:GetService("Players")
-
-local function expandHitbox(humanoid)
-    -- Expand the hitbox
-    humanoid.HipWidth = humanoid.HipWidth + 10
-    humanoid.HipHeight = humanoid.HipHeight + 10
-end
-
-local function checkAndExpandHitboxes()
-    while true do
-        for _, player in pairs(Players:GetPlayers()) do
-            if player.Character then
-                local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    expandHitbox(humanoid)
-                end
-            end
-        end
-        -- No wait time for instantaneous effect
+local player = game.Players.LocalPlayer
+local service = game:GetService("Players")
+ 
+local isResizing = false
+ 
+function resizeHeadHitbox(character)
+    local head = character:WaitForChild("Head", 5) -- Wait for head to load, with a timeout of 5 seconds
+    if head then
+        -- Increase head size
+        head.Size = Vector3.new(5, 5, 5)
+        -- Decrease transparency
+        head.Transparency = 0.5
     end
 end
-
--- Start the loop
-checkAndExpandHitboxes()
+ 
+function resetHeadHitbox(character)
+    local head = character:FindFirstChild("Head")
+    if head then
+        -- Reset head size
+        head.Size = Vector3.new(1, 1, 1)
+        -- Reset transparency
+        head.Transparency = 0
+    end
+end
+ 
+for _, otherPlayer in ipairs(service:GetPlayers()) do
+    otherPlayer.CharacterAdded:Connect(function(character)
+        if isResizing then
+            wait(1) -- Wait a second before resizing head to ensure character has fully loaded
+            resizeHeadHitbox(character)
+        end
+    end)
+end
+ 
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.M then
+        isResizing = not isResizing -- Toggle resizing
+        if isResizing then
+            for _, otherPlayer in ipairs(service:GetPlayers()) do
+                resizeHeadHitbox(otherPlayer.Character)
+            end
+        else
+            for _, otherPlayer in ipairs(service:GetPlayers()) do
+                resetHeadHitbox(otherPlayer.Character)
+            end
+        end
+    end
+end)
+ 
+-- Adding fog removal (you can remove this if not needed)
+game:GetService("Lighting").FogEnd = 99999
+game:GetService("Lighting").FogStart = 99999
