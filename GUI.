@@ -31,14 +31,18 @@ do
             local Players = game:GetService("Players")
             local LocalPlayer = Players.LocalPlayer
             local backpack = LocalPlayer:WaitForChild("Backpack")
-            local punchTool = backpack:FindFirstChild("Punch")
 
-            if punchTool then
-                -- Set the value directly in the local player's instance of the punch tool
-                punchTool.Value = 0.1
-                print("InstantHit activated. Punch value set to 0.1.")
-            else
-                print("Punch tool not found in backpack.")
+            for _, tool in ipairs(backpack:GetChildren()) do
+                if tool:IsA("Tool") then
+                    -- Check if the tool has attackTime and repTime properties
+                    if tool:FindFirstChild("attackTime") then
+                        tool.attackTime.Value = 0.1
+                    end
+                    if tool:FindFirstChild("repTime") then
+                        tool.repTime.Value = 0.1
+                    end
+                    print("Set attackTime and repTime for tool:", tool.Name)
+                end
             end
         end
     })
