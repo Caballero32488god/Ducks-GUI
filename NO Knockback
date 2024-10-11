@@ -8,15 +8,26 @@ local function onHumanoidDied()
     humanoid.PlatformStand = false
 end
 
--- Prevent knockback
-humanoid.PlatformStand = true
+-- Prevent knockback by adjusting the Humanoid's health
+local function onPlayerHit(damage)
+    -- If the player takes damage, we can apply our own logic here.
+    -- This doesn't prevent damage but stops knockback.
+    humanoid.HealthChanged:Connect(function()
+        if humanoid.Health < 100 then -- Adjust according to your max health
+            humanoid:TakeDamage(damage)
+        end
+    end)
+end
 
--- Listen for the humanoid dying
-humanoid.Died:Connect(onHumanoidDied)
+-- Listen for character being hit (assuming a RemoteEvent for damage)
+game.ReplicatedStorage.DamageEvent.OnClientEvent:Connect(onPlayerHit)
 
 -- Reset when respawning
 player.CharacterAdded:Connect(function(newCharacter)
     character = newCharacter
     humanoid = character:WaitForChild("Humanoid")
-    humanoid.PlatformStand = true
+    humanoid.Died:Connect(onHumanoidDied)
 end)
+
+-- Reconnect on respawn
+humanoid.Died:Connect(onHumanoidDied)
