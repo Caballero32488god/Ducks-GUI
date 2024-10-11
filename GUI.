@@ -1,118 +1,83 @@
-local success, errorMsg = pcall(function()
-    local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-    local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-    local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
-    local Window = Fluent:CreateWindow({
-        Title = "Fluent " .. Fluent.Version,
-        SubTitle = "by Masterboy123",
-        TabWidth = 160,
-        Size = UDim2.fromOffset(580, 460),
-        Acrylic = true,
-        Theme = "Dark",
-        MinimizeKey = Enum.KeyCode.LeftControl
-    })
+local Window = Fluent:CreateWindow({
+    Title = "Fluent " .. Fluent.Version,
+    SubTitle = "by dawid",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
 
-    local Tabs = {
-        Main = Window:AddTab({ Title = "Main", Icon = "" }),
-        Killer = Window:AddTab({ Title = "Killer", Icon = "" }),
-        AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "" }),
-        Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-    }
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
 
-    Fluent:Notify({
-        Title = "Notification",
-        Content = "Thanks for Hiring me",
-        SubContent = "Hello, Duck",
-        Duration = 5
-    })
-
-    Tabs.Main:AddParagraph({
-        Title = "Read This",
-        Content = "Hello, This script was made by Masterboy123, Owner Transferred to Duck"
-    })
-
-    local Toggle = Tabs.Main:AddToggle("MyToggle", { Title = "Toggle", Default = false })
-    Toggle:OnChanged(function()
-        print("Toggle changed:", Toggle:GetValue())
-    end)
-
-    local Slider = Tabs.Main:AddSlider("Slider", {
-        Title = "Slider",
-        Description = "This is a slider",
-        Default = 2,
-        Min = 0,
-        Max = 5,
-        Rounding = 1,
-        Callback = function(Value)
-            print("Slider was changed:", Value)
+do
+    Tabs.Main:AddButton({
+        Title = "AntiKnockback",
+        Callback = function()
+            print("AntiKnockback activated.")
         end
     })
-    Slider:SetValue(3)
 
-    local Players = game:GetService("Players")
-    local playerNames = {}
+    Tabs.Main:AddButton({
+        Title = "InstantHit",
+        Callback = function()
+            local Players = game:GetService("Players")
+            local LocalPlayer = Players.LocalPlayer
+            local backpack = LocalPlayer:WaitForChild("Backpack")
+            local punchTool = backpack:FindFirstChild("Punch")
 
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player.DisplayName then
-            table.insert(playerNames, player.DisplayName)
+            if punchTool then
+                -- Set the value directly in the local player's instance of the punch tool
+                punchTool.Value = 0.1
+                print("InstantHit activated. Punch value set to 0.1.")
+            else
+                print("Punch tool not found in backpack.")
+            end
         end
-    end
+    })
 
-    if #playerNames == 0 then
-        print("No players found.")
-    else
-        print("Players found:", table.concat(playerNames, ", "))
-    end
+    Tabs.Main:AddButton({
+        Title = "LockPosition",
+        Callback = function()
+            print("LockPosition activated.")
+        end
+    })
 
-    local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
-        Title = "Dropdown",
-        Values = playerNames,
+    local DaycycleDropdown = Tabs.Main:AddDropdown("Daycycle", {
+        Title = "Daycycle",
+        Values = {"Morning", "Afternoon", "Night"},
         Multi = false,
-        Default = playerNames[1] or "No Players"
+        Default = "Morning",
     })
 
-    Dropdown:OnChanged(function(Value)
-        print("Dropdown changed:", Value)
+    DaycycleDropdown:OnChanged(function(Value)
+        print("Daycycle changed to:", Value)
     end)
-
-    local MultiDropdown = Tabs.Main:AddDropdown("MultiDropdown", {
-        Title = "MultiDropdown",
-        Description = "You can select multiple values.",
-        Values = playerNames,
-        Multi = true,
-        Default = { playerNames[1] or "No Players" }
-    })
-
-    MultiDropdown:OnChanged(function(Value)
-        local Values = {}
-        for Value, State in next, Value do
-            table.insert(Values, Value)
-        end
-        print("MultiDropdown changed:", table.concat(Values, ", "))
-    end)
-
-    SaveManager:SetLibrary(Fluent)
-    InterfaceManager:SetLibrary(Fluent)
-    SaveManager:IgnoreThemeSettings()
-    SaveManager:SetIgnoreIndexes({})
-    InterfaceManager:SetFolder("FluentScriptHub")
-    SaveManager:SetFolder("FluentScriptHub/specific-game")
-
-    InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-    SaveManager:BuildConfigSection(Tabs.Settings)
-
-    Window:SelectTab(1)
-
-    Fluent:Notify({
-        Title = "Duck",
-        Content = "The script has been loaded.",
-        Duration = 8
-    })
-
-    SaveManager:LoadAutoloadConfig()
-end)
-
-if not success then
-    warn("Error loading Fluent: " .. errorMsg)
 end
+
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window:SelectTab(1)
+
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+SaveManager:LoadAutoloadConfig()
