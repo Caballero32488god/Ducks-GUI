@@ -81,7 +81,7 @@ local success, errorMsg = pcall(function()
         Description = "You can select multiple values.",
         Values = playerNames,
         Multi = true,
-        Default = { playerNames[1] } -- Default to first player if available
+        Default = { playerNames[1] or "No Players" }
     })
 
     MultiDropdown:OnChanged(function(Value)
