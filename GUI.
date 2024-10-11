@@ -1,87 +1,28 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-
-local Window = Fluent:CreateWindow({
-    Title = "Fluent " .. Fluent.Version,
-    SubTitle = "by dawid",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
-})
-
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-}
-
-do
-    Tabs.Main:AddButton({
-        Title = "AntiKnockback",
-        Callback = function()
-            print("AntiKnockback activated.")
-        end
-    })
-
-    Tabs.Main:AddButton({
-        Title = "InstantHit",
-        Callback = function()
-            local Players = game:GetService("Players")
-            local LocalPlayer = Players.LocalPlayer
-            local backpack = LocalPlayer:WaitForChild("Backpack")
-
-            for _, tool in ipairs(backpack:GetChildren()) do
-                if tool:IsA("Tool") then
-                    -- Check if the tool has attackTime and repTime properties
-                    if tool:FindFirstChild("attackTime") then
-                        tool.attackTime.Value = 0.1
-                    end
-                    if tool:FindFirstChild("repTime") then
-                        tool.repTime.Value = 0.1
-                    end
-                    print("Set attackTime and repTime for tool:", tool.Name)
+Tabs.Main:AddButton({
+    Title = "AntiKnockback",
+    Callback = function()
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+        
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            local humanoid = LocalPlayer.Character.Humanoid
+            
+            humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+                if humanoid.Health < humanoid.MaxHealth then
+                    humanoid.Health = humanoid.MaxHealth
+                end
+            end)
+            
+            local function onKnockback(hit)
+                if hit:IsA("BasePart") and hit.Parent == LocalPlayer.Character then
+                    hit.Velocity = Vector3.new(0, 0, 0)
                 end
             end
+            
+            LocalPlayer.Character.HumanoidRootPart.Touched:Connect(onKnockback)
+            print("AntiKnockback activated.")
+        else
+            print("Character not found.")
         end
-    })
-
-    Tabs.Main:AddButton({
-        Title = "LockPosition",
-        Callback = function()
-            print("LockPosition activated.")
-        end
-    })
-
-    local DaycycleDropdown = Tabs.Main:AddDropdown("Daycycle", {
-        Title = "Daycycle",
-        Values = {"Morning", "Afternoon", "Night"},
-        Multi = false,
-        Default = "Morning",
-    })
-
-    DaycycleDropdown:OnChanged(function(Value)
-        print("Daycycle changed to:", Value)
-    end)
-end
-
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({})
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/specific-game")
-
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
-
-Window:SelectTab(1)
-
-Fluent:Notify({
-    Title = "Fluent",
-    Content = "The script has been loaded.",
-    Duration = 8
+    end
 })
-
-SaveManager:LoadAutoloadConfig()
