@@ -1,0 +1,22 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+-- Function to prevent knockback
+local function onHumanoidDied()
+    -- Reset properties when the character dies
+    humanoid.PlatformStand = false
+end
+
+-- Prevent knockback
+humanoid.PlatformStand = true
+
+-- Listen for the humanoid dying
+humanoid.Died:Connect(onHumanoidDied)
+
+-- Reset when respawning
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+    humanoid.PlatformStand = true
+end)
