@@ -1,106 +1,74 @@
-local player = game.Players.LocalPlayer
-local Lighting = game:GetService("Lighting")
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- Create ScreenGui
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player:WaitForChild("PlayerGui")
+local Window = Fluent:CreateWindow({
+    Title = "Duck GUI - By Masterboy123",
+    SubTitle = "Game Controls",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
 
--- Create Main Frame
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 300, 0, 400)
-mainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-mainFrame.BackgroundColor3 = Color3.new(1, 1, 1)
-mainFrame.Parent = screenGui
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
 
--- Create Dropdown Button
-local dropdown = Instance.new("TextButton")
-dropdown.Size = UDim2.new(0, 200, 0, 50)
-dropdown.Position = UDim2.new(0.5, -100, 0.5, -100)
-dropdown.Text = "Select Time of Day"
-dropdown.Parent = mainFrame
+do
+    -- Time of Day Dropdown
+    local dayCycleDropdown = Tabs.Main:AddDropdown("DayCycle", {
+        Title = "Select Time of Day",
+        Values = {"Morning", "Afternoon", "Night"},
+        Multi = false,
+        Default = "Morning",
+    }):OnChanged(function(Value)
+        if Value == "Morning" then
+            game:GetService("Lighting").TimeOfDay = "06:30:00"
+        elseif Value == "Afternoon" then
+            game:GetService("Lighting").TimeOfDay = "12:00:00"
+        elseif Value == "Night" then
+            game:GetService("Lighting").TimeOfDay = "21:00:00"
+        end
+    end)
 
--- Create Options Frame
-local optionsFrame = Instance.new("Frame")
-optionsFrame.Size = UDim2.new(0, 200, 0, 100)
-optionsFrame.Position = UDim2.new(0.5, -100, 0.5, 10)
-optionsFrame.Visible = false
-optionsFrame.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8)
-optionsFrame.Parent = mainFrame
+    -- Reset Position Button
+    Tabs.Main:AddButton({
+        Title = "Reset Position",
+        Callback = function()
+            if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.Position = Vector3.new(0, 10, 0) -- Change to desired position
+            end
+        end
+    })
 
--- Create Time Buttons
-local morningButton = Instance.new("TextButton")
-morningButton.Size = UDim2.new(1, 0, 0, 30)
-morningButton.Position = UDim2.new(0, 0, 0, 0)
-morningButton.Text = "Morning"
-morningButton.Parent = optionsFrame
-
-local afternoonButton = Instance.new("TextButton")
-afternoonButton.Size = UDim2.new(1, 0, 0, 30)
-afternoonButton.Position = UDim2.new(0, 0, 0, 35)
-afternoonButton.Text = "Afternoon"
-afternoonButton.Parent = optionsFrame
-
-local nightButton = Instance.new("TextButton")
-nightButton.Size = UDim2.new(1, 0, 0, 30)
-nightButton.Position = UDim2.new(0, 0, 0, 70)
-nightButton.Text = "Night"
-nightButton.Parent = optionsFrame
-
--- Functions to Set Time of Day
-local function setMorning()
-    Lighting.TimeOfDay = "06:30:00"
-    optionsFrame.Visible = false
+    -- Kill Button (no functionality yet)
+    Tabs.Main:AddButton({
+        Title = "Kill",
+        Callback = function()
+            print("Kill function not implemented yet.")
+        end
+    })
 end
 
-local function setAfternoon()
-    Lighting.TimeOfDay = "12:00:00"
-    optionsFrame.Visible = false
-end
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:SetFolder("DuckScriptHub")
+SaveManager:SetFolder("DuckScriptHub/specific-game")
 
-local function setNight()
-    Lighting.TimeOfDay = "21:00:00"
-    optionsFrame.Visible = false
-end
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
 
--- Connect Time Buttons to Functions
-morningButton.MouseButton1Click:Connect(setMorning)
-afternoonButton.MouseButton1Click:Connect(setAfternoon)
-nightButton.MouseButton1Click:Connect(setNight)
+Window:SelectTab(1)
 
--- Toggle Dropdown Options
-dropdown.MouseButton1Click:Connect(function()
-    optionsFrame.Visible = not optionsFrame.Visible
-end)
+Fluent:Notify({
+    Title = "Duck GUI",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
 
--- Create Other Buttons
-local resetButton = Instance.new("TextButton")
-resetButton.Size = UDim2.new(0, 200, 0, 50)
-resetButton.Position = UDim2.new(0.5, -100, 0.5, 100)
-resetButton.Text = "Reset Position"
-resetButton.Parent = mainFrame
-
-local killButton = Instance.new("TextButton")  -- Button labeled as Kill, but no function yet
-killButton.Size = UDim2.new(0, 200, 0, 50)
-killButton.Position = UDim2.new(0.5, -100, 0.5, 160)
-killButton.Text = "Kill"
-killButton.Parent = mainFrame
-
--- Reset Position Function
-local function resetPosition()
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.Position = Vector3.new(0, 10, 0) -- Change to desired position
-    end
-end
-
-resetButton.MouseButton1Click:Connect(resetPosition)
-
--- Close Dropdown if clicked outside (optional)
-screenGui.MouseButton1Click:Connect(function()
-    if optionsFrame.Visible then
-        optionsFrame.Visible = false
-    end
-end)
-
-optionsFrame.MouseButton1Click:Connect(function()
-    optionsFrame.Visible = true
-end)
+SaveManager:LoadAutoloadConfig()
