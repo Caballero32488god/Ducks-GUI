@@ -19,7 +19,7 @@ local Tabs = {
     Stats = Window:AddTab({ Title = "Stats", Icon = "" }),
     Misc = Window:AddTab({ Title = "Misc", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-}
+})
 
 -- Main Tab
 do
@@ -167,6 +167,44 @@ do
             end
         end
     })
+end
+
+-- Settings Tab
+do
+    local InterfaceSection = Tabs.Settings:AddSection("Interface")
+
+    InterfaceSection:AddDropdown("InterfaceTheme", {
+        Title = "Theme",
+        Description = "Changes the interface theme.",
+        Values = Fluent.Themes,
+        Default = Fluent.Theme,
+        Callback = function(Value)
+            Fluent:SetTheme(Value)
+        end
+    })
+
+    if Fluent.UseAcrylic then
+        InterfaceSection:AddToggle("AcrylicToggle", {
+            Title = "Acrylic",
+            Description = "The blurred background requires graphic quality 8+",
+            Default = Fluent.Acrylic,
+            Callback = function(Value)
+                Fluent:ToggleAcrylic(Value)
+            end
+        })
+    end
+
+    InterfaceSection:AddToggle("TransparentToggle", {
+        Title = "Transparency",
+        Description = "Makes the interface transparent.",
+        Default = Fluent.Transparency,
+        Callback = function(Value)
+            Fluent:ToggleTransparency(Value)
+        end
+    })
+
+    InterfaceSection:AddKeybind("MenuKeybind", { Title = "Minimize Bind", Default = "RightShift" })
+    Fluent.MinimizeKeybind = Fluent.Options.MenuKeybind 
 end
 
 -- SaveManager and InterfaceManager setup
