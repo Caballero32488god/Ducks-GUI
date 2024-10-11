@@ -123,10 +123,11 @@ do
     })
 end
 
--- Settings Tab remains unchanged from the original implementation
-
+-- Save Manager Setup
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
+
+-- Ignore keys that are used by ThemeManager.
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({})
 InterfaceManager:SetFolder("DuckScriptHub")
