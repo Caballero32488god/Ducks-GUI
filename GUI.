@@ -4,107 +4,70 @@ local Window = HorizonLibrary:CreateWindow({
     Version = "1.2"
 })
 
-local ConsoleTab = Window:CreateConsoleTab({
-    Name = "Console",
-    Icon = "rbxassetid://14290789640",
-    FirstWindow = true
-})
-
+-- Create a Settings Tab
 local SettingsTab = Window:CreateSettingsTab({
     Name = "Settings",
     Icon = "rbxassetid://14290827572",
-    FirstWindow = false
+    FirstWindow = true
 })
 
-local Section1 = SettingsTab:CreateSection({
+-- Movement Section
+local MovementSection = SettingsTab:CreateSection({
     Name = "Movement"
 })
 
-Section1:CreateButton("No Hit Speed", function()
+MovementSection:CreateButton("No Hit Speed", function()
     -- Functionality for No Hit Speed
 end)
 
-Section1:CreateButton("Kill", function()
+MovementSection:CreateButton("Kill", function()
     -- Functionality for Kill
 end)
 
 local isLocked = false
 local Player = game.Players.LocalPlayer
 
-Section1:CreateButton("Lock Position", function()
+MovementSection:CreateButton("Lock Position", function()
     isLocked = not isLocked
     
     if isLocked then
-        -- Lock the player's position
         Player.Character.HumanoidRootPart.Anchored = true
         Player.Character.Humanoid.AutoRotate = false
-        Player.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame
         print("Position Locked")
     else
-        -- Unlock the player's position
         Player.Character.HumanoidRootPart.Anchored = false
         Player.Character.Humanoid.AutoRotate = true
         print("Position Unlocked")
     end
 end)
 
-Section1:CreateButton("Time Zone", function()
+MovementSection:CreateButton("Time Zone", function()
     -- Functionality for Time Zone
 end)
 
-local Section2 = SettingsTab:CreateSection({
+-- Speed Controls Section
+local SpeedSection = SettingsTab:CreateSection({
     Name = "Speed Controls"
 })
 
-Section2:CreateTextBox("Set Speed", "Change numbers by typing it", true, function(Value)
+SpeedSection:CreateTextBox("Set Speed", "Change numbers by typing it", true, function(Value)
     local speed = tonumber(Value)
     if speed then
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = speed
+        Player.Character.Humanoid.WalkSpeed = speed
     end
 end)
 
-Section2:CreateButton("Walk Water (Coming Soon)", function()
+SpeedSection:CreateButton("Walk Water (Coming Soon)", function()
     -- Functionality for Walk Water
 end)
 
-Section2:CreateButton("FPS", function()
-    -- FPS Booster Script
+SpeedSection:CreateButton("FPS", function()
     _G.Ignore = {}
     _G.Settings = {
         Players = {
             ["Ignore Me"] = true,
             ["Ignore Others"] = true,
             ["Ignore Tools"] = true
-        },
-        Meshes = {
-            NoMesh = false,
-            NoTexture = false,
-            Destroy = false
-        },
-        Images = {
-            Invisible = true,
-            Destroy = false
-        },
-        Explosions = {
-            Smaller = true,
-            Invisible = false,
-            Destroy = false
-        },
-        Particles = {
-            Invisible = true,
-            Destroy = false
-        },
-        TextLabels = {
-            LowerQuality = true,
-            Invisible = false,
-            Destroy = false
-        },
-        MeshParts = {
-            LowerQuality = true,
-            Invisible = false,
-            NoTexture = false,
-            NoMesh = false,
-            Destroy = false
         },
         Other = {
             ["FPS Cap"] = 360,
@@ -123,7 +86,7 @@ end)
 
 local infiniteJumpEnabled = false
 
-Section2:CreateButton("Infinite Jump", function()
+SpeedSection:CreateButton("Infinite Jump", function()
     local UserInputService = game:GetService("UserInputService")
     
     infiniteJumpEnabled = not infiniteJumpEnabled
@@ -142,7 +105,7 @@ end)
 
 local antiKnockbackEnabled = false
 
-Section2:CreateButton("Anti Knockback", function()
+SpeedSection:CreateButton("Anti Knockback", function()
     antiKnockbackEnabled = not antiKnockbackEnabled
     
     if antiKnockbackEnabled then
@@ -161,6 +124,8 @@ Section2:CreateButton("Anti Knockback", function()
         print("Anti Knockback Disabled")
     end
 end)
+
+-- Additional buttons can be added here if needed
 
 local MiscellaneousTab = Window:CreateMiscellaneousTab({
     Name = "Miscellaneous",
