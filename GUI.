@@ -1,48 +1,164 @@
 local HorizonLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/6ayy/HorizonLibrary/main/Library.lua"))()
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
 local Window = HorizonLibrary:CreateWindow({
     Name = "Ducks are cool",
     Version = "1.2"
 })
 
-local StatsTab = Window:CreateMiscellaneousTab({
-    Name = "Stats",
-    Icon = "rbxassetid://14290827572",
+local ConsoleTab = Window:CreateConsoleTab({
+    Name = "Console",
+    Icon = "rbxassetid://14290789640",
     FirstWindow = true
 })
 
-local function createStatButton(statName)
-    StatsTab:CreateButton({
-        Name = statName,
-        Callback = function()
-            local stats = LocalPlayer:FindFirstChild("leaderstats")
-            if stats then
-                local stat = stats:FindFirstChild(statName)
-                if stat and stat:IsA("IntValue") then
-                    print(statName .. ": " .. tostring(stat.Value))
-                else
-                    print(statName .. " not found.")
-                end
-            else
-                print("leaderstats not found for player.")
+local SettingsTab = Window:CreateSettingsTab({
+    Name = "Settings",
+    Icon = "rbxassetid://14290827572",
+    FirstWindow = false
+})
+
+local Section1 = SettingsTab:CreateSection({
+    Name = "Movement"
+})
+
+Section1:CreateButton("No Hit Speed", function()
+    -- Functionality for No Hit Speed
+end)
+
+Section1:CreateButton("Kill", function()
+    -- Functionality for Kill
+end)
+
+local isLocked = false
+local Player = game.Players.LocalPlayer
+
+Section1:CreateButton("Lock Position", function()
+    isLocked = not isLocked
+    
+    if isLocked then
+        -- Lock the player's position
+        Player.Character.HumanoidRootPart.Anchored = true
+        Player.Character.Humanoid.AutoRotate = false
+        Player.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame
+        print("Position Locked")
+    else
+        -- Unlock the player's position
+        Player.Character.HumanoidRootPart.Anchored = false
+        Player.Character.Humanoid.AutoRotate = true
+        print("Position Unlocked")
+    end
+end)
+
+Section1:CreateButton("Time Zone", function()
+    -- Functionality for Time Zone
+end)
+
+local Section2 = SettingsTab:CreateSection({
+    Name = "Speed Controls"
+})
+
+Section2:CreateTextBox("Set Speed", "Change numbers by typing it", true, function(Value)
+    local speed = tonumber(Value)
+    if speed then
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = speed
+    end
+end)
+
+Section2:CreateButton("Walk Water (Coming Soon)", function()
+    -- Functionality for Walk Water
+end)
+
+Section2:CreateButton("FPS", function()
+    -- FPS Booster Script
+    _G.Ignore = {}
+    _G.Settings = {
+        Players = {
+            ["Ignore Me"] = true,
+            ["Ignore Others"] = true,
+            ["Ignore Tools"] = true
+        },
+        Meshes = {
+            NoMesh = false,
+            NoTexture = false,
+            Destroy = false
+        },
+        Images = {
+            Invisible = true,
+            Destroy = false
+        },
+        Explosions = {
+            Smaller = true,
+            Invisible = false,
+            Destroy = false
+        },
+        Particles = {
+            Invisible = true,
+            Destroy = false
+        },
+        TextLabels = {
+            LowerQuality = true,
+            Invisible = false,
+            Destroy = false
+        },
+        MeshParts = {
+            LowerQuality = true,
+            Invisible = false,
+            NoTexture = false,
+            NoMesh = false,
+            Destroy = false
+        },
+        Other = {
+            ["FPS Cap"] = 360,
+            ["No Camera Effects"] = true,
+            ["No Clothes"] = true,
+            ["Low Water Graphics"] = true,
+            ["No Shadows"] = true,
+            ["Low Rendering"] = true,
+            ["Low Quality Parts"] = true,
+            ["Low Quality Models"] = true,
+            ["Reset Materials"] = true,
+        }
+    }
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/CasperFlyModz/discord.gg-rips/main/FPSBooster.lua"))()
+end)
+
+local infiniteJumpEnabled = false
+
+Section2:CreateButton("Infinite Jump", function()
+    local UserInputService = game:GetService("UserInputService")
+    
+    infiniteJumpEnabled = not infiniteJumpEnabled
+
+    if infiniteJumpEnabled then
+        UserInputService.JumpRequest:Connect(function()
+            if infiniteJumpEnabled and Player.Character then
+                Player.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
             end
-        end
-    })
-end
+        end)
+        print("Infinite Jump Enabled")
+    else
+        print("Infinite Jump Disabled")
+    end
+end)
 
--- Create buttons for the selected stats
-local statNames = {"Strength", "Rebirths", "Total Kills", "Brawls", "Gems", "Evil Karma"}
-for _, statName in ipairs(statNames) do
-    createStatButton(statName)
-end
+local antiKnockbackEnabled = false
 
--- Ensure leaderstats are ready
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Wait()
-    for _, statName in ipairs(statNames) do
-        createStatButton(statName)
+Section2:CreateButton("Anti Knockback", function()
+    antiKnockbackEnabled = not antiKnockbackEnabled
+    
+    if antiKnockbackEnabled then
+        local character = Player.Character or Player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        
+        humanoid:GetPropertyChangedSignal("PlatformStand"):Connect(function()
+            if antiKnockbackEnabled then
+                humanoid.PlatformStand = true
+            end
+        end)
+
+        print("Anti Knockback Enabled")
+    else
+        Player.Character:FindFirstChildOfClass("Humanoid").PlatformStand = false
+        print("Anti Knockback Disabled")
     end
 end)
 
