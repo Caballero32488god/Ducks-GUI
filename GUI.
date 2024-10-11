@@ -1,52 +1,42 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+local success, errorMsg = pcall(function()
+    local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+    local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+    local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
-local Window = Fluent:CreateWindow({
-    Title = "Fluent " .. Fluent.Version,
-    SubTitle = "by Masterboy123",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
-})
+    local Window = Fluent:CreateWindow({
+        Title = "Fluent " .. Fluent.Version,
+        SubTitle = "by Masterboy123",
+        TabWidth = 160,
+        Size = UDim2.fromOffset(580, 460),
+        Acrylic = true,
+        Theme = "Dark",
+        MinimizeKey = Enum.KeyCode.LeftControl
+    })
 
---Fluent provides Lucide Icons https://lucide.dev/icons/ for the tabs, icons are optional
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Killer = Window:AddTab({ Title = "Killer", Icon = "" }),
-    AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = ""}),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-}
+    local Tabs = {
+        Main = Window:AddTab({ Title = "Main", Icon = "" }),
+        Killer = Window:AddTab({ Title = "Killer", Icon = "" }),
+        AutoFarm = Window:AddTab({ Title = "AutoFarm", Icon = "" }),
+        Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    }
 
-local Options = Fluent.Options
-
-do
     Fluent:Notify({
         Title = "Notification",
         Content = "Thanks for Hiring me",
-        SubContent = "Hello, Duck", -- Optional
-        Duration = 5 -- Set to nil to make the notification not disappear
+        SubContent = "Hello, Duck",
+        Duration = 5
     })
-
-
 
     Tabs.Main:AddParagraph({
         Title = "Read This",
-        Content = "Hello, This script was made by Masterboy123, Owner Transfered to Duck"
+        Content = "Hello, This script was made by Masterboy123, Owner Transferred to Duck"
     })
 
-    local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Toggle", Default = false })
-
+    local Toggle = Tabs.Main:AddToggle("MyToggle", { Title = "Toggle", Default = false })
     Toggle:OnChanged(function()
-        print("Toggle changed:", Options.MyToggle.Value)
+        print("Toggle changed:", Toggle:GetValue())
     end)
 
-    Options.MyToggle:SetValue(false)
-
-
-    
     local Slider = Tabs.Main:AddSlider("Slider", {
         Title = "Slider",
         Description = "This is a slider",
@@ -58,58 +48,40 @@ do
             print("Slider was changed:", Value)
         end
     })
-
-    Slider:OnChanged(function(Value)
-        print("Slider changed:", Value)
-    end)
-
     Slider:SetValue(3)
 
+    local Players = game:GetService("Players")
+    local playerNames = {}
 
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.DisplayName then
+            table.insert(playerNames, player.DisplayName)
+        end
+    end
 
- local Players = game:GetService("Players")
+    if #playerNames == 0 then
+        print("No players found.")
+    else
+        print("Players found:", table.concat(playerNames, ", "))
+    end
 
-local playerNames = {}
-for _, player in ipairs(Players:GetPlayers()) do
-    table.insert(playerNames, player.DisplayName)
-end
-
-local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
-    Title = "Dropdown",
-    Values = playerNames,
-    Multi = false,
-    Default = playerNames[1], -- Set the default to the first player if needed
-})
-
-
-    Dropdown:SetValue("four")
+    local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+        Title = "Dropdown",
+        Values = playerNames,
+        Multi = false,
+        Default = playerNames[1] or "No Players"
+    })
 
     Dropdown:OnChanged(function(Value)
         print("Dropdown changed:", Value)
     end)
 
-
-    
-   local Players = game:GetService("Players")
-
-local playerNames = {}
-for _, player in ipairs(Players:GetPlayers()) do
-    table.insert(playerNames, player.DisplayName)
-end
-
-local MultiDropdown = Tabs.Main:AddDropdown("MultiDropdown", {
-    Title = "Dropdown",
-    Description = "You can select multiple values.",
-    Values = playerNames,
-    Multi = true,
-    Default = {playerNames[1]}, -- Set the default to the first player if needed
-})
-
-
-    MultiDropdown:SetValue({
-        three = true,
-        five = true,
-        seven = false
+    local MultiDropdown = Tabs.Main:AddDropdown("MultiDropdown", {
+        Title = "MultiDropdown",
+        Description = "You can select multiple values.",
+        Values = playerNames,
+        Multi = true,
+        Default = { playerNames[1] } -- Default to first player if available
     })
 
     MultiDropdown:OnChanged(function(Value)
@@ -117,45 +89,30 @@ local MultiDropdown = Tabs.Main:AddDropdown("MultiDropdown", {
         for Value, State in next, Value do
             table.insert(Values, Value)
         end
-        print("Mutlidropdown changed:", table.concat(Values, ", "))
+        print("MultiDropdown changed:", table.concat(Values, ", "))
     end)
 
+    SaveManager:SetLibrary(Fluent)
+    InterfaceManager:SetLibrary(Fluent)
+    SaveManager:IgnoreThemeSettings()
+    SaveManager:SetIgnoreIndexes({})
+    InterfaceManager:SetFolder("FluentScriptHub")
+    SaveManager:SetFolder("FluentScriptHub/specific-game")
 
+    InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+    SaveManager:BuildConfigSection(Tabs.Settings)
 
-    
--- Addons:
--- SaveManager (Allows you to have a configuration system)
--- InterfaceManager (Allows you to have a interface managment system)
+    Window:SelectTab(1)
 
--- Hand the library over to our managers
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
+    Fluent:Notify({
+        Title = "Duck",
+        Content = "The script has been loaded.",
+        Duration = 8
+    })
 
--- Ignore keys that are used by ThemeManager.
--- (we dont want configs to save themes, do we?)
-SaveManager:IgnoreThemeSettings()
+    SaveManager:LoadAutoloadConfig()
+end)
 
--- You can add indexes of elements the save manager should ignore
-SaveManager:SetIgnoreIndexes({})
-
--- use case for doing it this way:
--- a script hub could have themes in a global folder
--- and game configs in a separate folder per game
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/specific-game")
-
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
-
-
-Window:SelectTab(1)
-
-Fluent:Notify({
-    Title = "Duck",
-    Content = "The script has been loaded.",
-    Duration = 8
-})
-
--- You can use the SaveManager:LoadAutoloadConfig() to load a config
--- which has been marked to be one that auto loads!
-SaveManager:LoadAutoloadConfig()
+if not success then
+    warn("Error loading Fluent: " .. errorMsg)
+end
