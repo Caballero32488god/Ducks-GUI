@@ -14,9 +14,14 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Kill = Window:AddTab({ Title = "Kill", Icon = "" }),
+    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "" }),
+    Stats = Window:AddTab({ Title = "Stats", Icon = "" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
+-- Main Tab
 do
     -- Time of Day Dropdown
     local dayCycleDropdown = Tabs.Main:AddDropdown("DayCycle", {
@@ -33,14 +38,6 @@ do
             game:GetService("Lighting").TimeOfDay = "21:00:00"
         end
     end)
-
-    -- Kill Button (no functionality yet)
-    Tabs.Main:AddButton({
-        Title = "Kill",
-        Callback = function()
-            print("Kill function not implemented yet.")
-        end
-    })
 
     -- No Hit Cooldown
     Tabs.Main:AddButton({
@@ -63,9 +60,41 @@ do
             print("No Hit Cooldown activated.")
         end
     })
+end
 
-    -- Walk on Water Button
-    Tabs.Main:AddButton({
+-- Kill Tab
+do
+    Tabs.Kill:AddButton({
+        Title = "Kill Function (Not Implemented)",
+        Callback = function()
+            print("Kill function not implemented yet.")
+        end
+    })
+end
+
+-- Auto Farm Tab
+do
+    Tabs.AutoFarm:AddButton({
+        Title = "Start Auto Farming (Not Implemented)",
+        Callback = function()
+            print("Auto farming function not implemented yet.")
+        end
+    })
+end
+
+-- Stats Tab
+do
+    Tabs.Stats:AddLabel({
+        Title = "Player Stats (Not Implemented)",
+        Callback = function()
+            print("Stats feature not implemented yet.")
+        end
+    })
+end
+
+-- Misc Tab
+do
+    Tabs.Misc:AddButton({
         Title = "Walk on Water",
         Callback = function()
             local player = game.Players.LocalPlayer
@@ -90,6 +119,16 @@ do
             end)
 
             print("Walkable water created just for you.")
+        end
+    })
+end
+
+-- Settings Tab
+do
+    Tabs.Settings:AddButton({
+        Title = "Settings Feature (Not Implemented)",
+        Callback = function()
+            print("Settings feature not implemented yet.")
         end
     })
 end
