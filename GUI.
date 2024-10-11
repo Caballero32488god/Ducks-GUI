@@ -34,21 +34,60 @@ do
         end
     end)
 
-    -- Reset Position Button
-    Tabs.Main:AddButton({
-        Title = "Reset Position",
-        Callback = function()
-            if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                game.Players.LocalPlayer.Character.HumanoidRootPart.Position = Vector3.new(0, 10, 0) -- Change to desired position
-            end
-        end
-    })
-
     -- Kill Button (no functionality yet)
     Tabs.Main:AddButton({
         Title = "Kill",
         Callback = function()
             print("Kill function not implemented yet.")
+        end
+    })
+
+    -- No Hit Cooldown
+    Tabs.Main:AddButton({
+        Title = "No Hit Cooldown",
+        Callback = function()
+            local player = game.Players.LocalPlayer
+            local backpack = player:WaitForChild("Backpack")
+            
+            for _, tool in ipairs(backpack:GetChildren()) do
+                if tool:IsA("Tool") then
+                    if tool:FindFirstChild("attackTime") then
+                        tool.attackTime.Value = 0.1
+                    end
+                    if tool:FindFirstChild("repTime") then
+                        tool.repTime.Value = 0.1
+                    end
+                end
+            end
+            
+            print("No Hit Cooldown activated.")
+        end
+    })
+
+    -- Walk on Water Button
+    Tabs.Main:AddButton({
+        Title = "Walk on Water",
+        Callback = function()
+            local workspace = game:GetService("Workspace")
+
+            local function makeWalkable(part)
+                if part:IsA("Part") then
+                    part.CanCollide = true
+                    part.Anchored = true
+                    part.Material = Enum.Material.SmoothPlastic
+                    part.Transparency = 0 -- Change transparency to 0 to make it visible
+                end
+            end
+
+            if workspace:FindFirstChild("seaPart") then
+                makeWalkable(workspace.seaPart)
+            end
+            
+            if workspace:FindFirstChild("topWater") then
+                makeWalkable(workspace.topWater)
+            end
+            
+            print("Water walkability activated.")
         end
     })
 end
