@@ -1,43 +1,39 @@
-local InfiniteJumpEnabled = true
-game:GetService("UserInputService").JumpRequest:connect(function()
-	if InfiniteJumpEnabled then
-		game:GetService"Players".LocalPlayer.Character:FindFirstChildOfClass'Humanoid':ChangeState("Jumping")
-	end
-end)
+local player = game.Players.LocalPlayer
+local backpack = player:WaitForChild("Backpack")
 
-local vu = game:GetService("VirtualUser")
-game:GetService("Players").LocalPlayer.Idled:connect(function()
-    vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-    wait(1)
-    vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-end)
- 
-game.StarterGui:SetCore("SendNotification", {
-    Title = "made by Masterboy123";
- 
-   
-})
-wait(1)
-game.StarterGui:SetCore("SendNotification", {
-    Title = "Enjoy Killing Duck";
-    Text = "Enjoy"; -- what the text says (ofc)
-    Duration = 60;
-})
-_G.HeadSize = 90
-_G.Disabled = true
+-- Function to teleport players in front of the local player
+local function teleportPlayers()
+    for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player then
+            local character = otherPlayer.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -5)
+            end
+        end
+    end
+end
 
-game:GetService('RunService').RenderStepped:connect(function()
-if _G.Disabled then
-for i,v in next, game:GetService('Players'):GetPlayers() do
-if v.Name ~= game:GetService('Players').LocalPlayer.Name then
-pcall(function()
-v.Character.HumanoidRootPart.Size = Vector3.new(_G.HeadSize,_G.HeadSize,_G.HeadSize)
-v.Character.HumanoidRootPart.Transparency = 0.7
-v.Character.HumanoidRootPart.BrickColor = BrickColor.new("Really black")
-v.Character.HumanoidRootPart.Material = "Neon"
-v.Character.HumanoidRootPart.CanCollide = false
-end)
+-- Function to enable punching with adjustments
+local function enablePunching()
+    for _, tool in ipairs(backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            if tool:FindFirstChild("attackTime") then
+                tool.attackTime.Value = 0.1
+            end
+            if tool:FindFirstChild("repTime") then
+                tool.repTime.Value = 0.1
+            end
+        end
+    end
+
+    -- Punching loop
+    while true do
+        player.muscleEvent:FireServer("punch", "leftHand")
+        player.muscleEvent:FireServer("punch", "rightHand")
+        wait(0)  -- Wait for 0 seconds before the next punch (immediate)
+    end
 end
-end
-end
-end)
+
+-- Main execution
+teleportPlayers()
+enablePunching()
