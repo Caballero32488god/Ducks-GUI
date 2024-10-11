@@ -68,26 +68,28 @@ do
     Tabs.Main:AddButton({
         Title = "Walk on Water",
         Callback = function()
-            local workspace = game:GetService("Workspace")
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
-            local function makeWalkable(part)
-                if part:IsA("Part") then
-                    part.CanCollide = true
-                    part.Anchored = true
-                    part.Material = Enum.Material.SmoothPlastic
-                    part.Transparency = 0 -- Change transparency to 0 to make it visible
-                end
-            end
+            -- Create a walkable part
+            local walkablePart = Instance.new("Part")
+            walkablePart.Size = Vector3.new(5, 1, 5) -- Adjust size as needed
+            walkablePart.Material = Enum.Material.SmoothStone
+            walkablePart.Anchored = true
+            walkablePart.CanCollide = true
+            walkablePart.Transparency = 0 -- Make it visible
+            walkablePart.Parent = game.Workspace
+            
+            -- Position the part under the player
+            walkablePart.Position = humanoidRootPart.Position - Vector3.new(0, 3, 0) -- Adjust height as needed
 
-            if workspace:FindFirstChild("seaPart") then
-                makeWalkable(workspace.seaPart)
-            end
-            
-            if workspace:FindFirstChild("topWater") then
-                makeWalkable(workspace.topWater)
-            end
-            
-            print("Water walkability activated.")
+            -- Ensure the part follows the player
+            humanoidRootPart:GetPropertyChangedSignal("Position"):Connect(function()
+                walkablePart.Position = humanoidRootPart.Position - Vector3.new(0, 3, 0)
+            end)
+
+            print("Walkable water created just for you.")
         end
     })
 end
