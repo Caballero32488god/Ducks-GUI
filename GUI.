@@ -4,7 +4,7 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 
 local Window = Fluent:CreateWindow({
     Title = "Fluent " .. Fluent.Version,
-    SubTitle = "by dawid",
+    SubTitle = "by Masterboy123",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
@@ -14,6 +14,10 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Kill = Window:AddTab({ Title = "Kill", Icon = "" }),
+    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "" }),
+    Stats = Window:AddTab({ Title = "Stats", Icon = "" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
@@ -51,7 +55,6 @@ do
             
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 local humanoidRootPart = LocalPlayer.Character.HumanoidRootPart
-                
                 humanoidRootPart.Anchored = true
                 print("Position locked.")
             else
@@ -59,53 +62,114 @@ do
             end
         end
     })
-
-    -- Daycycle Dropdown
-    Tabs.Main:AddDropdown("Daycycle", {
-        Title = "Daycycle",
-        Values = {"Morning", "Afternoon", "Night"},
-        Multi = false,
-        Default = "Morning",
-    }):OnChanged(function(Value)
-        if Value == "Morning" then
-            game:GetService("Lighting").TimeOfDay = "06:30:00"
-        elseif Value == "Afternoon" then
-            game:GetService("Lighting").TimeOfDay = "12:00:00"
-        elseif Value == "Night" then
-            game:GetService("Lighting").TimeOfDay = "21:00:00"
-        end
-        print("Daycycle changed:", Value)
-    end)
 end
 
--- Settings Tab
+-- Kill Tab
 do
-    Tabs.Settings:AddButton({
-        Title = "Save Settings",
-        Callback = function()
-            SaveManager:SaveConfig("DuckScriptHub/specific-game")
-            print("Settings saved.")
-        end
+    -- Single Player Dropdown
+    local singleDropdown = Tabs.Kill:AddDropdown("SinglePlayerDropdown", {
+        Title = "Select Player",
+        Values = {}, -- Will be populated
+        Multi = false,
     })
 
-    Tabs.Settings:AddButton({
-        Title = "Load Settings",
-        Callback = function()
-            SaveManager:LoadConfig("DuckScriptHub/specific-game")
-            print("Settings loaded.")
-        end
+    -- Multiple Player Dropdown
+    local multiDropdown = Tabs.Kill:AddDropdown("MultiPlayerDropdown", {
+        Title = "Select Multiple Players",
+        Values = {}, -- Will be populated
+        Multi = true,
     })
 
-    Tabs.Settings:AddButton({
-        Title = "Reset Settings",
+    local function updatePlayerDropdowns()
+        local playerNames = {}
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            table.insert(playerNames, player.Name)
+        end
+        singleDropdown:SetValue(playerNames)
+        multiDropdown:SetValue(playerNames)
+    end
+
+    singleDropdown:OnChanged(function(selectedName)
+        print("Selected single player for kill:", selectedName)
+        -- Implement kill logic for the selected player
+    end)
+
+    multiDropdown:OnChanged(function(selectedNames)
+        print("Selected multiple players for kill:", table.concat(selectedNames, ", "))
+        -- Implement kill logic for the selected players
+    end)
+
+    updatePlayerDropdowns()
+    game.Players.PlayerAdded:Connect(updatePlayerDropdowns)
+    game.Players.PlayerRemoving:Connect(updatePlayerDropdowns)
+end
+
+-- Stats Tab
+do
+    local playerDropdown = Tabs.Stats:AddDropdown("PlayerDropdown", {
+        Title = "Select Player",
+        Values = {}, -- Will be populated with player names
+        Multi = false,
+    })
+
+    local statsDisplay = Tabs.Stats:AddParagraph({
+        Title = "Player Stats",
+        Content = "Select a player to see their stats.",
+    })
+
+    local function updatePlayerDropdown()
+        local playerNames = {}
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            table.insert(playerNames, player.Name)
+        end
+        playerDropdown:SetValue(playerNames)
+    end
+
+    local function displayPlayerStats(playerName)
+        local player = game.Players:FindFirstChild(playerName)
+        if player and player:FindFirstChild("leaderstats") then
+            local leaderstats = player.leaderstats
+            local statsContent = {}
+
+            for _, stat in ipairs(leaderstats:GetChildren()) do
+                if stat:IsA("IntValue") then
+                    table.insert(statsContent, string.format("%s (%s): %d", player.Name, stat.Name, stat.Value))
+                end
+            end
+
+            statsDisplay.Content = table.concat(statsContent, "\n") or "No stats available."
+        else
+            statsDisplay.Content = "Player not found or has no stats."
+        end
+    end
+
+    playerDropdown:OnChanged(function(selectedName)
+        displayPlayerStats(selectedName)
+    end)
+
+    updatePlayerDropdown()
+    game.Players.PlayerAdded:Connect(updatePlayerDropdown)
+    game.Players.PlayerRemoving:Connect(updatePlayerDropdown)
+end
+
+-- Misc Tab
+do
+    Tabs.Misc:AddButton({
+        Title = "Walk on Water",
         Callback = function()
-            SaveManager:ResetConfig("DuckScriptHub/specific-game")
-            print("Settings reset to default.")
+            local workspace = game:GetService("Workspace")
+            local seaPart = workspace:FindFirstChild("seaPart")
+            if seaPart then
+                seaPart.Material = Enum.Material.SmoothPlastic
+                seaPart.CanCollide = true
+                seaPart.Size = Vector3.new(100, 1, 100) -- Example dimensions
+                print("Changed seaPart to a walkable platform.")
+            end
         end
     })
 end
 
--- Save Manager Setup
+-- SaveManager and InterfaceManager setup
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()
