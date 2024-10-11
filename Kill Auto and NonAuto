@@ -1,39 +1,115 @@
-local player = game.Players.LocalPlayer
-local backpack = player:WaitForChild("Backpack")
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- Function to teleport players in front of the local player
-local function teleportPlayers()
-    for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
-        if otherPlayer ~= player then
-            local character = otherPlayer.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -5)
-            end
+local Window = Fluent:CreateWindow({
+    Title = "Duck GUI - By Masterboy123",
+    SubTitle = "Game Controls",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+do
+    -- Time of Day Dropdown
+    local dayCycleDropdown = Tabs.Main:AddDropdown("DayCycle", {
+        Title = "Select Time of Day",
+        Values = {"Morning", "Afternoon", "Night"},
+        Multi = false,
+        Default = "Morning",
+    }):OnChanged(function(Value)
+        if Value == "Morning" then
+            game:GetService("Lighting").TimeOfDay = "06:30:00"
+        elseif Value == "Afternoon" then
+            game:GetService("Lighting").TimeOfDay = "12:00:00"
+        elseif Value == "Night" then
+            game:GetService("Lighting").TimeOfDay = "21:00:00"
         end
-    end
+    end)
+
+    -- Kill Button (no functionality yet)
+    Tabs.Main:AddButton({
+        Title = "Kill",
+        Callback = function()
+            print("Kill function not implemented yet.")
+        end
+    })
+
+    -- No Hit Cooldown
+    Tabs.Main:AddButton({
+        Title = "No Hit Cooldown",
+        Callback = function()
+            local player = game.Players.LocalPlayer
+            local backpack = player:WaitForChild("Backpack")
+            
+            for _, tool in ipairs(backpack:GetChildren()) do
+                if tool:IsA("Tool") then
+                    if tool:FindFirstChild("attackTime") then
+                        tool.attackTime.Value = 0.1
+                    end
+                    if tool:FindFirstChild("repTime") then
+                        tool.repTime.Value = 0.1
+                    end
+                end
+            end
+            
+            print("No Hit Cooldown activated.")
+        end
+    })
+
+    -- Walk on Water Button
+    Tabs.Main:AddButton({
+        Title = "Walk on Water",
+        Callback = function()
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+            -- Create a walkable part
+            local walkablePart = Instance.new("Part")
+            walkablePart.Size = Vector3.new(5, 1, 5) -- Adjust size as needed
+            walkablePart.Material = Enum.Material.SmoothStone
+            walkablePart.Anchored = true
+            walkablePart.CanCollide = true
+            walkablePart.Transparency = 0 -- Make it visible
+            walkablePart.Parent = game.Workspace
+            
+            -- Position the part under the player
+            walkablePart.Position = humanoidRootPart.Position - Vector3.new(0, 3, 0) -- Adjust height as needed
+
+            -- Ensure the part follows the player
+            humanoidRootPart:GetPropertyChangedSignal("Position"):Connect(function()
+                walkablePart.Position = humanoidRootPart.Position - Vector3.new(0, 3, 0)
+            end)
+
+            print("Walkable water created just for you.")
+        end
+    })
 end
 
--- Function to enable punching with adjustments
-local function enablePunching()
-    for _, tool in ipairs(backpack:GetChildren()) do
-        if tool:IsA("Tool") then
-            if tool:FindFirstChild("attackTime") then
-                tool.attackTime.Value = 0.1
-            end
-            if tool:FindFirstChild("repTime") then
-                tool.repTime.Value = 0.1
-            end
-        end
-    end
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:SetFolder("DuckScriptHub")
+SaveManager:SetFolder("DuckScriptHub/specific-game")
 
-    -- Punching loop
-    while true do
-        player.muscleEvent:FireServer("punch", "leftHand")
-        player.muscleEvent:FireServer("punch", "rightHand")
-        wait(0)  -- Wait for 0 seconds before the next punch (immediate)
-    end
-end
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
 
--- Main execution
-teleportPlayers()
-enablePunching()
+Window:SelectTab(1)
+
+Fluent:Notify({
+    Title = "Duck GUI",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+SaveManager:LoadAutoloadConfig()
