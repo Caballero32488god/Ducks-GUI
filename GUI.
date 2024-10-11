@@ -3,8 +3,8 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Duck GUI - By Masterboy123",
-    SubTitle = "Game Controls",
+    Title = "Fluent " .. Fluent.Version,
+    SubTitle = "by dawid",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
@@ -14,38 +14,19 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Kill = Window:AddTab({ Title = "Kill", Icon = "" }),
-    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "" }),
-    Stats = Window:AddTab({ Title = "Stats", Icon = "" }),
-    Misc = Window:AddTab({ Title = "Misc", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }) -- Keep existing Settings functionality
-})
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
 
 -- Main Tab
 do
-    -- Time of Day Dropdown
-    local dayCycleDropdown = Tabs.Main:AddDropdown("DayCycle", {
-        Title = "Select Time of Day",
-        Values = {"Morning", "Afternoon", "Night"},
-        Multi = false,
-        Default = "Morning",
-    }):OnChanged(function(Value)
-        if Value == "Morning" then
-            game:GetService("Lighting").TimeOfDay = "06:30:00"
-        elseif Value == "Afternoon" then
-            game:GetService("Lighting").TimeOfDay = "12:00:00"
-        elseif Value == "Night" then
-            game:GetService("Lighting").TimeOfDay = "21:00:00"
-        end
-    end)
-
-    -- No Hit Cooldown
+    -- InstantHit Button
     Tabs.Main:AddButton({
-        Title = "No Hit Cooldown",
+        Title = "InstantHit",
         Callback = function()
-            local player = game.Players.LocalPlayer
-            local backpack = player:WaitForChild("Backpack")
-            
+            local Players = game:GetService("Players")
+            local LocalPlayer = Players.LocalPlayer
+            local backpack = LocalPlayer:WaitForChild("Backpack")
+
             for _, tool in ipairs(backpack:GetChildren()) do
                 if tool:IsA("Tool") then
                     if tool:FindFirstChild("attackTime") then
@@ -57,68 +38,69 @@ do
                 end
             end
             
-            print("No Hit Cooldown activated.")
+            print("InstantHit activated.")
         end
     })
-end
 
--- Kill Tab
-do
-    Tabs.Kill:AddButton({
-        Title = "Kill Function (Not Implemented)",
+    -- LockPosition Button
+    Tabs.Main:AddButton({
+        Title = "LockPosition",
         Callback = function()
-            print("Kill function not implemented yet.")
-        end
-    })
-end
-
--- Auto Farm Tab
-do
-    Tabs.AutoFarm:AddButton({
-        Title = "Start Auto Farming (Not Implemented)",
-        Callback = function()
-            print("Auto farming function not implemented yet.")
-        end
-    })
-end
-
--- Stats Tab
-do
-    Tabs.Stats:AddLabel({
-        Title = "Player Stats (Not Implemented)",
-        Callback = function()
-            print("Stats feature not implemented yet.")
-        end
-    })
-end
-
--- Misc Tab
-do
-    Tabs.Misc:AddButton({
-        Title = "Walk on Water",
-        Callback = function()
-            local player = game.Players.LocalPlayer
-            local character = player.Character or player.CharacterAdded:Wait()
-            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-            -- Create a walkable part
-            local walkablePart = Instance.new("Part")
-            walkablePart.Size = Vector3.new(5, 1, 5) -- Adjust size as needed
-            walkablePart.Material = Enum.Material.SmoothStone
-            walkablePart.Anchored = true
-            walkablePart.CanCollide = true
-            walkablePart.Transparency = 0 -- Make it visible
-            walkablePart.Parent = game.Workspace
+            local Players = game:GetService("Players")
+            local LocalPlayer = Players.LocalPlayer
             
-            -- Position the part under the player
-            walkablePart.Position = humanoidRootPart.Position - Vector3.new(0, 3, 0) -- Adjust height as needed
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local humanoidRootPart = LocalPlayer.Character.HumanoidRootPart
+                
+                humanoidRootPart.Anchored = true
+                print("Position locked.")
+            else
+                print("Character not found.")
+            end
+        end
+    })
 
-            -- Ensure the part follows the player
-            humanoidRootPart:GetPropertyChangedSignal("Position"):Connect(function()
-                walkablePart.Position = humanoidRootPart.Position - Vector3.new(0, 3, 0)
-            end)
+    -- Daycycle Dropdown
+    Tabs.Main:AddDropdown("Daycycle", {
+        Title = "Daycycle",
+        Values = {"Morning", "Afternoon", "Night"},
+        Multi = false,
+        Default = "Morning",
+    }):OnChanged(function(Value)
+        if Value == "Morning" then
+            game:GetService("Lighting").TimeOfDay = "06:30:00"
+        elseif Value == "Afternoon" then
+            game:GetService("Lighting").TimeOfDay = "12:00:00"
+        elseif Value == "Night" then
+            game:GetService("Lighting").TimeOfDay = "21:00:00"
+        end
+        print("Daycycle changed:", Value)
+    end)
+end
 
-            print("Walkable water created just for you.")
+-- Settings Tab
+do
+    Tabs.Settings:AddButton({
+        Title = "Save Settings",
+        Callback = function()
+            SaveManager:SaveConfig("DuckScriptHub/specific-game")
+            print("Settings saved.")
+        end
+    })
+
+    Tabs.Settings:AddButton({
+        Title = "Load Settings",
+        Callback = function()
+            SaveManager:LoadConfig("DuckScriptHub/specific-game")
+            print("Settings loaded.")
+        end
+    })
+
+    Tabs.Settings:AddButton({
+        Title = "Reset Settings",
+        Callback = function()
+            SaveManager:ResetConfig("DuckScriptHub/specific-game")
+            print("Settings reset to default.")
         end
     })
 end
@@ -126,12 +108,10 @@ end
 -- Save Manager Setup
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
-
--- Ignore keys that are used by ThemeManager.
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({})
-InterfaceManager:SetFolder("DuckScriptHub")
-SaveManager:SetFolder("DuckScriptHub/specific-game")
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/specific-game")
 
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
@@ -139,7 +119,7 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 Window:SelectTab(1)
 
 Fluent:Notify({
-    Title = "Duck GUI",
+    Title = "Fluent",
     Content = "The script has been loaded.",
     Duration = 8
 })
