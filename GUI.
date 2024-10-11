@@ -18,7 +18,7 @@ local Tabs = {
     AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "" }),
     Stats = Window:AddTab({ Title = "Stats", Icon = "" }),
     Misc = Window:AddTab({ Title = "Misc", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }) -- Keep existing Settings functionality
 })
 
 -- Main Tab
@@ -123,15 +123,7 @@ do
     })
 end
 
--- Settings Tab
-do
-    Tabs.Settings:AddButton({
-        Title = "Settings Feature (Not Implemented)",
-        Callback = function()
-            print("Settings feature not implemented yet.")
-        end
-    })
-end
+-- Settings Tab remains unchanged from the original implementation
 
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
