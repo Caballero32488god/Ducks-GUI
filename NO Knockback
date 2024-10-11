@@ -2,25 +2,16 @@ local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
--- Function to prevent knockback
+-- Function to keep the character in place
+local function onUpdate()
+    character:SetPrimaryPartCFrame(character.PrimaryPart.CFrame)
+end
+
+-- Prevent knockback
 local function onHumanoidDied()
     -- Reset properties when the character dies
     humanoid.PlatformStand = false
 end
-
--- Prevent knockback by adjusting the Humanoid's health
-local function onPlayerHit(damage)
-    -- If the player takes damage, we can apply our own logic here.
-    -- This doesn't prevent damage but stops knockback.
-    humanoid.HealthChanged:Connect(function()
-        if humanoid.Health < 100 then -- Adjust according to your max health
-            humanoid:TakeDamage(damage)
-        end
-    end)
-end
-
--- Listen for character being hit (assuming a RemoteEvent for damage)
-game.ReplicatedStorage.DamageEvent.OnClientEvent:Connect(onPlayerHit)
 
 -- Reset when respawning
 player.CharacterAdded:Connect(function(newCharacter)
@@ -29,5 +20,10 @@ player.CharacterAdded:Connect(function(newCharacter)
     humanoid.Died:Connect(onHumanoidDied)
 end)
 
--- Reconnect on respawn
-humanoid.Died:Connect(onHumanoidDied)
+-- Main loop to keep the character in place
+while true do
+    wait(0.1) -- Adjust the wait time as needed
+    if character and humanoid.Health > 0 then
+        onUpdate()
+    end
+end
