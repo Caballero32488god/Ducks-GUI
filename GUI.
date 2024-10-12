@@ -17,9 +17,11 @@ local Window = Fluent:CreateWindow({
     Theme = "Dark",
 })
 
--- Tabs setup
+-- Add Tabs
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "more-horizontal" }),
 }
 
 -- Notify that the GUI has loaded
@@ -29,27 +31,30 @@ Fluent:Notify({
     Duration = 5
 })
 
--- Speed Slider
-local speedSlider = Tabs.Main:AddSlider("Speed", {
+-- Main Tab Content
+local Section = Tabs.Main:AddSection("Main Controls")
+
+-- Speed Input
+local speedInput = Tabs.Main:AddInput("Speed", {
     Title = "Change Speed",
-    Default = 16,
-    Min = 16,
-    Max = 500,
-    Rounding = 1,
+    Placeholder = "Enter Speed Value",
     Callback = function(value)
-        LocalPlayer.Character.Humanoid.WalkSpeed = value
+        local num = tonumber(value)
+        if num then
+            LocalPlayer.Character.Humanoid.WalkSpeed = num
+        end
     end
 })
 
--- Jump Power Slider
-local jumpSlider = Tabs.Main:AddSlider("JumpPower", {
+-- Jump Power Input
+local jumpInput = Tabs.Main:AddInput("JumpPower", {
     Title = "Change Jump Power",
-    Default = 50,
-    Min = 50,
-    Max = 500,
-    Rounding = 1,
+    Placeholder = "Enter Jump Power Value",
     Callback = function(value)
-        LocalPlayer.Character.Humanoid.JumpPower = value
+        local num = tonumber(value)
+        if num then
+            LocalPlayer.Character.Humanoid.JumpPower = num
+        end
     end
 })
 
