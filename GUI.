@@ -1,13 +1,32 @@
--- Function to get all player names
-local function getAllPlayerNames()
-    local playerNames = {}
-    for _, player in ipairs(Players:GetPlayers()) do
-        table.insert(playerNames, player.Name)
-    end
-    return playerNames
-end
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- Killer Tab setup
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local Window = Fluent:CreateWindow({
+    Title = "Fluent " .. Fluent.Version,
+    SubTitle = "by dawid",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+-- Tabs setup
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "dice-1" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+    Killer = Window:AddTab({ Title = "Killer", Icon = "crosshair" })
+}
+
+-- Settings tab (keep original settings intact)
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+-- Killer tab setup
 Tabs.Killer:AddButton({
     Title = "Start Killing",
     Callback = function()
@@ -55,6 +74,14 @@ Tabs.Killer:AddButton({
     end
 })
 
+local function getAllPlayerNames()
+    local playerNames = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+    return playerNames
+end
+
 local DropdownKillSingle = Tabs.Killer:AddDropdown("KillSingleDropdown", {
     Title = "Kill Single Person",
     Values = getAllPlayerNames(),
@@ -63,7 +90,7 @@ local DropdownKillSingle = Tabs.Killer:AddDropdown("KillSingleDropdown", {
 
 local DropdownKillMultiple = Tabs.Killer:AddDropdown("KillMultipleDropdown", {
     Title = "Kill Multiple People",
-    Values = getAllPlayerNames(),  -- Show all players in the server
+    Values = getAllPlayerNames(),
     Multi = true
 })
 
@@ -83,7 +110,7 @@ local DropdownNoKillMultiple = Tabs.Killer:AddDropdown("NoKillMultipleDropdown",
 Players.PlayerAdded:Connect(function()
     local updatedNames = getAllPlayerNames()
     DropdownKillSingle:SetValue(updatedNames)
-    DropdownKillMultiple:SetValue(updatedNames)  -- Ensure Kill Multiple shows all players
+    DropdownKillMultiple:SetValue(updatedNames)
     DropdownNoKillSingle:SetValue(updatedNames)
     DropdownNoKillMultiple:SetValue(updatedNames)
 end)
@@ -91,7 +118,7 @@ end)
 Players.PlayerRemoving:Connect(function()
     local updatedNames = getAllPlayerNames()
     DropdownKillSingle:SetValue(updatedNames)
-    DropdownKillMultiple:SetValue(updatedNames)  -- Ensure Kill Multiple shows all players
+    DropdownKillMultiple:SetValue(updatedNames)
     DropdownNoKillSingle:SetValue(updatedNames)
     DropdownNoKillMultiple:SetValue(updatedNames)
 end)
@@ -99,6 +126,27 @@ end)
 -- Initial population of dropdowns
 local initialNames = getAllPlayerNames()
 DropdownKillSingle:SetValue(initialNames)
-DropdownKillMultiple:SetValue(initialNames)  -- Ensure Kill Multiple shows all players
+DropdownKillMultiple:SetValue(initialNames)
 DropdownNoKillSingle:SetValue(initialNames)
 DropdownNoKillMultiple:SetValue(initialNames)
+
+-- Final setup
+Window:SelectTab(1)
+
+-- Notification
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+-- Addons
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+
+-- Load auto config
+SaveManager:LoadAutoloadConfig()
