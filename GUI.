@@ -62,7 +62,6 @@ local infiniteJumpToggle = Section:AddToggle("Infinite Jump", {
     Default = false,
 })
 
--- Jump Logic
 UserInputService.JumpRequest:Connect(function()
     if infiniteJumpToggle.Value then
         local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
@@ -78,7 +77,6 @@ local noclipToggle = Section:AddToggle("Noclip", {
     Default = false,
 })
 
--- Noclip Logic
 local function setNoclip(value)
     local character = LocalPlayer.Character
     if character then
