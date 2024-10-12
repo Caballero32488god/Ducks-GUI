@@ -196,4 +196,5 @@ local lowPlayerHopButton = Tabs.Main:AddButton("Server Hop (Low Players)", {
     Callback = serverHopLowPlayer,
 })
 
+-- Select the first tab
 Window:SelectTab(1)
