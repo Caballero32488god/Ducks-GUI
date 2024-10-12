@@ -34,7 +34,7 @@ Fluent:Notify({
 -- Create a scrollable frame for the Main Tab
 local scrollFrame = Instance.new("ScrollingFrame")
 scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollFrame.CanvasSize = UDim2.new(0, 0, 2, 0) -- Adjust the canvas size as needed
+scrollFrame.CanvasSize = UDim2.new(0, 0, 5, 0) -- Adjust the canvas size to fit your needs
 scrollFrame.ScrollBarThickness = 8
 scrollFrame.Parent = Tabs.Main.Content
 
@@ -42,7 +42,7 @@ scrollFrame.Parent = Tabs.Main.Content
 local Section = scrollFrame:AddSection("Main Controls")
 
 -- Speed Input
-local speedInput = Section:AddInput("Speed", {
+Section:AddInput("Speed", {
     Title = "Change Speed",
     Placeholder = "Enter Speed Value",
     Callback = function(value)
@@ -54,7 +54,7 @@ local speedInput = Section:AddInput("Speed", {
 })
 
 -- Jump Power Input
-local jumpInput = Section:AddInput("JumpPower", {
+Section:AddInput("JumpPower", {
     Title = "Change Jump Power",
     Placeholder = "Enter Jump Power Value",
     Callback = function(value)
@@ -108,7 +108,7 @@ noclipToggle:OnChanged(function(value)
 end)
 
 -- Gravity Changer Input
-local gravityInput = Section:AddInput("Gravity", {
+Section:AddInput("Gravity", {
     Title = "Change Gravity",
     Placeholder = "Enter Gravity Value",
     Callback = function(value)
@@ -120,7 +120,7 @@ local gravityInput = Section:AddInput("Gravity", {
 })
 
 -- FOV Input
-local fovInput = Section:AddInput("FOV", {
+Section:AddInput("FOV", {
     Title = "Change FOV",
     Placeholder = "Enter FOV Value",
     Callback = function(value)
@@ -132,7 +132,7 @@ local fovInput = Section:AddInput("FOV", {
 })
 
 -- Hip Height Input
-local hipHeightInput = Section:AddInput("HipHeight", {
+Section:AddInput("HipHeight", {
     Title = "Change Hip Height",
     Placeholder = "Enter Hip Height Value",
     Callback = function(value)
