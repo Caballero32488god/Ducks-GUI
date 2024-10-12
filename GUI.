@@ -11,7 +11,7 @@ local Window = Fluent:CreateWindow({
     Title = "Fluent " .. Fluent.Version,
     SubTitle = "by dawid",
     TabWidth = 160,
-    Size = UDim2.fromOffset(580, 500), -- Increased height for scrollability
+    Size = UDim2.fromOffset(580, 600), -- Increased height for better visibility
     Acrylic = true,
     Theme = "Dark",
 })
@@ -205,3 +205,6 @@ SettingsSection:AddButton("Rejoin Server", {
     Title = "Rejoin Current Server",
     Callback = rejoinServer,
 })
+
+-- Final touches for scrollability
+Window:SelectTab(1) -- Selects the first tab on open
