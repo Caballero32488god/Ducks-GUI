@@ -210,15 +210,19 @@ do
         end
     })
 
-    -- Dropdown for usernames
-    local PlayerUsernames = {}
-    for _, player in pairs(game.Players:GetPlayers()) do
-        table.insert(PlayerUsernames, player.Name)
+    -- Function to update the dropdown with current player usernames
+    local function UpdatePlayerDropdown()
+        local PlayerUsernames = {}
+        for _, player in pairs(game.Players:GetPlayers()) do
+            table.insert(PlayerUsernames, player.Name)
+        end
+        UserDropdown:SetValue(PlayerUsernames)  -- Update the dropdown values
     end
 
+    -- Dropdown for usernames
     local UserDropdown = Tabs.Killer:AddDropdown("UserDropdown", {
         Title = "Select Player",
-        Values = PlayerUsernames,
+        Values = {},  -- Initially empty
         Multi = false,
         Default = 1,
     })
@@ -226,6 +230,13 @@ do
     UserDropdown:OnChanged(function(Value)
         print("Selected player:", Value)
     end)
+
+    -- Update dropdown on player join/leave
+    game.Players.PlayerAdded:Connect(UpdatePlayerDropdown)
+    game.Players.PlayerRemoving:Connect(UpdatePlayerDropdown)
+
+    -- Initial update
+    UpdatePlayerDropdown()
 end
 
 -- Addons
