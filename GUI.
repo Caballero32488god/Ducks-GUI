@@ -18,96 +18,94 @@ local Tabs = {
     Killer = Window:AddTab({ Title = "Killer", Icon = "skull" })
 }
 
-local Options = Fluent.Options
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-do
-    -- Function to get all player names
-    local function getAllPlayerNames()
-        local playerNames = {}
-        for _, player in ipairs(Players:GetPlayers()) do
+-- Function to get all player names
+local function getAllPlayerNames()
+    local playerNames = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
             table.insert(playerNames, player.Name)
         end
-        return playerNames
     end
+    return playerNames
+end
 
-    -- Killer Tab setup
-    local Players = game:GetService("Players")
-    local LocalPlayer = Players.LocalPlayer
+-- Killer Tab setup
+local DropdownKillSingle = Tabs.Killer:AddDropdown("KillSingleDropdown", {
+    Title = "Kill Single Person",
+    Values = getAllPlayerNames(),
+    Multi = false
+})
 
-    -- Kill Single Person Dropdown
-    local DropdownKillSingle = Tabs.Killer:AddDropdown("KillSingleDropdown", {
-        Title = "Kill Single Person",
-        Values = getAllPlayerNames(),
-        Multi = false
-    })
+local DropdownKillMultiple = Tabs.Killer:AddDropdown("KillMultipleDropdown", {
+    Title = "Kill Multiple People",
+    Values = getAllPlayerNames(),
+    Multi = true
+})
 
-    -- Kill Multiple People Dropdown
-    local DropdownKillMultiple = Tabs.Killer:AddDropdown("KillMultipleDropdown", {
-        Title = "Kill Multiple People",
-        Values = getAllPlayerNames(),
-        Multi = true
-    })
+local DropdownNoKillSingle = Tabs.Killer:AddDropdown("NoKillSingleDropdown", {
+    Title = "NoKill Single Person",
+    Values = getAllPlayerNames(),
+    Multi = false
+})
 
-    -- NoKill Single Person Dropdown
-    local DropdownNoKillSingle = Tabs.Killer:AddDropdown("NoKillSingleDropdown", {
-        Title = "NoKill Single Person",
-        Values = getAllPlayerNames(),
-        Multi = false
-    })
+local DropdownNoKillMultiple = Tabs.Killer:AddDropdown("NoKillMultipleDropdown", {
+    Title = "NoKill Multiple People",
+    Values = getAllPlayerNames(),
+    Multi = true
+})
 
-    -- NoKill Multiple People Dropdown
-    local DropdownNoKillMultiple = Tabs.Killer:AddDropdown("NoKillMultipleDropdown", {
-        Title = "NoKill Multiple People",
-        Values = getAllPlayerNames(),
-        Multi = true
-    })
-
-    -- Start Killing Button
-    Tabs.Killer:AddButton({
-        Title = "Start Killing",
-        Callback = function()
-            -- Set tools for the user
-            local function setUserTools()
-                local tools = {
-                    "Punch", "Ground Slam", "Stomp", "Handstands", "Pushups", "Weight", "Situps"
-                }
-                for _, tool in ipairs(tools) do
-                    local item = LocalPlayer.Backpack:FindFirstChild(tool)
-                    if item then
+-- Start Killing Button
+Tabs.Killer:AddButton({
+    Title = "Start Killing",
+    Callback = function()
+        -- Set tools for the user
+        local function setUserTools()
+            local tools = {
+                "Punch", "Ground Slam", "Stomp", "Handstands", "Pushups", "Weight", "Situps"
+            }
+            for _, tool in ipairs(tools) do
+                local item = LocalPlayer.Backpack:FindFirstChild(tool)
+                if item then
+                    if item:FindFirstChild("attackTime") then
                         item.attackTime.Value = 0.1
+                    end
+                    if item:FindFirstChild("repTime") then
                         item.repTime.Value = 0.1
                     end
                 end
             end
-
-            setUserTools()
-
-            -- Equip Punch tool and start punching
-            local function equipAndPunch()
-                local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
-
-                if punchTool then
-                    LocalPlayer.Character.Humanoid:EquipTool(punchTool)
-                    wait(0.1)
-
-                    local function performPunch()
-                        LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-                        LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-                    end
-
-                    while true do
-                        performPunch()
-                        wait(0.5)
-                    end
-                else
-                    print("Punch tool not found in Backpack.")
-                end
-            end
-
-            equipAndPunch()
         end
-    })
-end
+
+        setUserTools()
+
+        -- Equip Punch tool and start punching
+        local function equipAndPunch()
+            local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+
+            if punchTool then
+                LocalPlayer.Character.Humanoid:EquipTool(punchTool)
+                wait(0.1)
+
+                local function performPunch()
+                    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                end
+
+                while true do
+                    performPunch()
+                    wait(0.5)
+                end
+            else
+                print("Punch tool not found in Backpack.")
+            end
+        end
+
+        equipAndPunch()
+    end
+})
 
 -- Settings tab (keep original settings intact)
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
@@ -134,17 +132,24 @@ SaveManager:LoadAutoloadConfig()
 
 -- Refresh dropdowns for all players when a player joins or leaves
 Players.PlayerAdded:Connect(function()
-    local allPlayerNames = getAllPlayerNames()
-    DropdownKillSingle:SetValue(allPlayerNames)
-    DropdownKillMultiple:SetValue(allPlayerNames)
-    DropdownNoKillSingle:SetValue(allPlayerNames)
-    DropdownNoKillMultiple:SetValue(allPlayerNames)
+    local updatedNames = getAllPlayerNames()
+    DropdownKillSingle:SetValue(updatedNames)
+    DropdownKillMultiple:SetValue(updatedNames)
+    DropdownNoKillSingle:SetValue(updatedNames)
+    DropdownNoKillMultiple:SetValue(updatedNames)
 end)
 
 Players.PlayerRemoving:Connect(function()
-    local allPlayerNames = getAllPlayerNames()
-    DropdownKillSingle:SetValue(allPlayerNames)
-    DropdownKillMultiple:SetValue(allPlayerNames)
-    DropdownNoKillSingle:SetValue(allPlayerNames)
-    DropdownNoKillMultiple:SetValue(allPlayerNames)
+    local updatedNames = getAllPlayerNames()
+    DropdownKillSingle:SetValue(updatedNames)
+    DropdownKillMultiple:SetValue(updatedNames)
+    DropdownNoKillSingle:SetValue(updatedNames)
+    DropdownNoKillMultiple:SetValue(updatedNames)
 end)
+
+-- Initial population of dropdowns
+local initialNames = getAllPlayerNames()
+DropdownKillSingle:SetValue(initialNames)
+DropdownKillMultiple:SetValue(initialNames)
+DropdownNoKillSingle:SetValue(initialNames)
+DropdownNoKillMultiple:SetValue(initialNames)
