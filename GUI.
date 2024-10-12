@@ -17,15 +17,9 @@ local Window = Fluent:CreateWindow({
     Theme = "Dark",
 })
 
--- Add scrollable frame
-local ScrollFrame = Instance.new("ScrollingFrame")
-ScrollFrame.Size = UDim2.new(1, 0, 1, 0)
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 2, 0)
-ScrollFrame.ScrollBarThickness = 10
-ScrollFrame.Parent = Window
-
+-- Tabs setup
 local Tabs = {
-    Main = ScrollFrame:AddTab({ Title = "Main", Icon = "home" }),
+    Main = Window:AddTab({ Title = "Main", Icon = "home" }),
 }
 
 -- Notify that the GUI has loaded
