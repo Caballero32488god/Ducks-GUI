@@ -21,12 +21,6 @@ local Tabs = {
 local Options = Fluent.Options
 
 do
-    -- Main tab setup (currently empty)
-
-    -- Killer Tab setup
-    local Players = game:GetService("Players")
-    local LocalPlayer = Players.LocalPlayer
-
     -- Function to get all player names
     local function getAllPlayerNames()
         local playerNames = {}
@@ -35,6 +29,10 @@ do
         end
         return playerNames
     end
+
+    -- Killer Tab setup
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
 
     -- Kill Single Person Dropdown
     local DropdownKillSingle = Tabs.Killer:AddDropdown("KillSingleDropdown", {
