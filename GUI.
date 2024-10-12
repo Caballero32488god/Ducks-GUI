@@ -3,13 +3,13 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Duck " .. Fluent.Version,
-    SubTitle = "by Masterboy123",
+    Title = "Fluent " .. Fluent.Version,
+    SubTitle = "by dawid",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
+    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when there's no MinimizeKeybind
 })
 
 local Tabs = {
@@ -25,28 +25,13 @@ local Options = Fluent.Options
 
 do
     Fluent:Notify({
-        Title = "Warning",
-        Content = "This Gui Is Transferred over to Duck",
-        SubContent = "You're Welcome Duck",
-        Duration = 7
+        Title = "Notification",
+        Content = "This script has been loaded.",
+        Duration = 5
     })
 
-    local Toggle = Tabs.Killer:AddToggle("MyToggle", { Title = "Start Killing", Default = false })
-
-    Toggle:OnChanged(function()
-        print("Toggle changed:", Options.MyToggle.Value)
-        -- Implement the killing mechanism here when the toggle is enabled
-        if Options.MyToggle.Value then
-            print("Killing has started")
-            -- Add your killing logic here
-        else
-            print("Killing has stopped")
-        end
-    end)
-
-    Options.MyToggle:SetValue(false)
-
     local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
 
     local Dropdown = Tabs.Killer:AddDropdown("Auto Kill Single Person", {
         Title = "Players",
@@ -55,79 +40,116 @@ do
         Default = 1,
     })
 
-    local function updatePlayerListDropdown()
-        Dropdown.Values = {}
-        for _, player in ipairs(Players:GetPlayers()) do
-            table.insert(Dropdown.Values, player.Name)
-        end
-        if #Dropdown.Values > 0 then
-            Dropdown:SetValue(Dropdown.Values[1])
-        end
-    end
-
-    updatePlayerListDropdown()
-
-    -- Update the dropdown every 30 seconds
-    task.spawn(function()
-        while true do
-            wait(30)
-            updatePlayerListDropdown()
-        end
-    end)
-
-    Dropdown:OnChanged(function(Value)
-        print("Dropdown changed:", Value)
-    end)
-
-    -- MultiDropdown for selecting multiple players
-    local MultiDropdown = Tabs.Killer:AddDropdown("PlayerMultiDropdown", {
-        Title = "Select Players",
+    local MultiDropdown = Tabs.Killer:AddDropdown("Kill Multiple Players", {
+        Title = "Players",
         Values = {},
-        Multi = true,
+        Multi = true, -- Enable multi-select
         Default = {},
     })
 
-    local function updatePlayerListMultiDropdown()
+    local function updatePlayerList()
+        -- Clear existing values
+        Dropdown.Values = {}
         MultiDropdown.Values = {}
+
+        -- Add current players to the dropdowns
         for _, player in ipairs(Players:GetPlayers()) do
+            table.insert(Dropdown.Values, player.Name)
             table.insert(MultiDropdown.Values, player.Name)
         end
+
+        -- Set default values if there are any players
+        if #Dropdown.Values > 0 then
+            Dropdown:SetValue(Dropdown.Values[1]) -- Set to first player
+        end
         if #MultiDropdown.Values > 0 then
-            MultiDropdown:SetValue({ MultiDropdown.Values[1] }) -- Set a default selected value
+            MultiDropdown:SetValue({MultiDropdown.Values[1]}) -- Set a default selected value
         end
     end
 
-    updatePlayerListMultiDropdown()
+    -- Initial population of the dropdowns
+    updatePlayerList()
 
-    -- Update the dropdown every 30 seconds
-    task.spawn(function()
-        while true do
-            wait(30)
-            updatePlayerListMultiDropdown()
-        end
+    -- Update the dropdowns every 30 seconds
+    while true do
+        wait(30)
+        updatePlayerList()
+    end
+
+    Dropdown:OnChanged(function(Value)
+        print("Single Dropdown changed:", Value)
     end)
 
     MultiDropdown:OnChanged(function(Value)
-        print("MultiDropdown changed:", table.concat(Value, ", "))
+        print("Multi Dropdown changed:", table.concat(Value, ", "))
     end)
 
-    -- Addons
-    SaveManager:SetLibrary(Fluent)
-    InterfaceManager:SetLibrary(Fluent)
-    SaveManager:IgnoreThemeSettings()
-    SaveManager:SetIgnoreIndexes({})
-    InterfaceManager:SetFolder("FluentScriptHub")
-    SaveManager:SetFolder("FluentScriptHub/specific-game")
-    InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-    SaveManager:BuildConfigSection(Tabs.Settings)
-
-    Window:SelectTab(1)
-
-    Fluent:Notify({
-        Title = "Fluent",
-        Content = "The script has been loaded.",
-        Duration = 8
+    local Toggle = Tabs.Killer:AddToggle("MyToggle", {
+        Title = "Start Teleporting",
+        Default = false,
     })
 
-    SaveManager:LoadAutoloadConfig()
+    Toggle:OnChanged(function()
+        local function teleportPlayers(selectedPlayers)
+            local myCharacter = LocalPlayer.Character
+            if myCharacter then
+                local myPosition = myCharacter:FindFirstChild("HumanoidRootPart").Position
+                
+                if #selectedPlayers == 0 then
+                    -- Teleport everyone
+                    for _, player in ipairs(Players:GetPlayers()) do
+                        if player ~= LocalPlayer then
+                            local character = player.Character
+                            if character and character:FindFirstChild("HumanoidRootPart") then
+                                character.HumanoidRootPart.Position = myPosition
+                            end
+                        end
+                    end
+                else
+                    -- Teleport selected players
+                    for _, playerName in ipairs(selectedPlayers) do
+                        local player = Players:FindFirstChild(playerName)
+                        if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                            player.Character.HumanoidRootPart.Position = myPosition
+                        end
+                    end
+                end
+            end
+        end
+
+        if Toggle.Value then
+            -- When toggled on, check selected players
+            local selectedSingle = Dropdown.Value -- For single selection
+            local selectedMultiple = MultiDropdown.Value -- For multiple selection
+
+            if selectedSingle then
+                teleportPlayers({selectedSingle}) -- Teleport the single selected player
+            elseif #selectedMultiple > 0 then
+                teleportPlayers(selectedMultiple) -- Teleport the selected multiple players
+            else
+                teleportPlayers({}) -- No selection, teleport everyone
+            end
+        end
+    end)
 end
+
+-- Addons
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window:SelectTab(1)
+
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+SaveManager:LoadAutoloadConfig()
