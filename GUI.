@@ -17,9 +17,15 @@ local Window = Fluent:CreateWindow({
     Theme = "Dark",
 })
 
+-- Add scrollable frame
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Size = UDim2.new(1, 0, 1, 0)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 2, 0)
+ScrollFrame.ScrollBarThickness = 10
+ScrollFrame.Parent = Window
+
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+    Main = ScrollFrame:AddTab({ Title = "Main", Icon = "home" }),
 }
 
 -- Notify that the GUI has loaded
@@ -30,7 +36,7 @@ Fluent:Notify({
 })
 
 -- Speed Slider
-local speedSlider = Tabs.Settings:AddSlider("Speed", {
+local speedSlider = Tabs.Main:AddSlider("Speed", {
     Title = "Change Speed",
     Default = 16,
     Min = 16,
@@ -42,7 +48,7 @@ local speedSlider = Tabs.Settings:AddSlider("Speed", {
 })
 
 -- Jump Power Slider
-local jumpSlider = Tabs.Settings:AddSlider("JumpPower", {
+local jumpSlider = Tabs.Main:AddSlider("JumpPower", {
     Title = "Change Jump Power",
     Default = 50,
     Min = 50,
@@ -54,7 +60,7 @@ local jumpSlider = Tabs.Settings:AddSlider("JumpPower", {
 })
 
 -- Infinite Jump Toggle
-local infiniteJumpToggle = Tabs.Settings:AddToggle("Infinite Jump", {
+local infiniteJumpToggle = Tabs.Main:AddToggle("Infinite Jump", {
     Title = "Enable Infinite Jump",
     Default = false,
 })
@@ -70,7 +76,7 @@ UserInputService.JumpRequest:Connect(function()
 end)
 
 -- Noclip Toggle
-local noclipToggle = Tabs.Settings:AddToggle("Noclip", {
+local noclipToggle = Tabs.Main:AddToggle("Noclip", {
     Title = "Enable Noclip",
     Default = false,
 })
@@ -90,13 +96,13 @@ end
 noclipToggle:OnChanged(function(value)
     while noclipToggle.Value do
         setNoclip(true)
-        wait(0.1) -- Adjust the frequency of the noclip checks
+        wait(0.1)
     end
-    setNoclip(false) -- Ensure noclip is off when the toggle is disabled
+    setNoclip(false)
 end)
 
 -- Gravity Changer Input
-local gravityInput = Tabs.Settings:AddInput("Gravity", {
+local gravityInput = Tabs.Main:AddInput("Gravity", {
     Title = "Change Gravity",
     Placeholder = "Enter Gravity Value",
     Callback = function(value)
@@ -108,7 +114,7 @@ local gravityInput = Tabs.Settings:AddInput("Gravity", {
 })
 
 -- FOV Input
-local fovInput = Tabs.Settings:AddInput("FOV", {
+local fovInput = Tabs.Main:AddInput("FOV", {
     Title = "Change FOV",
     Placeholder = "Enter FOV Value",
     Callback = function(value)
@@ -120,7 +126,7 @@ local fovInput = Tabs.Settings:AddInput("FOV", {
 })
 
 -- Hip Height Input
-local hipHeightInput = Tabs.Settings:AddInput("HipHeight", {
+local hipHeightInput = Tabs.Main:AddInput("HipHeight", {
     Title = "Change Hip Height",
     Placeholder = "Enter Hip Height Value",
     Callback = function(value)
@@ -132,7 +138,7 @@ local hipHeightInput = Tabs.Settings:AddInput("HipHeight", {
 })
 
 -- Time Manipulation Dropdown
-local timeDropdown = Tabs.Settings:AddDropdown("Time Manipulation", {
+local timeDropdown = Tabs.Main:AddDropdown("Time Manipulation", {
     Title = "Select Time",
     Values = {"Morning", "Afternoon", "Night"},
     Multi = false,
