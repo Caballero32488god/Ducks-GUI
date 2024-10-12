@@ -1,26 +1,3 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-
-local Window = Fluent:CreateWindow({
-    Title = "Fluent " .. Fluent.Version,
-    SubTitle = "by dawid",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
-})
-
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "dice-1" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
-    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" })
-}
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
 -- Function to get all player names
 local function getAllPlayerNames()
     local playerNames = {}
@@ -101,29 +78,6 @@ local DropdownNoKillMultiple = Tabs.Killer:AddDropdown("NoKillMultipleDropdown",
     Values = getAllPlayerNames(),
     Multi = true
 })
-
--- Settings tab (keep original settings intact)
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
-
-Fluent:Notify({
-    Title = "Fluent",
-    Content = "The script has been loaded.",
-    Duration = 8
-})
-
--- Addons
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({})
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/specific-game")
-
-Window:SelectTab(1)
-
--- Load autoload config
-SaveManager:LoadAutoloadConfig()
 
 -- Refresh dropdowns for all players when a player joins or leaves
 Players.PlayerAdded:Connect(function()
