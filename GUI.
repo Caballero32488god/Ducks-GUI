@@ -11,7 +11,7 @@ local Window = Fluent:CreateWindow({
     Title = "Fluent " .. Fluent.Version,
     SubTitle = "by dawid",
     TabWidth = 160,
-    Size = UDim2.fromOffset(580, 600), -- Increased height for better visibility
+    Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
     Theme = "Dark",
 })
