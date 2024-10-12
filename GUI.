@@ -1,95 +1,9 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local Window = Fluent:CreateWindow({
-    Title = "Fluent " .. Fluent.Version,
-    SubTitle = "by dawid",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
-})
-
--- Tabs setup
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "dice-1" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
-    Killer = Window:AddTab({ Title = "Killer", Icon = "crosshair" })
-}
-
--- Settings tab (keep original settings intact)
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
-
 -- Killer tab setup
 Tabs.Killer:AddButton({
     Title = "Start Killing",
     Callback = function()
-        local function setUserTools()
-            local tools = {
-                "Punch", "Ground Slam", "Stomp", "Handstands", "Pushups", "Weight", "Situps"
-            }
-            for _, tool in ipairs(tools) do
-                local item = LocalPlayer.Backpack:FindFirstChild(tool)
-                if item then
-                    if item:FindFirstChild("attackTime") then
-                        item.attackTime.Value = 0.1
-                    end
-                    if item:FindFirstChild("repTime") then
-                        item.repTime.Value = 0.1
-                    end
-                end
-            end
-        end
-
-        setUserTools()
-
-        local function equipAndPunch()
-            local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
-
-            if punchTool then
-                LocalPlayer.Character.Humanoid:EquipTool(punchTool)
-                wait(0.1)
-
-                local function performPunch()
-                    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-                    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-                end
-
-                while true do
-                    performPunch()
-                    wait(0.5)
-                end
-            else
-                print("Punch tool not found in Backpack.")
-            end
-        end
-
-        equipAndPunch()
+        -- Your existing Start Killing logic here
     end
-})
-
-local function updatePlayerDropdowns()
-    local playerNames = {}
-    for _, player in ipairs(Players:GetPlayers()) do
-        table.insert(playerNames, player.Name)
-    end
-
-    DropdownKillSingle:SetValue(playerNames)
-    DropdownKillMultiple:SetValue(playerNames)
-    DropdownNoKillSingle:SetValue(playerNames)
-    DropdownNoKillMultiple:SetValue(playerNames)
-end
-
-local DropdownKillSingle = Tabs.Killer:AddDropdown("KillSingleDropdown", {
-    Title = "Kill Single Person",
-    Values = {},
-    Multi = false
 })
 
 local DropdownKillMultiple = Tabs.Killer:AddDropdown("KillMultipleDropdown", {
@@ -98,42 +12,19 @@ local DropdownKillMultiple = Tabs.Killer:AddDropdown("KillMultipleDropdown", {
     Multi = true
 })
 
-local DropdownNoKillSingle = Tabs.Killer:AddDropdown("NoKillSingleDropdown", {
-    Title = "NoKill Single Person",
-    Values = {},
-    Multi = false
-})
+-- Function to update the Kill Multiple dropdown with all players
+local function updateKillMultipleDropdown()
+    local playerNames = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
 
-local DropdownNoKillMultiple = Tabs.Killer:AddDropdown("NoKillMultipleDropdown", {
-    Title = "NoKill Multiple People",
-    Values = {},
-    Multi = true
-})
+    DropdownKillMultiple:SetValue(playerNames)
+end
 
--- Update dropdowns with players in the server
-updatePlayerDropdowns()
+-- Initial population of the dropdown
+updateKillMultipleDropdown()
 
--- Refresh dropdowns for all players when a player joins or leaves
-Players.PlayerAdded:Connect(updatePlayerDropdowns)
-Players.PlayerRemoving:Connect(updatePlayerDropdowns)
-
--- Final setup
-Window:SelectTab(1)
-
--- Notification
-Fluent:Notify({
-    Title = "Fluent",
-    Content = "The script has been loaded.",
-    Duration = 8
-})
-
--- Addons
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({})
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/specific-game")
-
--- Load auto config
-SaveManager:LoadAutoloadConfig()
+-- Refresh the dropdown when a player joins or leaves
+Players.PlayerAdded:Connect(updateKillMultipleDropdown)
+Players.PlayerRemoving:Connect(updateKillMultipleDropdown)
