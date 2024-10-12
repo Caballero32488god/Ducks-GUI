@@ -113,7 +113,7 @@ local function stopFlying()
     if bodyVelocity then bodyVelocity:Destroy() end
 end
 
--- Toggle fly with key press
+-- Toggle fly with key press (PC)
 UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
     if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.F then
         if flying then
