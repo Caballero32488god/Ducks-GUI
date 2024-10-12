@@ -33,31 +33,6 @@ local function getAllPlayerNames()
 end
 
 -- Killer Tab setup
-local DropdownKillSingle = Tabs.Killer:AddDropdown("KillSingleDropdown", {
-    Title = "Kill Single Person",
-    Values = getAllPlayerNames(),
-    Multi = false
-})
-
-local DropdownKillMultiple = Tabs.Killer:AddDropdown("KillMultipleDropdown", {
-    Title = "Kill Multiple People",
-    Values = getAllPlayerNames(),
-    Multi = true
-})
-
-local DropdownNoKillSingle = Tabs.Killer:AddDropdown("NoKillSingleDropdown", {
-    Title = "NoKill Single Person",
-    Values = getAllPlayerNames(),
-    Multi = false
-})
-
-local DropdownNoKillMultiple = Tabs.Killer:AddDropdown("NoKillMultipleDropdown", {
-    Title = "NoKill Multiple People",
-    Values = getAllPlayerNames(),
-    Multi = true
-})
-
--- Start Killing Button
 Tabs.Killer:AddButton({
     Title = "Start Killing",
     Callback = function()
@@ -105,6 +80,30 @@ Tabs.Killer:AddButton({
 
         equipAndPunch()
     end
+})
+
+local DropdownKillSingle = Tabs.Killer:AddDropdown("KillSingleDropdown", {
+    Title = "Kill Single Person",
+    Values = getAllPlayerNames(),
+    Multi = false
+})
+
+local DropdownKillMultiple = Tabs.Killer:AddDropdown("KillMultipleDropdown", {
+    Title = "Kill Multiple People",
+    Values = getAllPlayerNames(),
+    Multi = true
+})
+
+local DropdownNoKillSingle = Tabs.Killer:AddDropdown("NoKillSingleDropdown", {
+    Title = "NoKill Single Person",
+    Values = getAllPlayerNames(),
+    Multi = false
+})
+
+local DropdownNoKillMultiple = Tabs.Killer:AddDropdown("NoKillMultipleDropdown", {
+    Title = "NoKill Multiple People",
+    Values = getAllPlayerNames(),
+    Multi = true
 })
 
 -- Settings tab (keep original settings intact)
