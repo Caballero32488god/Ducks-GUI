@@ -1,137 +1,148 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+
+-- Create the Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-
-wait(5) -- Ensure the script runs after the game has loaded
-
 local Window = Fluent:CreateWindow({
-    Title = "Duck GUI",
-    SubTitle = "by Masterboy123",
+    Title = "Fluent " .. Fluent.Version,
+    SubTitle = "by dawid",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
 })
 
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "farming" }),
-    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
-    Stats = Window:AddTab({ Title = "Stats", Icon = "bar-chart" }),
-    Misc = Window:AddTab({ Title = "Misc", Icon = "more-horizontal" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+    Fly = Window:AddTab({ Title = "Fly", Icon = "airplane" }),
 }
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
+-- Notify that the GUI has loaded
 Fluent:Notify({
-    Title = "Warning",
-    Content = "This GUI has been transferred over to Duck",
-    SubContent = "You're Welcome, Duck",
-    Duration = 7
-})
-
--- Function to update player list
-local function updatePlayerList(dropdown1, dropdown2)
-    dropdown1.Values = {}
-    dropdown2.Values = {}
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        table.insert(dropdown1.Values, player.Name)
-        table.insert(dropdown2.Values, player.Name)
-    end
-
-    dropdown1:SetValue({})
-    dropdown2:SetValue({})
-end
-
--- Killer Tab Dropdowns
-local ExcludeDropdown = Tabs.Killer:AddDropdown("Exclude Players", {
-    Title = "Players",
-    Values = {},
-    Multi = true,
-    Default = {},
-})
-
-local IncludeDropdown = Tabs.Killer:AddDropdown("Include Players", {
-    Title = "Players",
-    Values = {},
-    Multi = true,
-    Default = {},
-})
-
-updatePlayerList(ExcludeDropdown, IncludeDropdown)
-
--- Teleport functions
-local function teleportPlayers(excludePlayers)
-    local myCharacter = LocalPlayer.Character
-    if myCharacter then
-        local myPosition = myCharacter:FindFirstChild("HumanoidRootPart").Position
-
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and not table.find(excludePlayers, player.Name) then
-                local character = player.Character
-                if character and character:FindFirstChild("HumanoidRootPart") then
-                    character.HumanoidRootPart.Position = myPosition
-                end
-            end
-        end
-    end
-end
-
-local function teleportSelectedPlayers(selectedPlayers)
-    local myCharacter = LocalPlayer.Character
-    if myCharacter then
-        local myPosition = myCharacter:FindFirstChild("HumanoidRootPart").Position
-
-        for _, playerName in ipairs(selectedPlayers) do
-            local player = Players:FindFirstChild(playerName)
-            if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                player.Character.HumanoidRootPart.Position = myPosition
-            end
-        end
-    end
-end
-
--- Killer Tab Buttons for teleportation
-Tabs.Killer:AddButton("Start Exclude Teleport", function()
-    teleportPlayers(ExcludeDropdown.Value)
-end)
-
-Tabs.Killer:AddButton("Start Include Teleport", function()
-    teleportSelectedPlayers(IncludeDropdown.Value)
-end)
-
--- Add buttons to each tab for debugging
-for _, tab in pairs(Tabs) do
-    tab:AddButton("Test " .. tab.Title, function()
-        Fluent:Notify({
-            Title = tab.Title .. " Button Clicked",
-            Content = "This tab is working!",
-            Duration = 3
-        })
-    end)
-end
-
--- Addons
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({})
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/specific-game")
-
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
-
-Window:SelectTab(1)
-
-Fluent:Notify({
-    Title = "Debug",
-    Content = "GUI should now be displayed.",
+    Title = "Welcome!",
+    Content = "This GUI includes flying and various settings.",
     Duration = 5
 })
 
-SaveManager:LoadAutoloadConfig()
+-- Speed Slider
+local speedSlider = Tabs.Settings:AddSlider("Speed", {
+    Title = "Change Speed",
+    Default = 16,
+    Min = 16,
+    Max = 500,
+    Rounding = 1,
+    Callback = function(value)
+        LocalPlayer.Character.Humanoid.WalkSpeed = value
+    end
+})
+
+-- Jump Power Slider
+local jumpSlider = Tabs.Settings:AddSlider("JumpPower", {
+    Title = "Change Jump Power",
+    Default = 50,
+    Min = 50,
+    Max = 500,
+    Rounding = 1,
+    Callback = function(value)
+        LocalPlayer.Character.Humanoid.JumpPower = value
+    end
+})
+
+-- Gravity Changer
+local gravityInput = Tabs.Settings:AddInput("Gravity", {
+    Title = "Change Gravity",
+    Placeholder = "Enter Gravity Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            workspace.Gravity = num
+        end
+    end
+})
+
+-- Time Manipulation Dropdown
+local timeDropdown = Tabs.Settings:AddDropdown("Time Manipulation", {
+    Title = "Select Time",
+    Values = {"Morning", "Afternoon", "Night"},
+    Multi = false,
+    Default = 1,
+})
+
+timeDropdown:OnChanged(function(value)
+    if value == "Morning" then
+        game.Lighting.ClockTime = 6
+    elseif value == "Afternoon" then
+        game.Lighting.ClockTime = 12
+    elseif value == "Night" then
+        game.Lighting.ClockTime = 18
+    end
+end)
+
+-- Flying Functionality
+local flying = false
+local flySpeed = 50
+local bodyGyro, bodyVelocity
+
+local function startFlying()
+    flying = true
+    local humanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+
+    -- Create BodyGyro and BodyVelocity
+    bodyGyro = Instance.new("BodyGyro")
+    bodyGyro.Parent = humanoidRootPart
+    bodyGyro.MaxTorque = Vector3.new(4000, 4000, 4000)
+    bodyGyro.P = 3000
+
+    bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.Parent = humanoidRootPart
+    bodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
+
+    while flying do
+        wait()
+        bodyGyro.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, workspace.CurrentCamera.CFrame.Position + workspace.CurrentCamera.CFrame.LookVector)
+        bodyVelocity.Velocity = (workspace.CurrentCamera.CFrame.LookVector * flySpeed) + Vector3.new(0, 50, 0)
+    end
+end
+
+local function stopFlying()
+    flying = false
+    if bodyGyro then bodyGyro:Destroy() end
+    if bodyVelocity then bodyVelocity:Destroy() end
+end
+
+-- Toggle fly with key press
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.F then
+        if flying then
+            stopFlying()
+        else
+            startFlying()
+        end
+    end
+end)
+
+-- Mobile Button for flying
+local screenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
+local flyButton = Instance.new("TextButton")
+flyButton.Size = UDim2.new(0, 100, 0, 50)
+flyButton.Position = UDim2.new(0.5, -50, 0.8, 0)
+flyButton.Text = "Fly"
+flyButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+flyButton.Parent = screenGui
+
+flyButton.MouseButton1Click:Connect(function()
+    if flying then
+        stopFlying()
+        flyButton.Text = "Fly"
+        flyButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    else
+        startFlying()
+        flyButton.Text = "Stop"
+        flyButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    end
+end)
+
+Window:SelectTab(1)
