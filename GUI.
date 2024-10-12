@@ -1,3 +1,7 @@
+local Duck = loadstring(game:HttpGet("https://github.com/YTMasterboy123YT/Ducks-GUI/releases/tag/duck"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/YTMasterboy123YT/Ducks-GUI/refs/heads/main/addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/YTMasterboy123YT/Ducks-GUI/refs/heads/main/addons/InterfaceManager.lua"))()
+
 local Window = Duck:CreateWindow({
     Title = "Duck " .. Duck.Version,
     SubTitle = "by Masterboy123",
