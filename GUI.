@@ -20,7 +20,6 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
-    Misc = Window:AddTab({ Title = "Misc", Icon = "more-horizontal" }),
 }
 
 -- Notify that the GUI has loaded
@@ -30,15 +29,8 @@ Fluent:Notify({
     Duration = 5
 })
 
--- Create a scrollable frame for the Main Tab
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollFrame.CanvasSize = UDim2.new(0, 0, 5, 0) -- Adjust canvas size to fit controls
-scrollFrame.ScrollBarThickness = 8
-scrollFrame.Parent = Tabs.Main.Content
-
 -- Main Tab Content
-local Section = scrollFrame:AddSection("Main Controls")
+local Section = Tabs.Main:AddSection("Main Controls")
 
 -- Speed Input
 Section:AddInput("Speed", {
@@ -196,7 +188,7 @@ local function serverHopLowPlayer()
     end
 end
 
-local lowPlayerHopButton = Section:AddButton("Server Hop (Low Players)", {
+Section:AddButton("Server Hop (Low Players)", {
     Title = "Hop to a Low Player Count Server",
     Callback = serverHopLowPlayer,
 })
