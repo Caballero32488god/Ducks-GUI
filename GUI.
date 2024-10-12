@@ -1,24 +1,23 @@
-local fluent = loadstring(game:HttpGet("https://github.com/YTMasterboy123YT/Ducks-GUI/releases/tag/duck"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/YTMasterboy123YT/Ducks-GUI/refs/heads/main/addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/YTMasterboy123YT/Ducks-GUI/refs/heads/main/addons/InterfaceManager.lua"))()
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
-local Window = Duck:CreateWindow({
-    Title = "Duck " .. Duck.Version,
+local Window = Fluent:CreateWindow({
+    Title = "Duck " .. Fluent.Version,
     SubTitle = "by Masterboy123",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
-    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
+    Acrylic = true,
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
+    MinimizeKey = Enum.KeyCode.LeftControl
 })
 
---Fluent provides Lucide Icons https://lucide.dev/icons/ for the tabs, icons are optional
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "farming" })
-    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" })
-    Stats = Window:AddTab({ Title = "Stats", Icon = "bar-chart" })
-    Misc = Window:AddTab({ Title = "Misc", Icon = "more-horizontal" })
+    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "farming" }),
+    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
+    Stats = Window:AddTab({ Title = "Stats", Icon = "bar-chart" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "more-horizontal" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
@@ -27,16 +26,108 @@ local Options = Fluent.Options
 do
     Fluent:Notify({
         Title = "Warning",
-        Content = "This Gui Is Tranfered over to Duck",
-        SubContent = "Your Welcome Duck", -- Optional
-        Duration = 7 -- Set to nil to make the notification not disappear
+        Content = "This Gui Is Transferred over to Duck",
+        SubContent = "You're Welcome Duck",
+        Duration = 7
     })
 
-    local Toggle = Tabs.Killer:AddToggle("MyToggle", {Title = "", Default = false })
+    local Toggle = Tabs.Killer:AddToggle("MyToggle", { Title = "Start Killing", Default = false })
 
     Toggle:OnChanged(function()
         print("Toggle changed:", Options.MyToggle.Value)
+        -- Implement the killing mechanism here when the toggle is enabled
+        if Options.MyToggle.Value then
+            print("Killing has started")
+            -- Add your killing logic here
+        else
+            print("Killing has stopped")
+        end
     end)
 
     Options.MyToggle:SetValue(false)
+
+    local Players = game:GetService("Players")
+
+    local Dropdown = Tabs.Killer:AddDropdown("Auto Kill Single Person", {
+        Title = "Players",
+        Values = {},
+        Multi = false,
+        Default = 1,
+    })
+
+    local function updatePlayerListDropdown()
+        Dropdown.Values = {}
+        for _, player in ipairs(Players:GetPlayers()) do
+            table.insert(Dropdown.Values, player.Name)
+        end
+        if #Dropdown.Values > 0 then
+            Dropdown:SetValue(Dropdown.Values[1])
+        end
+    end
+
+    updatePlayerListDropdown()
+
+    -- Update the dropdown every 30 seconds
+    task.spawn(function()
+        while true do
+            wait(30)
+            updatePlayerListDropdown()
+        end
+    end)
+
+    Dropdown:OnChanged(function(Value)
+        print("Dropdown changed:", Value)
+    end)
+
+    -- MultiDropdown for selecting multiple players
+    local MultiDropdown = Tabs.Killer:AddDropdown("PlayerMultiDropdown", {
+        Title = "Select Players",
+        Values = {},
+        Multi = true,
+        Default = {},
+    })
+
+    local function updatePlayerListMultiDropdown()
+        MultiDropdown.Values = {}
+        for _, player in ipairs(Players:GetPlayers()) do
+            table.insert(MultiDropdown.Values, player.Name)
+        end
+        if #MultiDropdown.Values > 0 then
+            MultiDropdown:SetValue({ MultiDropdown.Values[1] }) -- Set a default selected value
+        end
+    end
+
+    updatePlayerListMultiDropdown()
+
+    -- Update the dropdown every 30 seconds
+    task.spawn(function()
+        while true do
+            wait(30)
+            updatePlayerListMultiDropdown()
+        end
+    end)
+
+    MultiDropdown:OnChanged(function(Value)
+        print("MultiDropdown changed:", table.concat(Value, ", "))
+    end)
+
+    -- Addons
+    SaveManager:SetLibrary(Fluent)
+    InterfaceManager:SetLibrary(Fluent)
+    SaveManager:IgnoreThemeSettings()
+    SaveManager:SetIgnoreIndexes({})
+    InterfaceManager:SetFolder("FluentScriptHub")
+    SaveManager:SetFolder("FluentScriptHub/specific-game")
+    InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+    SaveManager:BuildConfigSection(Tabs.Settings)
+
+    Window:SelectTab(1)
+
+    Fluent:Notify({
+        Title = "Fluent",
+        Content = "The script has been loaded.",
+        Duration = 8
+    })
+
+    SaveManager:LoadAutoloadConfig()
 end
