@@ -9,26 +9,25 @@ local Window = Duck:CreateWindow({
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when there's no MinimizeKeybind
 })
 
---Fluent provides Lucide Icons https://lucide.dev/icons/ for the tabs, icons are optional
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "farming" })
-    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" })
-    Stats = Window:AddTab({ Title = "Stats", Icon = "bar-chart" })
-    Misc = Window:AddTab({ Title = "Misc", Icon = "more-horizontal" })
+    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "farming" }),
+    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
+    Stats = Window:AddTab({ Title = "Stats", Icon = "bar-chart" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "more-horizontal" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
-local Options = Fluent.Options
+local Options = Duck.Options -- Use Duck here
 
 do
-    Fluent:Notify({
+    Duck:Notify({
         Title = "Warning",
-        Content = "This Gui Is Tranfered over to Duck",
-        SubContent = "Your Welcome Duck", -- Optional
+        Content = "This Gui Is Transferred over to Duck",
+        SubContent = "You're Welcome Duck", -- Optional
         Duration = 7 -- Set to nil to make the notification not disappear
     })
 
@@ -39,3 +38,4 @@ do
     end)
 
     Options.MyToggle:SetValue(false)
+end
