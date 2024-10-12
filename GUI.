@@ -31,11 +31,18 @@ Fluent:Notify({
     Duration = 5
 })
 
+-- Create a scrollable frame for the Main Tab
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, 0, 1, 0)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 2, 0) -- Adjust the canvas size as needed
+scrollFrame.ScrollBarThickness = 8
+scrollFrame.Parent = Tabs.Main.Content
+
 -- Main Tab Content
-local Section = Tabs.Main:AddSection("Main Controls")
+local Section = scrollFrame:AddSection("Main Controls")
 
 -- Speed Input
-local speedInput = Tabs.Main:AddInput("Speed", {
+local speedInput = Section:AddInput("Speed", {
     Title = "Change Speed",
     Placeholder = "Enter Speed Value",
     Callback = function(value)
@@ -47,7 +54,7 @@ local speedInput = Tabs.Main:AddInput("Speed", {
 })
 
 -- Jump Power Input
-local jumpInput = Tabs.Main:AddInput("JumpPower", {
+local jumpInput = Section:AddInput("JumpPower", {
     Title = "Change Jump Power",
     Placeholder = "Enter Jump Power Value",
     Callback = function(value)
@@ -59,7 +66,7 @@ local jumpInput = Tabs.Main:AddInput("JumpPower", {
 })
 
 -- Infinite Jump Toggle
-local infiniteJumpToggle = Tabs.Main:AddToggle("Infinite Jump", {
+local infiniteJumpToggle = Section:AddToggle("Infinite Jump", {
     Title = "Enable Infinite Jump",
     Default = false,
 })
@@ -75,7 +82,7 @@ UserInputService.JumpRequest:Connect(function()
 end)
 
 -- Noclip Toggle
-local noclipToggle = Tabs.Main:AddToggle("Noclip", {
+local noclipToggle = Section:AddToggle("Noclip", {
     Title = "Enable Noclip",
     Default = false,
 })
@@ -101,7 +108,7 @@ noclipToggle:OnChanged(function(value)
 end)
 
 -- Gravity Changer Input
-local gravityInput = Tabs.Main:AddInput("Gravity", {
+local gravityInput = Section:AddInput("Gravity", {
     Title = "Change Gravity",
     Placeholder = "Enter Gravity Value",
     Callback = function(value)
@@ -113,7 +120,7 @@ local gravityInput = Tabs.Main:AddInput("Gravity", {
 })
 
 -- FOV Input
-local fovInput = Tabs.Main:AddInput("FOV", {
+local fovInput = Section:AddInput("FOV", {
     Title = "Change FOV",
     Placeholder = "Enter FOV Value",
     Callback = function(value)
@@ -125,7 +132,7 @@ local fovInput = Tabs.Main:AddInput("FOV", {
 })
 
 -- Hip Height Input
-local hipHeightInput = Tabs.Main:AddInput("HipHeight", {
+local hipHeightInput = Section:AddInput("HipHeight", {
     Title = "Change Hip Height",
     Placeholder = "Enter Hip Height Value",
     Callback = function(value)
@@ -137,7 +144,7 @@ local hipHeightInput = Tabs.Main:AddInput("HipHeight", {
 })
 
 -- Time Manipulation Dropdown
-local timeDropdown = Tabs.Main:AddDropdown("Time Manipulation", {
+local timeDropdown = Section:AddDropdown("Time Manipulation", {
     Title = "Select Time",
     Values = {"Morning", "Afternoon", "Night"},
     Multi = false,
@@ -190,7 +197,7 @@ local function serverHopLowPlayer()
     end
 end
 
-local lowPlayerHopButton = Tabs.Main:AddButton("Server Hop (Low Players)", {
+local lowPlayerHopButton = Section:AddButton("Server Hop (Low Players)", {
     Title = "Hop to a Low Player Count Server",
     Callback = serverHopLowPlayer,
 })
