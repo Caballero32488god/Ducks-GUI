@@ -2,8 +2,10 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
+wait(5) -- Ensure the script runs after the game has loaded
+
 local Window = Fluent:CreateWindow({
-    Title = "Duck " .. Duck.Version,
+    Title = "Duck GUI",
     SubTitle = "by Masterboy123",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
@@ -31,6 +33,21 @@ Fluent:Notify({
     Duration = 7
 })
 
+-- Function to update player list
+local function updatePlayerList(dropdown1, dropdown2)
+    dropdown1.Values = {}
+    dropdown2.Values = {}
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        table.insert(dropdown1.Values, player.Name)
+        table.insert(dropdown2.Values, player.Name)
+    end
+
+    dropdown1:SetValue({})
+    dropdown2:SetValue({})
+end
+
+-- Killer Tab Dropdowns
 local ExcludeDropdown = Tabs.Killer:AddDropdown("Exclude Players", {
     Title = "Players",
     Values = {},
@@ -45,28 +62,9 @@ local IncludeDropdown = Tabs.Killer:AddDropdown("Include Players", {
     Default = {},
 })
 
-local function updatePlayerList()
-    ExcludeDropdown.Values = {}
-    IncludeDropdown.Values = {}
+updatePlayerList(ExcludeDropdown, IncludeDropdown)
 
-    for _, player in ipairs(Players:GetPlayers()) do
-        table.insert(ExcludeDropdown.Values, player.Name)
-        table.insert(IncludeDropdown.Values, player.Name)
-    end
-
-    ExcludeDropdown:SetValue({})
-    IncludeDropdown:SetValue({})
-end
-
--- Initial population of the dropdowns
-updatePlayerList()
-
--- Update the dropdowns every 30 seconds
-while true do
-    wait(30)
-    updatePlayerList()
-end
-
+-- Teleport functions
 local function teleportPlayers(excludePlayers)
     local myCharacter = LocalPlayer.Character
     if myCharacter then
@@ -97,23 +95,27 @@ local function teleportSelectedPlayers(selectedPlayers)
     end
 end
 
-local ExcludeButton = Tabs.Killer:AddButton("Start Exclude Teleport", function()
+-- Killer Tab Buttons for teleportation
+Tabs.Killer:AddButton("Start Exclude Teleport", function()
     teleportPlayers(ExcludeDropdown.Value)
 end)
 
-local IncludeButton = Tabs.Killer:AddButton("Start Include Teleport", function()
+Tabs.Killer:AddButton("Start Include Teleport", function()
     teleportSelectedPlayers(IncludeDropdown.Value)
 end)
 
-ExcludeDropdown:OnChanged(function(Value)
-    print("Exclude Dropdown changed:", table.concat(Value, ", "))
-end)
+-- Add buttons to each tab for debugging
+for _, tab in pairs(Tabs) do
+    tab:AddButton("Test " .. tab.Title, function()
+        Fluent:Notify({
+            Title = tab.Title .. " Button Clicked",
+            Content = "This tab is working!",
+            Duration = 3
+        })
+    end)
+end
 
-IncludeDropdown:OnChanged(function(Value)
-    print("Include Dropdown changed:", table.concat(Value, ", "))
-end)
-
--- Addons:
+-- Addons
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()
@@ -127,9 +129,9 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 Window:SelectTab(1)
 
 Fluent:Notify({
-    Title = "Fluent",
-    Content = "The script has been loaded.",
-    Duration = 8
+    Title = "Debug",
+    Content = "GUI should now be displayed.",
+    Duration = 5
 })
 
 SaveManager:LoadAutoloadConfig()
