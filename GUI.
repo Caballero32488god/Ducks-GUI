@@ -25,9 +25,7 @@ local LocalPlayer = Players.LocalPlayer
 local function getAllPlayerNames()
     local playerNames = {}
     for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            table.insert(playerNames, player.Name)
-        end
+        table.insert(playerNames, player.Name)
     end
     return playerNames
 end
@@ -36,7 +34,6 @@ end
 Tabs.Killer:AddButton({
     Title = "Start Killing",
     Callback = function()
-        -- Set tools for the user
         local function setUserTools()
             local tools = {
                 "Punch", "Ground Slam", "Stomp", "Handstands", "Pushups", "Weight", "Situps"
@@ -56,7 +53,6 @@ Tabs.Killer:AddButton({
 
         setUserTools()
 
-        -- Equip Punch tool and start punching
         local function equipAndPunch()
             local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
 
@@ -90,7 +86,7 @@ local DropdownKillSingle = Tabs.Killer:AddDropdown("KillSingleDropdown", {
 
 local DropdownKillMultiple = Tabs.Killer:AddDropdown("KillMultipleDropdown", {
     Title = "Kill Multiple People",
-    Values = getAllPlayerNames(),
+    Values = getAllPlayerNames(),  -- Show all players in the server
     Multi = true
 })
 
@@ -133,7 +129,7 @@ SaveManager:LoadAutoloadConfig()
 Players.PlayerAdded:Connect(function()
     local updatedNames = getAllPlayerNames()
     DropdownKillSingle:SetValue(updatedNames)
-    DropdownKillMultiple:SetValue(updatedNames)
+    DropdownKillMultiple:SetValue(updatedNames)  -- Ensure Kill Multiple shows all players
     DropdownNoKillSingle:SetValue(updatedNames)
     DropdownNoKillMultiple:SetValue(updatedNames)
 end)
@@ -141,7 +137,7 @@ end)
 Players.PlayerRemoving:Connect(function()
     local updatedNames = getAllPlayerNames()
     DropdownKillSingle:SetValue(updatedNames)
-    DropdownKillMultiple:SetValue(updatedNames)
+    DropdownKillMultiple:SetValue(updatedNames)  -- Ensure Kill Multiple shows all players
     DropdownNoKillSingle:SetValue(updatedNames)
     DropdownNoKillMultiple:SetValue(updatedNames)
 end)
@@ -149,6 +145,6 @@ end)
 -- Initial population of dropdowns
 local initialNames = getAllPlayerNames()
 DropdownKillSingle:SetValue(initialNames)
-DropdownKillMultiple:SetValue(initialNames)
+DropdownKillMultiple:SetValue(initialNames)  -- Ensure Kill Multiple shows all players
 DropdownNoKillSingle:SetValue(initialNames)
 DropdownNoKillMultiple:SetValue(initialNames)
