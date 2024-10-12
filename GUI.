@@ -4,7 +4,6 @@ local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 
 -- Create the Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -34,7 +33,7 @@ Fluent:Notify({
 -- Create a scrollable frame for the Main Tab
 local scrollFrame = Instance.new("ScrollingFrame")
 scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollFrame.CanvasSize = UDim2.new(0, 0, 5, 0) -- Adjust the canvas size to fit your needs
+scrollFrame.CanvasSize = UDim2.new(0, 0, 5, 0) -- Adjust canvas size to fit controls
 scrollFrame.ScrollBarThickness = 8
 scrollFrame.Parent = Tabs.Main.Content
 
@@ -201,6 +200,3 @@ local lowPlayerHopButton = Section:AddButton("Server Hop (Low Players)", {
     Title = "Hop to a Low Player Count Server",
     Callback = serverHopLowPlayer,
 })
-
--- Select the first tab
-Window:SelectTab(1)
