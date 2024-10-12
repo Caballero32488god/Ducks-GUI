@@ -11,7 +11,7 @@ local Window = Fluent:CreateWindow({
     Title = "Fluent " .. Fluent.Version,
     SubTitle = "by dawid",
     TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
+    Size = UDim2.fromOffset(580, 500), -- Increased height for scrollability
     Acrylic = true,
     Theme = "Dark",
 })
@@ -152,6 +152,9 @@ timeDropdown:OnChanged(function(value)
     end
 end)
 
+-- Settings Tab Content
+local SettingsSection = Tabs.Settings:AddSection("Server Controls")
+
 -- Server Hop (Low Player Count) Button
 local function serverHopLowPlayer()
     local placeId = game.PlaceId
@@ -188,7 +191,17 @@ local function serverHopLowPlayer()
     end
 end
 
-Section:AddButton("Server Hop (Low Players)", {
+SettingsSection:AddButton("Server Hop (Low Players)", {
     Title = "Hop to a Low Player Count Server",
     Callback = serverHopLowPlayer,
+})
+
+-- Rejoin Button
+local function rejoinServer()
+    TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId)
+end
+
+SettingsSection:AddButton("Rejoin Server", {
+    Title = "Rejoin Current Server",
+    Callback = rejoinServer,
 })
