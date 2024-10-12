@@ -26,19 +26,19 @@ local LocalPlayer = Players.LocalPlayer
 
 Fluent:Notify({
     Title = "Warning",
-    Content = "This Gui Is Transferred over to Duck",
-    SubContent = "You're Welcome Duck",
+    Content = "This GUI has been transferred over to Duck",
+    SubContent = "You're Welcome, Duck",
     Duration = 7
 })
 
-local Dropdown = Tabs.Killer:AddDropdown("Auto Kill Single Person", {
+local ExcludeDropdown = Tabs.Killer:AddDropdown("Exclude Players", {
     Title = "Players",
     Values = {},
-    Multi = false,
-    Default = 1,
+    Multi = true,
+    Default = {},
 })
 
-local MultiDropdown = Tabs.Killer:AddDropdown("Kill Multiple Players", {
+local IncludeDropdown = Tabs.Killer:AddDropdown("Include Players", {
     Title = "Players",
     Values = {},
     Multi = true,
@@ -46,20 +46,16 @@ local MultiDropdown = Tabs.Killer:AddDropdown("Kill Multiple Players", {
 })
 
 local function updatePlayerList()
-    Dropdown.Values = {}
-    MultiDropdown.Values = {}
+    ExcludeDropdown.Values = {}
+    IncludeDropdown.Values = {}
 
     for _, player in ipairs(Players:GetPlayers()) do
-        table.insert(Dropdown.Values, player.Name)
-        table.insert(MultiDropdown.Values, player.Name)
+        table.insert(ExcludeDropdown.Values, player.Name)
+        table.insert(IncludeDropdown.Values, player.Name)
     end
 
-    if #Dropdown.Values > 0 then
-        Dropdown:SetValue(Dropdown.Values[1])
-    end
-    if #MultiDropdown.Values > 0 then
-        MultiDropdown:SetValue({MultiDropdown.Values[1]})
-    end
+    ExcludeDropdown:SetValue({})
+    IncludeDropdown:SetValue({})
 end
 
 -- Initial population of the dropdowns
@@ -71,59 +67,50 @@ while true do
     updatePlayerList()
 end
 
-Dropdown:OnChanged(function(Value)
-    print("Single Dropdown changed:", Value)
-end)
+local function teleportPlayers(excludePlayers)
+    local myCharacter = LocalPlayer.Character
+    if myCharacter then
+        local myPosition = myCharacter:FindFirstChild("HumanoidRootPart").Position
 
-MultiDropdown:OnChanged(function(Value)
-    print("Multi Dropdown changed:", table.concat(Value, ", "))
-end)
-
-local Toggle = Tabs.Killer:AddToggle("MyToggle", {
-    Title = "Start Teleporting",
-    Default = false,
-})
-
-Toggle:OnChanged(function()
-    if Toggle.Value then
-        local selectedSingle = Dropdown.Value
-        local selectedMultiple = MultiDropdown.Value
-        
-        local function teleportPlayers(selectedPlayers)
-            local myCharacter = LocalPlayer.Character
-            if myCharacter then
-                local myPosition = myCharacter:FindFirstChild("HumanoidRootPart").Position
-
-                if #selectedPlayers == 0 then
-                    -- Teleport everyone
-                    for _, player in ipairs(Players:GetPlayers()) do
-                        if player ~= LocalPlayer then
-                            local character = player.Character
-                            if character and character:FindFirstChild("HumanoidRootPart") then
-                                character.HumanoidRootPart.Position = myPosition
-                            end
-                        end
-                    end
-                else
-                    -- Teleport selected players
-                    for _, playerName in ipairs(selectedPlayers) do
-                        local player = Players:FindFirstChild(playerName)
-                        if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                            player.Character.HumanoidRootPart.Position = myPosition
-                        end
-                    end
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and not table.find(excludePlayers, player.Name) then
+                local character = player.Character
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    character.HumanoidRootPart.Position = myPosition
                 end
             end
         end
+    end
+end
 
-        if selectedSingle then
-            teleportPlayers({selectedSingle}) -- Teleport the single selected player
-        elseif #selectedMultiple > 0 then
-            teleportPlayers(selectedMultiple) -- Teleport the selected multiple players
-        else
-            teleportPlayers({}) -- No selection, teleport everyone
+local function teleportSelectedPlayers(selectedPlayers)
+    local myCharacter = LocalPlayer.Character
+    if myCharacter then
+        local myPosition = myCharacter:FindFirstChild("HumanoidRootPart").Position
+
+        for _, playerName in ipairs(selectedPlayers) do
+            local player = Players:FindFirstChild(playerName)
+            if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.Position = myPosition
+            end
         end
     end
+end
+
+local ExcludeButton = Tabs.Killer:AddButton("Start Exclude Teleport", function()
+    teleportPlayers(ExcludeDropdown.Value)
+end)
+
+local IncludeButton = Tabs.Killer:AddButton("Start Include Teleport", function()
+    teleportSelectedPlayers(IncludeDropdown.Value)
+end)
+
+ExcludeDropdown:OnChanged(function(Value)
+    print("Exclude Dropdown changed:", table.concat(Value, ", "))
+end)
+
+IncludeDropdown:OnChanged(function(Value)
+    print("Include Dropdown changed:", table.concat(Value, ", "))
 end)
 
 -- Addons:
