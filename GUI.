@@ -12,133 +12,114 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
--- Tabs
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "dice-1" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
-    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }) -- Update icon here
+    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" })
 }
 
 local Options = Fluent.Options
 
 do
-    -- Main tab
-    Tabs.Main:AddParagraph({
-        Title = "Main Content",
-        Content = "This tab is intentionally left empty."
+    -- Main tab setup (currently empty)
+
+    -- Killer Tab setup
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+
+    -- Function to get all player names
+    local function getAllPlayerNames()
+        local playerNames = {}
+        for _, player in ipairs(Players:GetPlayers()) do
+            table.insert(playerNames, player.Name)
+        end
+        return playerNames
+    end
+
+    -- Kill Single Person Dropdown
+    local DropdownKillSingle = Tabs.Killer:AddDropdown("KillSingleDropdown", {
+        Title = "Kill Single Person",
+        Values = getAllPlayerNames(),
+        Multi = false
     })
 
-    -- Killer tab
+    -- Kill Multiple People Dropdown
+    local DropdownKillMultiple = Tabs.Killer:AddDropdown("KillMultipleDropdown", {
+        Title = "Kill Multiple People",
+        Values = getAllPlayerNames(),
+        Multi = true
+    })
+
+    -- NoKill Single Person Dropdown
+    local DropdownNoKillSingle = Tabs.Killer:AddDropdown("NoKillSingleDropdown", {
+        Title = "NoKill Single Person",
+        Values = getAllPlayerNames(),
+        Multi = false
+    })
+
+    -- NoKill Multiple People Dropdown
+    local DropdownNoKillMultiple = Tabs.Killer:AddDropdown("NoKillMultipleDropdown", {
+        Title = "NoKill Multiple People",
+        Values = getAllPlayerNames(),
+        Multi = true
+    })
+
+    -- Start Killing Button
     Tabs.Killer:AddButton({
         Title = "Start Killing",
-        Description = "Set tools and start killing.",
         Callback = function()
-            local Players = game:GetService("Players")
-            local LocalPlayer = Players.LocalPlayer
-
-            -- Set values for tools
-            local tools = {
-                {"Punch", "attackTime", 0.1},
-                {"Ground Slam", "attackTime", 0.1},
-                {"Stomp", "attackTime", 0.1},
-                {"Handstands", "repTime", 0.1},
-                {"Pushups", "repTime", 0.1},
-                {"Weight", "repTime", 0.1},
-                {"Situps", "repTime", 0.1}
-            }
-
-            for _, tool in pairs(tools) do
-                local toolName, property, value = unpack(tool)
-                local toolInstance = LocalPlayer.Backpack:FindFirstChild(toolName)
-
-                if toolInstance then
-                    toolInstance[property].Value = value
+            -- Set tools for the user
+            local function setUserTools()
+                local tools = {
+                    "Punch", "Ground Slam", "Stomp", "Handstands", "Pushups", "Weight", "Situps"
+                }
+                for _, tool in ipairs(tools) do
+                    local item = LocalPlayer.Backpack:FindFirstChild(tool)
+                    if item then
+                        item.attackTime.Value = 0.1
+                        item.repTime.Value = 0.1
+                    end
                 end
             end
 
-            -- Function to equip the Punch tool and perform the punch action
+            setUserTools()
+
+            -- Equip Punch tool and start punching
             local function equipAndPunch()
                 local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
-                
+
                 if punchTool then
                     LocalPlayer.Character.Humanoid:EquipTool(punchTool)
-                    print("Equipped Punch tool.")
+                    wait(0.1)
 
-                    wait(0.1) -- Wait for tool to equip
-
-                    -- Function to perform the punch action
                     local function performPunch()
-                        LocalPlayer.muscleEvent:FireServer("punch", "leftHand")  -- Example action
-                        LocalPlayer.muscleEvent:FireServer("punch", "rightHand") -- Example action
+                        LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                        LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
                     end
 
-                    -- Start the punching loop
                     while true do
                         performPunch()
-                        wait(0.5) -- Adjust as necessary
+                        wait(0.5)
                     end
                 else
                     print("Punch tool not found in Backpack.")
                 end
             end
 
-            -- Call the function to equip the tool and start punching
             equipAndPunch()
         end
     })
-
-    -- Dropdowns for killing actions
-    local killSingleDropdown = Tabs.Killer:AddDropdown("KillSingle", {
-        Title = "Kill Single Person",
-        Values = {}, -- Populate with player names from the server
-        Multi = false,
-        Default = 1
-    })
-
-    local killMultipleDropdown = Tabs.Killer:AddDropdown("KillMultiple", {
-        Title = "Kill Multiple People",
-        Values = {}, -- Populate with player names from the server
-        Multi = true,
-        Default = {}
-    })
-
-    local noKillSingleDropdown = Tabs.Killer:AddDropdown("NoKillSingle", {
-        Title = "NoKill Single Person",
-        Values = {}, -- Populate with player names from the server
-        Multi = false,
-        Default = 1
-    })
-
-    local noKillMultipleDropdown = Tabs.Killer:AddDropdown("NoKillMultiple", {
-        Title = "NoKill Multiple People",
-        Values = {}, -- Populate with player names from the server
-        Multi = true,
-        Default = {}
-    })
-
-    -- Load players into dropdowns (pseudo code, you need to implement this)
-    local function loadPlayersIntoDropdowns()
-        for _, player in pairs(Players:GetPlayers()) do
-            local name = player.Name
-            table.insert(killSingleDropdown.Values, name)
-            table.insert(killMultipleDropdown.Values, name)
-            table.insert(noKillSingleDropdown.Values, name)
-            table.insert(noKillMultipleDropdown.Values, name)
-        end
-    end
-
-    loadPlayersIntoDropdowns()
-
-    -- Settings tab (keep original settings intact)
-    InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-    SaveManager:BuildConfigSection(Tabs.Settings)
-
-    Fluent:Notify({
-        Title = "Fluent",
-        Content = "The script has been loaded.",
-        Duration = 8
-    })
 end
+
+-- Settings tab (keep original settings intact)
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
 
 -- Addons
 SaveManager:SetLibrary(Fluent)
@@ -150,5 +131,22 @@ SaveManager:SetFolder("FluentScriptHub/specific-game")
 
 Window:SelectTab(1)
 
--- You can use the SaveManager:LoadAutoloadConfig() to load a config
+-- Load autoload config
 SaveManager:LoadAutoloadConfig()
+
+-- Refresh dropdowns for all players when a player joins or leaves
+Players.PlayerAdded:Connect(function()
+    local allPlayerNames = getAllPlayerNames()
+    DropdownKillSingle:SetValue(allPlayerNames)
+    DropdownKillMultiple:SetValue(allPlayerNames)
+    DropdownNoKillSingle:SetValue(allPlayerNames)
+    DropdownNoKillMultiple:SetValue(allPlayerNames)
+end)
+
+Players.PlayerRemoving:Connect(function()
+    local allPlayerNames = getAllPlayerNames()
+    DropdownKillSingle:SetValue(allPlayerNames)
+    DropdownKillMultiple:SetValue(allPlayerNames)
+    DropdownNoKillSingle:SetValue(allPlayerNames)
+    DropdownNoKillMultiple:SetValue(allPlayerNames)
+end)
