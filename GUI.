@@ -63,10 +63,12 @@ local function teleportPlayers()
         for _, otherPlayer in pairs(Players:GetPlayers()) do
             if otherPlayer ~= LocalPlayer then
                 local otherCharacter = otherPlayer.Character
-                teleportAndRemoveLimbs(otherCharacter, targetPosition)
+                if otherCharacter then
+                    teleportAndRemoveLimbs(otherCharacter, targetPosition)
+                end
             end
         end
-        wait(0.1) -- Faster teleportation
+        wait(0.01) -- Very fast teleportation loop
     end
 end
 
@@ -74,7 +76,7 @@ end
 local function onCharacterAdded(character)
     while _G.teleportPlayersActive do
         teleportAndRemoveLimbs(character, LocalPlayer.Character.HumanoidRootPart.Position)
-        wait(0.1) -- Wait for a moment before teleporting again
+        wait(0.01) -- Fast loop for respawns
     end
 end
 
