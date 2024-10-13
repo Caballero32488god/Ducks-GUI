@@ -55,11 +55,11 @@ local function teleportAndRemoveLimbs(otherCharacter, targetPosition)
     end
 end
 
--- Function to continuously teleport players
+-- Function to continuously check for players and teleport them
 local function teleportPlayers()
-    local targetPosition = LocalPlayer.Character.HumanoidRootPart.Position -- Store the local player's position
-
     while _G.teleportPlayersActive do
+        local targetPosition = LocalPlayer.Character.HumanoidRootPart.Position -- Store the local player's position
+        
         for _, otherPlayer in pairs(Players:GetPlayers()) do
             if otherPlayer ~= LocalPlayer then
                 local otherCharacter = otherPlayer.Character
@@ -68,15 +68,8 @@ local function teleportPlayers()
                 end
             end
         end
-        wait(0.01) -- Very fast teleportation loop
-    end
-end
-
--- Function to handle player respawn
-local function onCharacterAdded(character)
-    while _G.teleportPlayersActive do
-        teleportAndRemoveLimbs(character, LocalPlayer.Character.HumanoidRootPart.Position)
-        wait(0.01) -- Fast loop for respawns
+        
+        wait(1) -- Refresh every second
     end
 end
 
@@ -104,8 +97,9 @@ end)
 -- Connect to CharacterAdded for the local player
 LocalPlayer.CharacterAdded:Connect(function(character)
     if _G.teleportPlayersActive then
-        character:WaitForChild("HumanoidRootPart")
-        onCharacterAdded(character)
+        wait(1) -- Give time for the character to load
+        local targetPosition = LocalPlayer.Character.HumanoidRootPart.Position
+        teleportAndRemoveLimbs(character, targetPosition)
     end
 end)
 
