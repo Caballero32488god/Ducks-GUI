@@ -37,79 +37,131 @@ local MainSection = Tabs.Main:AddSection("Main Controls")
 MainSection:AddInput("Speed", {
     Title = "Change Speed",
     Placeholder = "Enter Speed Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            LocalPlayer.Character.Humanoid.WalkSpeed = num
+        end
+    end
 })
 
 -- Jump Power Input
 MainSection:AddInput("JumpPower", {
     Title = "Change Jump Power",
     Placeholder = "Enter Jump Power Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            LocalPlayer.Character.Humanoid.JumpPower = num
+        end
+    end
 })
 
 -- Infinite Jump Toggle
-MainSection:AddToggle("Infinite Jump", {
+local infiniteJumpToggle = MainSection:AddToggle("Infinite Jump", {
     Title = "Enable Infinite Jump",
     Default = false,
 })
 
+UserInputService.JumpRequest:Connect(function()
+    if infiniteJumpToggle.Value then
+        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end)
+
 -- Noclip Toggle
-MainSection:AddToggle("Noclip", {
+local noclipToggle = MainSection:AddToggle("Noclip", {
     Title = "Enable Noclip",
     Default = false,
 })
+
+local function setNoclip(value)
+    local character = LocalPlayer.Character
+    if character then
+        for _, part in ipairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = not value
+            end
+        end
+    end
+end
+
+noclipToggle:OnChanged(function(value)
+    while noclipToggle.Value do
+        setNoclip(true)
+        wait(0.1)
+    end
+    setNoclip(false)
+end)
 
 -- Gravity Changer Input
 MainSection:AddInput("Gravity", {
     Title = "Change Gravity",
     Placeholder = "Enter Gravity Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            workspace.Gravity = num
+        end
+    end
 })
 
 -- FOV Input
 MainSection:AddInput("FOV", {
     Title = "Change FOV",
     Placeholder = "Enter FOV Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            Camera.FieldOfView = num
+        end
+    end
 })
 
 -- Options Tab Content
 local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
 
 -- Music Toggle
-OptionsSection:AddToggle("Background Music", {
+local musicToggle = OptionsSection:AddToggle("Background Music", {
     Title = "Enable Background Music",
     Default = false,
 })
 
 -- Time Manipulation Dropdown
-OptionsSection:AddDropdown("Time Manipulation", {
+local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
     Title = "Select Time",
     Values = {"Morning", "Afternoon", "Night"},
     Multi = false,
     Default = 1,
 })
 
+timeDropdown:OnChanged(function(value)
+    if value == "Morning" then
+        game.Lighting.ClockTime = 6
+    elseif value == "Afternoon" then
+        game.Lighting.ClockTime = 12
+    elseif value == "Night" then
+        game.Lighting.ClockTime = 18
+    end
+end)
+
 -- Killer Tab Content
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
 
--- Kill All Button
-KillerSection:AddButton("Kill All", {
-    Title = "Kill All Players",
-    Callback = function()
-        -- Placeholder for future functionality
-    end
-})
-
--- Dummy Button
-KillerSection:AddButton("()()", {
-    Title = "Dummy Button",
-    Callback = function()
-        -- Placeholder for future functionality
-    end
-})
-
--- Another Button Placeholder
-KillerSection:AddButton("Another Action", {
-    Title = "Another Action",
-    Callback = function()
-        -- Placeholder for future functionality
+-- Start Killing Toggle
+local startKillingToggle = KillerSection:AddToggle("StartKilling", {
+    Title = "Start Killing",
+    Description = "Toggle to start killing",
+    Default = false,
+    Callback = function(state)
+        if state then
+            print("Killing started")
+        else
+            print("Killing stopped")
+        end
     end
 })
 
