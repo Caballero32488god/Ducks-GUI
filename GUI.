@@ -71,31 +71,6 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
--- Noclip Toggle
-local noclipToggle = MainSection:AddToggle("Noclip", {
-    Title = "Enable Noclip",
-    Default = false,
-})
-
-local function setNoclip(value)
-    local character = LocalPlayer.Character
-    if character then
-        for _, part in ipairs(character:GetChildren()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = not value
-            end
-        end
-    end
-end
-
-noclipToggle:OnChanged(function(value)
-    while noclipToggle.Value do
-        setNoclip(true)
-        wait(0.1)
-    end
-    setNoclip(false)
-end)
-
 -- Gravity Changer Input
 MainSection:AddInput("Gravity", {
     Title = "Change Gravity",
@@ -106,58 +81,62 @@ MainSection:AddInput("Gravity", {
             workspace.Gravity = num
         end
     end
+    })
+
+-- Options Tab Content
+local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
+
+-- Day-Night Cycle
+local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
+    Title = "Select Time",
+    Values = {"Morning", "Afternoon", "Night"},
+    Multi = false,
+    Default = 1,
 })
 
--- FOV Input
-MainSection:AddInput("FOV", {
-    Title = "Change FOV",
-    Placeholder = "Enter FOV Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            Camera.FieldOfView = num
-        end
+timeDropdown:OnChanged(function(value)
+    if value == "Morning" then
+        game.Lighting.ClockTime = 6
+    elseif value == "Afternoon" then
+        game.Lighting.ClockTime = 12
+    elseif value == "Night" then
+        game.Lighting.ClockTime = 18
     end
-})
+end)
 
 -- Killer Tab Content
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
 
--- Start Auto Hit Toggle
-local autoHitToggle = KillerSection:AddToggle("Auto Hit", {
-    Title = "Toggle Auto Hit",
-    Default = false,
-    Callback = function(state)
-        _G.autoHitActive = state
-        if state then
-            showNotification("Auto Hit Activated.")
-            autoHit()
+-- Hitspeed Input
+KillerSection:AddInput("Hitspeed", {
+    Title = "Set Hitspeed (0-100000)",
+    Placeholder = "Enter Hitspeed Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num and num >= 0 and num <= 100000 then
+            setToolValues(num)
+            showNotification("Hitspeed set to " .. num)
         else
-            _G.autoHitActive = false
-            showNotification("Auto Hit Deactivated.")
+            showNotification("Hitspeed must be between 0 and 100000.")
         end
     end
 })
 
--- Function for auto-hitting and teleporting
-local function autoHit()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    
-    while _G.autoHitActive do
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= LocalPlayer then
-                local targetCharacter = otherPlayer.Character
-                if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-                    -- Teleport the other player's HumanoidRootPart to your position
-                    targetCharacter.HumanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, 5) -- Adjust the distance as needed
-
-                    -- Deal damage to the player
-                    targetCharacter.Humanoid:TakeDamage(10) -- Adjust damage as needed
+-- Function to set specific tool values
+local function setToolValues(value)
+    local tools = {"Punch", "Ground Slam", "Stomp", "Handstands", "Pushups", "Weight", "Situps"}
+    for _, toolName in ipairs(tools) do
+        local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
+        if tool then
+            if tool:IsA("Tool") then
+                -- Change attack or rep times based on the tool
+                if toolName == "Punch" or toolName == "Ground Slam" or toolName == "Stomp" then
+                    tool.attackTime.Value = value / 1000 -- Set attackTime to specified hitspeed
+                elseif toolName == "Handstands" or toolName == "Pushups" or toolName == "Weight" or toolName == "Situps" then
+                    tool.repTime.Value = value / 1000 -- Set repTime to specified hitspeed
                 end
             end
         end
-        wait(1) -- Default interval for hits; adjust as needed
     end
 end
 
