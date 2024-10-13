@@ -21,6 +21,7 @@ local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
     Options = Window:AddTab({ Title = "Options", Icon = "settings" }),
     Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
+    Misc = Window:AddTab({ Title = "()()", Icon = "cog" }), -- Misc Tab with ()()
 }
 
 -- Notify that the GUI has loaded
