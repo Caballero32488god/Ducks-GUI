@@ -48,22 +48,17 @@ local function teleportOtherPlayers()
                 if otherCharacter and otherCharacter:FindFirstChild("HumanoidRootPart") then
                     local targetHRP = otherCharacter.HumanoidRootPart
                     
-                    -- Teleport position: in front of the local player
-                    local teleportPosition = humanoidRootPart.Position + (humanoidRootPart.CFrame.LookVector * 5) -- 5 studs in front
-                    teleportPosition = Vector3.new(teleportPosition.X, teleportPosition.Y + 10, teleportPosition.Z) -- Adjusted height for body
+                    -- Teleport head to the local player
+                    local head = otherCharacter:FindFirstChild("Head")
+                    if head then
+                        head.CFrame = humanoidRootPart.CFrame -- Teleport head to the local player's position
+                    end
+
+                    -- Teleport body: 50 studs above the local player
+                    local teleportPosition = humanoidRootPart.Position + Vector3.new(0, 50, 0) -- 50 studs above
 
                     -- Teleport the player's character
                     targetHRP.CFrame = CFrame.new(teleportPosition)
-
-                    -- Set hands position
-                    local rightHand = otherCharacter:FindFirstChild("RightHand")
-                    local leftHand = otherCharacter:FindFirstChild("LeftHand")
-                    if rightHand then
-                        rightHand.Position = teleportPosition + Vector3.new(0, 5, 0) -- 5 studs above the new position
-                    end
-                    if leftHand then
-                        leftHand.Position = teleportPosition + Vector3.new(0, 5, 0) -- 5 studs above the new position
-                    end
                 end
             end
         end
@@ -93,5 +88,5 @@ ToggleButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Initially show the button
+-- Initially hide the button
 ToggleButton.Visible = true
