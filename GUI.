@@ -1,15 +1,16 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 local ScreenGui = Instance.new("ScreenGui")
 local ToggleButton = Instance.new("TextButton")
 
--- Global variable for teleportation state
+-- Global variable for teleportation and attacking state
 _G.teleportPlayersActive = false
 
 -- Create the toggle button
-ToggleButton.Size = UDim2.new(0, 150, 0, 50)
-ToggleButton.Position = UDim2.new(0.5, -75, 0.5, -25)
-ToggleButton.Text = "Start Teleporting"
+ToggleButton.Size = UDim2.new(0, 100, 0, 50)
+ToggleButton.Position = UDim2.new(0.5, -50, 0.5, -25)
+ToggleButton.Text = "Start Killing"
 ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleButton.Parent = ScreenGui
@@ -36,26 +37,36 @@ local function showNotification(message)
     Notification:Destroy()
 end
 
--- Function to teleport players and remove their arms and hands
-local function teleportAndRemoveLimbs(otherCharacter, targetPosition)
-    if otherCharacter then
-        -- Teleport the entire character to the local player's position
-        otherCharacter:SetPrimaryPartCFrame(CFrame.new(targetPosition))
+-- Function to teleport heads of all players to local player's hand and hit them
+local function teleportHeadsAndHitPlayers()
+    while _G.teleportPlayersActive do
+        for _, v in pairs(Players:GetPlayers()) do
+            if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
+                local head = v.Character.Head
+                local handPosition = LocalPlayer.Character.RightHand.Position -- Adjust as needed
 
-        -- Remove arms and hands
-        local leftArm = otherCharacter:FindFirstChild("Left Arm")
-        local rightArm = otherCharacter:FindFirstChild("Right Arm")
-        local leftHand = otherCharacter:FindFirstChild("LeftHand")
-        local rightHand = otherCharacter:FindFirstChild("RightHand")
+                -- Teleport player's head to local player's hand position
+                head.Position = handPosition + Vector3.new(0, 0, 0) -- Adjust for better alignment if needed
 
-        if leftArm then leftArm:Destroy() end
-        if rightArm then rightArm:Destroy() end
-        if leftHand then leftHand:Destroy() end
-        if rightHand then rightHand:Destroy() end
+                -- Find the Punch tool in the backpack
+                local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+                if punchTool then
+                    -- Set attackTime value to 0.1 if it exists
+                    if punchTool:FindFirstChild("attackTime") then
+                        punchTool.attackTime.Value = 0.1
+                    end
+
+                    LocalPlayer.Character.Humanoid:EquipTool(punchTool)
+                    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                end
+            end
+        end
+        wait(0.1) -- Adjust frequency of actions
     end
 end
 
--- Function to continuously check for players and teleport them
+-- Function to continuously teleport players
 local function teleportPlayers()
     while _G.teleportPlayersActive do
         local targetPosition = LocalPlayer.Character.HumanoidRootPart.Position -- Store the local player's position
@@ -64,7 +75,8 @@ local function teleportPlayers()
             if otherPlayer ~= LocalPlayer then
                 local otherCharacter = otherPlayer.Character
                 if otherCharacter then
-                    teleportAndRemoveLimbs(otherCharacter, targetPosition)
+                    -- Teleport character's HumanoidRootPart
+                    otherCharacter:SetPrimaryPartCFrame(CFrame.new(targetPosition))
                 end
             end
         end
@@ -74,32 +86,24 @@ local function teleportPlayers()
 end
 
 -- Start action
-local function startTeleporting()
+local function startAction()
     _G.teleportPlayersActive = true
+    teleportHeadsAndHitPlayers()
     teleportPlayers()
 end
 
 -- Toggle action on button click
 ToggleButton.MouseButton1Click:Connect(function()
     if not _G.teleportPlayersActive then
-        showNotification("Teleporting Players and Removing Limbs!")
-        startTeleporting()
-        ToggleButton.Text = "Stop Teleporting"
+        showNotification("Started Killing!")
+        startAction()
+        ToggleButton.Text = "Stop Killing"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
     else
         _G.teleportPlayersActive = false
-        showNotification("Stopped Teleporting.")
-        ToggleButton.Text = "Start Teleporting"
+        showNotification("Stopped Killing.")
+        ToggleButton.Text = "Start Killing"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    end
-end)
-
--- Connect to CharacterAdded for the local player
-LocalPlayer.CharacterAdded:Connect(function(character)
-    if _G.teleportPlayersActive then
-        wait(1) -- Give time for the character to load
-        local targetPosition = LocalPlayer.Character.HumanoidRootPart.Position
-        teleportAndRemoveLimbs(character, targetPosition)
     end
 end)
 
