@@ -141,15 +141,23 @@ timeDropdown:OnChanged(function(value)
     end
 end)
 
--- Music Section
-OptionsSection:AddButton("Play Music", function()
-    local sound = Instance.new("Sound", workspace)
-    sound.SoundId = "rbxassetid://139235100" -- Replace with your asset ID
-    sound:Play()
-end)
-
 -- Killer Tab Content
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
+
+-- Hitspeed Input
+local hitspeedValue = 1
+KillerSection:AddInput("Hitspeed", {
+    Title = "Set Hitspeed (0-100000)",
+    Placeholder = "Enter Hitspeed Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num and num >= 0 and num <= 100000 then
+            hitspeedValue = num
+        else
+            showNotification("Hitspeed must be between 0 and 100000.")
+        end
+    end
+})
 
 -- Dropdown for Player Selection
 local selectedPlayers = {}
@@ -177,54 +185,38 @@ playerDropdown:OnChanged(function(selected)
     selectedPlayers = selected
 end)
 
--- Hit Speed Input
-KillerSection:AddInput("Hit Speed", {
-    Title = "Set Hit Speed (0-100000)",
-    Placeholder = "Enter Hit Speed Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num and num >= 0 and num <= 100000 then
-            local tool = LocalPlayer.Backpack:FindFirstChild("Punch") -- Change to your tool name
-            if tool and tool:IsA("Tool") then
-                local numberValue = tool:FindFirstChildOfClass("NumberValue")
-                if numberValue then
-                    numberValue.Value = num -- Set hit speed
-                    showNotification("Hit Speed set to: " .. num)
-                else
-                    showNotification("Tool does not have a NumberValue.")
-                end
-            else
-                showNotification("Tool not found in backpack.")
-            end
-        else
-            showNotification("Please enter a valid hit speed (0-100000).")
-        end
-    end
-})
-
--- Start Killing Toggle
-local startKillingToggle = KillerSection:AddToggle("Start Hitting", {
-    Title = "Toggle Hitting",
+-- Start Auto Hit Toggle
+local autoHitToggle = KillerSection:AddToggle("Auto Hit", {
+    Title = "Toggle Auto Hit",
     Default = false,
     Callback = function(state)
-        _G.hitPlayersActive = state
+        _G.autoHitActive = state
         if state then
-            hitPlayers()
-            showNotification("Started hitting players.")
+            showNotification("Auto Hit Activated.")
+            autoHit()
         else
-            _G.hitPlayersActive = false
-            showNotification("Stopped hitting players.")
+            _G.autoHitActive = false
+            showNotification("Auto Hit Deactivated.")
         end
     end
 })
 
--- Only Hit Toggle
-local onlyHitToggle = KillerSection:AddToggle("Only Hit", {
-    Title = "Toggle Only Hit (No Teleport)",
-    Default = false,
-})
+-- Function for auto-hitting
+local function autoHit()
+    while _G.autoHitActive do
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= LocalPlayer and not table.find(selectedPlayers, otherPlayer.Name) then
+                local targetCharacter = otherPlayer.Character
+                if targetCharacter and targetCharacter:FindFirstChild("Humanoid") then
+                    targetCharacter.Humanoid:TakeDamage(10) -- Adjust damage as needed
+                end
+            end
+        end
+        wait(hitspeedValue / 1000) -- Convert hitspeed to seconds
+    end
+end
 
--- Notification and teleport functions
+-- Notification function
 local ScreenGui = Instance.new("ScreenGui")
 local Notification = Instance.new("TextLabel")
 
@@ -248,39 +240,6 @@ local function showNotification(message)
 
     Notification:Destroy()
 end
-
--- Function to continuously hit player characters
-local function hitPlayers()
-    while _G.hitPlayersActive do
-        wait(0.1) -- Adjust the wait time as needed for performance
-
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= LocalPlayer and not table.find(selectedPlayers, otherPlayer.Name) then
-                local targetCharacter = otherPlayer.Character
-                if targetCharacter and targetCharacter:FindFirstChild("Humanoid") then
-                    local humanoid = targetCharacter:FindFirstChildOfClass("Humanoid")
-                    if humanoid then
-                        humanoid:TakeDamage(10) -- Adjust damage as needed
-                    end
-                end
-            end
-        end
-    end
-end
-
--- Connect functions to RunService
-RunService.Stepped:Connect(function()
-    if _G.hitPlayersActive and not onlyHitToggle.Value then
-        teleportPlayers() -- If only hitting is off, teleport players
-    end
-end)
-
--- Start hitting players
-_G.hitPlayersActive = true
-hitPlayers()
-showNotification("Started hitting players.")
-
-print("Players are being hit continuously.")
 
 -- Final touches for scrollability
 Window:SelectTab(1) -- Selects the first tab on open
