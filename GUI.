@@ -15,16 +15,40 @@ ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 ToggleButton.Text = "Auto-Punch"
 ToggleButton.Parent = ScreenGui
 
--- Function to teleport players' bellies (HumanoidRootPart) to the local player
+-- Function to set player size to normal
+local function setNormalSize(character)
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.BodyTypeScale.Value = 0 -- Normal size
+        humanoid.Proportions.Value = 1 -- Normal proportions
+    end
+end
+
+-- Function to teleport players' bellies (HumanoidRootPart) and position their arms
 local function teleportPlayersBellies()
     while punching do
         for _, player in ipairs(Players:GetPlayers()) do
             local character = player.Character
             if character then
+                setNormalSize(character) -- Set size to normal
                 -- Teleport the HumanoidRootPart to the local player's position
                 local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
                 if humanoidRootPart then
                     humanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame -- Teleport to local player's position
+                    
+                    -- Position arms 5000 studs away from the local player in a random direction
+                    local leftArm = character:FindFirstChild("Left Arm") or character:FindFirstChild("LeftArm")
+                    local rightArm = character:FindFirstChild("Right Arm") or character:FindFirstChild("RightArm")
+                    
+                    if leftArm then
+                        local randomOffset = Vector3.new(math.random(-5000, 5000), math.random(-5000, 5000), math.random(-5000, 5000))
+                        leftArm.Position = LocalPlayer.Character.HumanoidRootPart.Position + randomOffset
+                    end
+                    
+                    if rightArm then
+                        local randomOffset = Vector3.new(math.random(-5000, 5000), math.random(-5000, 5000), math.random(-5000, 5000))
+                        rightArm.Position = LocalPlayer.Character.HumanoidRootPart.Position + randomOffset
+                    end
                 end
             end
         end
