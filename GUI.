@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 local ScreenGui = Instance.new("ScreenGui")
 local ToggleButton = Instance.new("TextButton")
 
@@ -9,7 +10,7 @@ _G.teleportPlayersActive = false
 -- Create the toggle button
 ToggleButton.Size = UDim2.new(0, 100, 0, 50)
 ToggleButton.Position = UDim2.new(0.5, -50, 0.5, -25)
-ToggleButton.Text = "Start Teleport"
+ToggleButton.Text = "Start Action"
 ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleButton.Parent = ScreenGui
@@ -36,38 +37,55 @@ local function showNotification(message)
     Notification:Destroy()
 end
 
--- Function to teleport all players to the local player
-local function teleportPlayers()
-    for _, otherPlayer in pairs(Players:GetPlayers()) do
-        if otherPlayer ~= LocalPlayer then
-            local targetCharacter = otherPlayer.Character
-            if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-                targetCharacter:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
+-- Function to teleport and hit all players
+local function teleportAndHitPlayers()
+    while _G.teleportPlayersActive do
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= LocalPlayer and otherPlayer.Character then
+                local targetCharacter = otherPlayer.Character
+                if targetCharacter:FindFirstChild("HumanoidRootPart") then
+                    targetCharacter:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
+
+                    -- Perform punching actions
+                    local humanoid = targetCharacter:FindFirstChild("Humanoid")
+                    if humanoid then
+                        humanoid:ChangeState(Enum.HumanoidStateType.Jumping) -- Ensure the humanoid is in a state to be punched
+
+                        if LocalPlayer:FindFirstChild("muscleEvent") then
+                            LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                            LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                        end
+
+                        if LocalPlayer.Backpack:FindFirstChild("Punch") then
+                            humanoid:EquipTool(LocalPlayer.Backpack.Punch)
+                        end
+
+                        humanoid:TakeDamage(10) -- Adjust damage as needed
+                    end
+                end
             end
         end
+        wait(0.1) -- Adjust the frequency of actions
     end
 end
 
--- Start teleporting players
-local function startTeleporting()
+-- Start action
+local function startAction()
     _G.teleportPlayersActive = true
-    while _G.teleportPlayersActive do
-        wait(0.1)
-        teleportPlayers()
-    end
+    teleportAndHitPlayers()
 end
 
--- Toggle teleportation on button click
+-- Toggle action on button click
 ToggleButton.MouseButton1Click:Connect(function()
     if not _G.teleportPlayersActive then
-        showNotification("Teleportation started.")
-        startTeleporting()
-        ToggleButton.Text = "Stop Teleport"
+        showNotification("Action started.")
+        startAction()
+        ToggleButton.Text = "Stop Action"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
     else
         _G.teleportPlayersActive = false
-        showNotification("Teleportation stopped.")
-        ToggleButton.Text = "Start Teleport"
+        showNotification("Action stopped.")
+        ToggleButton.Text = "Start Action"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     end
 end)
