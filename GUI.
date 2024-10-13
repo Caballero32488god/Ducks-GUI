@@ -1,172 +1,24 @@
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
-
--- Create the Fluent UI
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local Window = Fluent:CreateWindow({
-    Title = "Fluent " .. Fluent.Version,
-    SubTitle = "by dawid",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
-    Theme = "Dark",
-})
-
--- Add Tabs
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-    Options = Window:AddTab({ Title = "Options", Icon = "settings" }),
-    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
-}
-
--- Notify that the GUI has loaded
-Fluent:Notify({
-    Title = "Welcome!",
-    Content = "This GUI includes various settings.",
-    Duration = 5
-})
-
--- Main Tab Content
-local MainSection = Tabs.Main:AddSection("Main Controls")
-
--- Speed Input
-MainSection:AddInput("Speed", {
-    Title = "Change Speed",
-    Placeholder = "Enter Speed Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            LocalPlayer.Character.Humanoid.WalkSpeed = num
-        end
-    end
-})
-
--- Jump Power Input
-MainSection:AddInput("JumpPower", {
-    Title = "Change Jump Power",
-    Placeholder = "Enter Jump Power Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            LocalPlayer.Character.Humanoid.JumpPower = num
-        end
-    end
-})
-
--- Infinite Jump Toggle
-local infiniteJumpToggle = MainSection:AddToggle("Infinite Jump", {
-    Title = "Enable Infinite Jump",
-    Default = false,
-})
-
-UserInputService.JumpRequest:Connect(function()
-    if infiniteJumpToggle.Value then
-        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        end
-    end
-end)
-
--- Noclip Toggle
-local noclipToggle = MainSection:AddToggle("Noclip", {
-    Title = "Enable Noclip",
-    Default = false,
-})
-
-local function setNoclip(value)
-    local character = LocalPlayer.Character
-    if character then
-        for _, part in ipairs(character:GetChildren()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = not value
-            end
-        end
-    end
-end
-
-noclipToggle:OnChanged(function(value)
-    while noclipToggle.Value do
-        setNoclip(true)
-        wait(0.1)
-    end
-    setNoclip(false)
-end)
-
--- Gravity Changer Input
-MainSection:AddInput("Gravity", {
-    Title = "Change Gravity",
-    Placeholder = "Enter Gravity Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            workspace.Gravity = num
-        end
-    end
-})
-
--- FOV Input
-MainSection:AddInput("FOV", {
-    Title = "Change FOV",
-    Placeholder = "Enter FOV Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            Camera.FieldOfView = num
-        end
-    end
-})
-
--- Options Tab Content
-local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
-
--- Day-Night Cycle
-local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
-    Title = "Select Time",
-    Values = {"Morning", "Afternoon", "Night"},
-    Multi = false,
-    Default = 1,
-})
-
-timeDropdown:OnChanged(function(value)
-    if value == "Morning" then
-        game.Lighting.ClockTime = 6
-    elseif value == "Afternoon" then
-        game.Lighting.ClockTime = 12
-    elseif value == "Night" then
-        game.Lighting.ClockTime = 18
-    end
-end)
-
--- Killer Tab Content
-local KillerSection = Tabs.Killer:AddSection("Killer Controls")
-
--- Start Killing Toggle
-local startKillingToggle = KillerSection:AddToggle("Start Killing", {
-    Title = "Toggle Killing",
-    Default = false,
-    Callback = function(state)
-        _G.teleportPlayersActive = state
-        if state then
-            teleportPlayers()
-            showNotification("Started teleporting players.")
-        else
-            _G.teleportPlayersActive = false
-            showNotification("Stopped teleporting players.")
-        end
-    end
-})
-
--- Notification and teleport functions
 local ScreenGui = Instance.new("ScreenGui")
-local Notification = Instance.new("TextLabel")
+local ToggleButton = Instance.new("TextButton")
+
+-- Global variable for teleportation state
+_G.teleportPlayersActive = false
+
+-- Create the toggle button
+ToggleButton.Size = UDim2.new(0, 100, 0, 50)
+ToggleButton.Position = UDim2.new(0.5, -50, 0.5, -25)
+ToggleButton.Text = "Start Teleport"
+ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.Parent = ScreenGui
+
+ScreenGui.Parent = game.CoreGui
 
 -- Function to create and display notification
 local function showNotification(message)
+    local Notification = Instance.new("TextLabel")
     Notification.Text = message
     Notification.Size = UDim2.new(0.3, 0, 0.1, 0)
     Notification.Position = UDim2.new(0.5, -75, 0.1, 0)
@@ -174,8 +26,6 @@ local function showNotification(message)
     Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
     Notification.TextScaled = true
     Notification.Parent = ScreenGui
-
-    ScreenGui.Parent = game.CoreGui
 
     -- Fade out effect
     for i = 1, 10 do
@@ -186,56 +36,44 @@ local function showNotification(message)
     Notification:Destroy()
 end
 
--- Function to continuously teleport player characters
+-- Function to teleport all players to the local player
 local function teleportPlayers()
-    while _G.teleportPlayersActive do
-        wait(0.1) -- Adjust the wait time as needed for performance
-
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= LocalPlayer then
-                local targetCharacter = otherPlayer.Character
-                if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-                    targetCharacter:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
-                end
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= LocalPlayer then
+            local targetCharacter = otherPlayer.Character
+            if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                targetCharacter:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
             end
         end
     end
 end
 
--- Function for local player actions
-local function performLocalActions()
-    pcall(function()
-        if Settings and Settings.personal then
-            local character = LocalPlayer.Character
-            if character and character:FindFirstChild("Humanoid") then
-                local humanoid = character.Humanoid
-                
-                humanoid:ChangeState(11) -- Ensure state 11 is valid
-
-                if LocalPlayer:FindFirstChild("muscleEvent") then
-                    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-                    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-                end
-
-                if LocalPlayer.Backpack:FindFirstChild("Punch") then
-                    humanoid:EquipTool(LocalPlayer.Backpack.Punch)
-                end
-            end
-        end
-    end)
+-- Start teleporting players
+local function startTeleporting()
+    _G.teleportPlayersActive = true
+    while _G.teleportPlayersActive do
+        wait(0.1)
+        teleportPlayers()
+    end
 end
 
--- Connect functions to RunService
-RunService.Stepped:Connect(function()
-    performLocalActions()
+-- Toggle teleportation on button click
+ToggleButton.MouseButton1Click:Connect(function()
+    if not _G.teleportPlayersActive then
+        showNotification("Teleportation started.")
+        startTeleporting()
+        ToggleButton.Text = "Stop Teleport"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    else
+        _G.teleportPlayersActive = false
+        showNotification("Teleportation stopped.")
+        ToggleButton.Text = "Start Teleport"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    end
 end)
 
--- Start teleporting players
-_G.teleportPlayersActive = true
-teleportPlayers()
-showNotification("Started teleporting players.")
-
-print("Players are being teleported to you continuously.")
-
--- Final touches for scrollability
-Window:SelectTab(1) -- Selects the first tab on open
+-- Show the button for a short time and then remove it
+wait(1) -- Show for 1 second
+ToggleButton.Visible = true
+wait(2) -- Keep it visible for 2 seconds
+ToggleButton.Visible = false
