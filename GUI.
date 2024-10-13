@@ -40,32 +40,21 @@ end
 -- Function to teleport and hit all players
 local function teleportAndHitPlayers()
     while _G.teleportPlayersActive do
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= LocalPlayer and otherPlayer.Character then
-                local targetCharacter = otherPlayer.Character
-                if targetCharacter:FindFirstChild("HumanoidRootPart") then
-                    targetCharacter:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
+        for _, v in pairs(Players:GetPlayers()) do
+            if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                -- Teleport to player
+                LocalPlayer.Character.HumanoidRootPart.CFrame = v.Character.PrimaryPart.CFrame
 
-                    -- Perform punching actions
-                    local humanoid = targetCharacter:FindFirstChild("Humanoid")
-                    if humanoid then
-                        humanoid:ChangeState(Enum.HumanoidStateType.Jumping) -- Ensure the humanoid is in a state to be punched
-
-                        if LocalPlayer:FindFirstChild("muscleEvent") then
-                            LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-                            LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-                        end
-
-                        if LocalPlayer.Backpack:FindFirstChild("Punch") then
-                            humanoid:EquipTool(LocalPlayer.Backpack.Punch)
-                        end
-
-                        humanoid:TakeDamage(10) -- Adjust damage as needed
-                    end
+                -- Equip punch tool and perform punches
+                local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+                if punchTool then
+                    LocalPlayer.Character.Humanoid:EquipTool(punchTool)
+                    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
                 end
             end
         end
-        wait(0.1) -- Adjust the frequency of actions
+        wait(0.1) -- Adjust frequency of actions
     end
 end
 
