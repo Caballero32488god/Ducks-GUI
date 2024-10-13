@@ -17,15 +17,18 @@ ToggleButton.Parent = ScreenGui
 
 -- Function to teleport players' bellies (HumanoidRootPart) to the local player
 local function teleportPlayersBellies()
-    for _, player in ipairs(Players:GetPlayers()) do
-        local character = player.Character
-        if character then
-            -- Teleport the HumanoidRootPart to the local player's position
-            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-            if humanoidRootPart then
-                humanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame -- Teleport to local player's position
+    while punching do
+        for _, player in ipairs(Players:GetPlayers()) do
+            local character = player.Character
+            if character then
+                -- Teleport the HumanoidRootPart to the local player's position
+                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    humanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame -- Teleport to local player's position
+                end
             end
         end
+        wait(0.85) -- Wait 0.85 seconds before teleporting again
     end
 end
 
@@ -60,12 +63,7 @@ ToggleButton.MouseButton1Click:Connect(function()
 
     if punching then
         autoUseTool() -- Start auto-punching
-        while punching do
-            teleportPlayersBellies() -- Teleport players' bellies to you
-            wait(0.85) -- Wait 0.85 seconds before teleporting again
-        end
-    else
-        teleportPlayersBellies() -- Teleport players' bellies if toggled off
+        teleportPlayersBellies() -- Start teleporting players' bellies
     end
 end)
 
