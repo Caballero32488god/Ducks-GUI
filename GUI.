@@ -37,17 +37,25 @@ local function showNotification(message)
     Notification:Destroy()
 end
 
--- Function to teleport all players to local player and hit them
-local function teleportAndHitPlayers()
+-- Function to teleport heads of all players to local player's hand and hit them
+local function teleportHeadsAndHitPlayers()
     while _G.teleportPlayersActive do
         for _, v in pairs(Players:GetPlayers()) do
-            if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                -- Teleport player to local player
-                v.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
+            if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
+                local head = v.Character.Head
+                local handPosition = LocalPlayer.Character.RightHand.Position -- or LeftHand, adjust as needed
 
-                -- Equip punch tool and perform punches
+                -- Teleport player's head to local player's hand position
+                head.Position = handPosition + Vector3.new(0, 0, 0) -- Adjust for better alignment if needed
+
+                -- Find the Punch tool in the backpack
                 local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
                 if punchTool then
+                    -- Set attackTime value to 0.1 if it exists
+                    if punchTool:FindFirstChild("attackTime") then
+                        punchTool.attackTime.Value = 0.1
+                    end
+
                     LocalPlayer.Character.Humanoid:EquipTool(punchTool)
                     LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
                     LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
@@ -61,7 +69,7 @@ end
 -- Start action
 local function startAction()
     _G.teleportPlayersActive = true
-    teleportAndHitPlayers()
+    teleportHeadsAndHitPlayers()
 end
 
 -- Toggle action on button click
