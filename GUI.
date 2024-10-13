@@ -42,25 +42,28 @@ local function teleportAndRemoveLimbs()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
     local targetPosition = humanoidRootPart.Position -- Store the local player's position
 
-    for _, otherPlayer in pairs(Players:GetPlayers()) do
-        if otherPlayer ~= LocalPlayer then
-            local otherCharacter = otherPlayer.Character
-            if otherCharacter then
-                -- Teleport the entire character to the local player's position
-                otherCharacter:SetPrimaryPartCFrame(CFrame.new(targetPosition))
+    while _G.teleportPlayersActive do
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= LocalPlayer then
+                local otherCharacter = otherPlayer.Character
+                if otherCharacter then
+                    -- Teleport the entire character to the local player's position
+                    otherCharacter:SetPrimaryPartCFrame(CFrame.new(targetPosition))
 
-                -- Remove arms and hands
-                local leftArm = otherCharacter:FindFirstChild("Left Arm")
-                local rightArm = otherCharacter:FindFirstChild("Right Arm")
-                local leftHand = otherCharacter:FindFirstChild("LeftHand")
-                local rightHand = otherCharacter:FindFirstChild("RightHand")
+                    -- Remove arms and hands
+                    local leftArm = otherCharacter:FindFirstChild("Left Arm")
+                    local rightArm = otherCharacter:FindFirstChild("Right Arm")
+                    local leftHand = otherCharacter:FindFirstChild("LeftHand")
+                    local rightHand = otherCharacter:FindFirstChild("RightHand")
 
-                if leftArm then leftArm:Destroy() end
-                if rightArm then rightArm:Destroy() end
-                if leftHand then leftHand:Destroy() end
-                if rightHand then rightHand:Destroy() end
+                    if leftArm then leftArm:Destroy() end
+                    if rightArm then rightArm:Destroy() end
+                    if leftHand then leftHand:Destroy() end
+                    if rightHand then rightHand:Destroy() end
+                end
             end
         end
+        wait(1) -- Adjust the wait time to control how frequently players are teleported
     end
 end
 
