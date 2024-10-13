@@ -1,92 +1,24 @@
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local ScreenGui = Instance.new("ScreenGui")
-local ToggleButton = Instance.new("TextButton")
-local punching = false -- Toggle state
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local button = script.Parent
 
--- Tool name
-local toolName = "Punch" -- Ensure this matches your tool's name
+local function teleportPlayers()
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player then
+            local otherCharacter = otherPlayer.Character
+            if otherCharacter and otherCharacter:FindFirstChild("HumanoidRootPart") then
+                local targetHRP = otherCharacter.HumanoidRootPart
+                
+                -- Calculate teleport position: in front of the local player
+                local teleportPosition = humanoidRootPart.Position + (humanoidRootPart.CFrame.LookVector * 5) -- 5 studs in front
+                teleportPosition = Vector3.new(teleportPosition.X, teleportPosition.Y + 50, teleportPosition.Z) -- 50 studs above
 
--- Configure the GUI
-ScreenGui.Parent = game.CoreGui
-ToggleButton.Size = UDim2.new(0, 100, 0, 50)
-ToggleButton.Position = UDim2.new(0.5, -50, 0.5, -25)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-ToggleButton.Text = "Auto-Punch"
-ToggleButton.Parent = ScreenGui
-
--- Function to set player size to normal
-local function setNormalSize(character)
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid.BodyTypeScale.Value = 0 -- Normal size
-        humanoid.Proportions.Value = 1 -- Normal proportions
-    end
-end
-
--- Function to teleport all players to the local player's position
-local function teleportAllPlayers()
-    for _, player in ipairs(Players:GetPlayers()) do
-        local character = player.Character
-        if character then
-            setNormalSize(character) -- Set size to normal
-            
-            -- Teleport the HumanoidRootPart to the local player's position
-            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-            if humanoidRootPart then
-                humanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame -- Teleport to local player's position
-                
-                -- Position arms 250 studs away from the local player in a random direction
-                local leftArm = character:FindFirstChild("Left Arm") or character:FindFirstChild("LeftArm")
-                local rightArm = character:FindFirstChild("Right Arm") or character:FindFirstChild("RightArm")
-                
-                local randomOffset = Vector3.new(math.random(-250, 250), math.random(-250, 250), math.random(-250, 250))
-                
-                if leftArm then
-                    leftArm.Position = LocalPlayer.Character.HumanoidRootPart.Position + randomOffset
-                end
-                
-                if rightArm then
-                    rightArm.Position = LocalPlayer.Character.HumanoidRootPart.Position + randomOffset
-                end
+                -- Teleport the player's character
+                targetHRP.CFrame = CFrame.new(teleportPosition)
             end
         end
     end
 end
 
--- Function to auto-use the tool
-local function autoUseTool()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
-
-    if tool then
-        -- Set the NumberValue to 0.1 for speed
-        local numberValue = tool:FindFirstChildOfClass("NumberValue")
-        if numberValue then
-            numberValue.Value = 0.1 -- Set speed value to 0.1
-        end
-
-        wait(2) -- Wait for 2 seconds before equipping the tool
-        humanoid:EquipTool(tool)
-
-        while punching and tool.Parent == character do
-            tool:Activate() -- Activate the tool
-            wait(0.1) -- Adjust the wait time for punching speed
-        end
-    end
-end
-
--- Button click event
-ToggleButton.MouseButton1Click:Connect(function()
-    punching = not punching -- Toggle the punching state
-    ToggleButton.BackgroundColor3 = punching and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 0)
-    ToggleButton.Text = punching and "Stop Punching" or "Auto-Punch"
-
-    if punching then
-        autoUseTool() -- Start auto-punching
-        teleportAllPlayers() -- Teleport all players at once
-    end
-end)
-
--- Ensure nothing happens until the button is pressed
+button.MouseButton1Click:Connect(teleportPlayers)
