@@ -21,7 +21,6 @@ local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
     Options = Window:AddTab({ Title = "Options", Icon = "settings" }),
     Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
-    Misc = Window:AddTab({ Title = "()()", Icon = "cog" }), -- Misc Tab with ()()
 }
 
 -- Notify that the GUI has loaded
@@ -38,162 +37,53 @@ local MainSection = Tabs.Main:AddSection("Main Controls")
 MainSection:AddInput("Speed", {
     Title = "Change Speed",
     Placeholder = "Enter Speed Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            LocalPlayer.Character.Humanoid.WalkSpeed = num
-        end
-    end
 })
 
 -- Jump Power Input
 MainSection:AddInput("JumpPower", {
     Title = "Change Jump Power",
     Placeholder = "Enter Jump Power Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            LocalPlayer.Character.Humanoid.JumpPower = num
-        end
-    end
 })
 
 -- Infinite Jump Toggle
-local infiniteJumpToggle = MainSection:AddToggle("Infinite Jump", {
+MainSection:AddToggle("Infinite Jump", {
     Title = "Enable Infinite Jump",
     Default = false,
 })
 
-UserInputService.JumpRequest:Connect(function()
-    if infiniteJumpToggle.Value then
-        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        end
-    end
-end)
-
 -- Noclip Toggle
-local noclipToggle = MainSection:AddToggle("Noclip", {
+MainSection:AddToggle("Noclip", {
     Title = "Enable Noclip",
     Default = false,
 })
-
-local function setNoclip(value)
-    local character = LocalPlayer.Character
-    if character then
-        for _, part in ipairs(character:GetChildren()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = not value
-            end
-        end
-    end
-end
-
-noclipToggle:OnChanged(function(value)
-    while noclipToggle.Value do
-        setNoclip(true)
-        wait(0.1)
-    end
-    setNoclip(false)
-end)
 
 -- Gravity Changer Input
 MainSection:AddInput("Gravity", {
     Title = "Change Gravity",
     Placeholder = "Enter Gravity Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            workspace.Gravity = num
-        end
-    end
 })
 
 -- FOV Input
 MainSection:AddInput("FOV", {
     Title = "Change FOV",
     Placeholder = "Enter FOV Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            Camera.FieldOfView = num
-        end
-    end
 })
 
 -- Options Tab Content
 local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
 
--- Time Manipulation Dropdown
-local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
-    Title = "Select Time",
-    Values = {"Morning", "Afternoon", "Night"},
-    Multi = false,
-    Default = 1,
-})
-
-timeDropdown:OnChanged(function(value)
-    if value == "Morning" then
-        game.Lighting.ClockTime = 6
-    elseif value == "Afternoon" then
-        game.Lighting.ClockTime = 12
-    elseif value == "Night" then
-        game.Lighting.ClockTime = 18
-    end
-end)
-
 -- Music Toggle
-local musicToggle = OptionsSection:AddToggle("Background Music", {
+OptionsSection:AddToggle("Background Music", {
     Title = "Enable Background Music",
     Default = false,
 })
 
--- Create a Sound object for the background music
-local musicSound
-local function setupMusic()
-    musicSound = Instance.new("Sound")
-    musicSound.SoundId = "rbxassetid://139235100" -- Your audio asset ID
-    musicSound.Looped = true -- Set to loop
-    musicSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- Parent to PlayerGui
-end
-
-setupMusic() -- Set up the music when the script runs
-
--- Toggle music on and off
-musicToggle:OnChanged(function(value)
-    if value then
-        musicSound:Play() -- Play the music
-    else
-        musicSound:Stop() -- Stop the music
-    end
-end)
-
--- Rejoin Button
-local function rejoinServer()
-    TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId)
-end
-
-OptionsSection:AddButton("Rejoin Server", {
-    Title = "Rejoin Current Server",
-    Callback = rejoinServer,
-})
-
--- Reset Settings Button
-local function resetSettings()
-    musicToggle.Value = false
-    musicSound:Stop() -- Stop background music
-    print("Settings reset to defaults.")
-    Fluent:Notify({
-        Title = "Settings Reset",
-        Content = "All settings have been reset to defaults.",
-        Duration = 3
-    })
-end
-
-OptionsSection:AddButton("Reset Settings", {
-    Title = "Reset All Settings",
-    Callback = resetSettings,
+-- Time Manipulation Dropdown
+OptionsSection:AddDropdown("Time Manipulation", {
+    Title = "Select Time",
+    Values = {"Morning", "Afternoon", "Night"},
+    Multi = false,
+    Default = 1,
 })
 
 -- Killer Tab Content
@@ -203,44 +93,25 @@ local KillerSection = Tabs.Killer:AddSection("Killer Controls")
 KillerSection:AddButton("Kill All", {
     Title = "Kill All Players",
     Callback = function()
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer then
-                local character = player.Character
-                if character and character:FindFirstChild("Humanoid") then
-                    character.Humanoid.Health = 0
-                end
-            end
-        end
-        Fluent:Notify({
-            Title = "Kill All",
-            Content = "All players have been eliminated.",
-            Duration = 3
-        })
-    end,
+        -- Placeholder for future functionality
+    end
 })
 
 -- Dummy Button
-KillerSection:AddButton("Dummy", {
-    Title = "Spawn a Dummy",
+KillerSection:AddButton("()()", {
+    Title = "Dummy Button",
     Callback = function()
-        local dummy = Instance.new("Model")
-        dummy.Name = "Dummy"
-        
-        local head = Instance.new("Part")
-        head.Name = "Head"
-        head.Size = Vector3.new(2, 1, 1)
-        head.Position = LocalPlayer.Character.PrimaryPart.Position + Vector3.new(5, 0, 0)
-        head.Anchored = true
-        head.Parent = dummy
-
-        dummy.Parent = workspace
-        Fluent:Notify({
-            Title = "Dummy",
-            Content = "A dummy has been spawned.",
-            Duration = 3
-        })
-    end,
+        -- Placeholder for future functionality
+    end
 })
 
--- Final touches
+-- Another Button Placeholder
+KillerSection:AddButton("Another Action", {
+    Title = "Another Action",
+    Callback = function()
+        -- Placeholder for future functionality
+    end
+})
+
+-- Final touches for scrollability
 Window:SelectTab(1) -- Selects the first tab on open
