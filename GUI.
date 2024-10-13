@@ -124,7 +124,7 @@ MainSection:AddInput("FOV", {
 -- Options Tab Content
 local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
 
--- Day-Night Dropdown
+-- Time Manipulation Dropdown
 local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
     Title = "Select Time",
     Values = {"Morning", "Afternoon", "Night"},
@@ -152,42 +152,21 @@ local musicToggle = OptionsSection:AddToggle("Background Music", {
 local musicSound
 local function setupMusic()
     musicSound = Instance.new("Sound")
-    musicSound.SoundId = "rbxassetid://139235100"
-    musicSound.Looped = true
-    musicSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    musicSound.SoundId = "rbxassetid://139235100" -- Your audio asset ID
+    musicSound.Looped = true -- Set to loop
+    musicSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- Parent to PlayerGui
 end
 
-setupMusic()
+setupMusic() -- Set up the music when the script runs
 
+-- Toggle music on and off
 musicToggle:OnChanged(function(value)
     if value then
-        musicSound:Play()
+        musicSound:Play() -- Play the music
     else
-        musicSound:Stop()
+        musicSound:Stop() -- Stop the music
     end
 end)
-
--- Button to control the looped sound
-OptionsSection:AddButton("Toggle Loop Sound", {
-    Title = "Play/Pause Looping Sound",
-    Callback = function()
-        if loopedSound.IsPlaying then
-            loopedSound:Stop()
-            Fluent:Notify({
-                Title = "Loop Sound",
-                Content = "Looping sound paused.",
-                Duration = 3
-            })
-        else
-            loopedSound:Play()
-            Fluent:Notify({
-                Title = "Loop Sound",
-                Content = "Looping sound playing.",
-                Duration = 3
-            })
-        end
-    end
-})
 
 -- Rejoin Button
 local function rejoinServer()
@@ -202,8 +181,8 @@ OptionsSection:AddButton("Rejoin Server", {
 -- Reset Settings Button
 local function resetSettings()
     musicToggle.Value = false
-    musicSound:Stop()
-    loopedSound:Stop()
+    musicSound:Stop() -- Stop background music
+    print("Settings reset to defaults.")
     Fluent:Notify({
         Title = "Settings Reset",
         Content = "All settings have been reset to defaults.",
@@ -216,7 +195,7 @@ OptionsSection:AddButton("Reset Settings", {
     Callback = resetSettings,
 })
 
--- Killer Tab
+-- Killer Tab Content
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
 
 -- Kill All Button
@@ -231,7 +210,35 @@ KillerSection:AddButton("Kill All", {
                 end
             end
         end
-    end
+        Fluent:Notify({
+            Title = "Kill All",
+            Content = "All players have been eliminated.",
+            Duration = 3
+        })
+    end,
+})
+
+-- Dummy Button
+KillerSection:AddButton("Dummy", {
+    Title = "Spawn a Dummy",
+    Callback = function()
+        local dummy = Instance.new("Model")
+        dummy.Name = "Dummy"
+        
+        local head = Instance.new("Part")
+        head.Name = "Head"
+        head.Size = Vector3.new(2, 1, 1)
+        head.Position = LocalPlayer.Character.PrimaryPart.Position + Vector3.new(5, 0, 0)
+        head.Anchored = true
+        head.Parent = dummy
+
+        dummy.Parent = workspace
+        Fluent:Notify({
+            Title = "Dummy",
+            Content = "A dummy has been spawned.",
+            Duration = 3
+        })
+    end,
 })
 
 -- Final touches
