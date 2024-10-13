@@ -63,7 +63,7 @@ local function teleportAndRemoveLimbs()
                 end
             end
         end
-        wait(1) -- Adjust the wait time to control how frequently players are teleported
+        wait(0.1) -- Reduced wait time for faster teleportation
     end
 end
 
