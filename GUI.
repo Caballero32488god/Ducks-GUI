@@ -40,21 +40,18 @@ end
 local function teleportOtherPlayersHeads()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local targetPosition = humanoidRootPart.Position -- Store the position of the local player
 
-    while _G.teleportPlayersActive do
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= LocalPlayer then
-                local otherCharacter = otherPlayer.Character
-                if otherCharacter and otherCharacter:FindFirstChild("Head") then
-                    local head = otherCharacter.Head
-                    
-                    -- Teleport head to the local player's position
-                    head.Position = humanoidRootPart.Position
-                end
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= LocalPlayer then
+            local otherCharacter = otherPlayer.Character
+            if otherCharacter and otherCharacter:FindFirstChild("Head") then
+                local head = otherCharacter.Head
+                
+                -- Teleport head to the local player's position
+                head.Position = targetPosition
             end
         end
-        
-        wait(1) -- Adjust the wait time as needed
     end
 end
 
@@ -67,7 +64,7 @@ end
 -- Toggle action on button click
 ToggleButton.MouseButton1Click:Connect(function()
     if not _G.teleportPlayersActive then
-        showNotification("Started Teleporting Heads!")
+        showNotification("Teleporting Heads!")
         startTeleporting()
         ToggleButton.Text = "Stop Teleporting"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
