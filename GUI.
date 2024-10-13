@@ -1,169 +1,61 @@
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
-local RunService = game:GetService("RunService")
+local ScreenGui = Instance.new("ScreenGui")
+local ToggleButton = Instance.new("TextButton")
+local punching = false -- Toggle state
 
--- Create the Fluent UI
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local Window = Fluent:CreateWindow({
-    Title = "Fluent " .. Fluent.Version,
-    SubTitle = "by dawid",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
-    Theme = "Dark",
-})
+-- Tool name
+local toolName = "Punch" -- Ensure this matches your tool's name
 
--- Add Tabs
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-    Options = Window:AddTab({ Title = "Options", Icon = "settings" }),
-    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
-}
+-- Configure the GUI
+ScreenGui.Parent = game.CoreGui
+ToggleButton.Size = UDim2.new(0, 100, 0, 50)
+ToggleButton.Position = UDim2.new(0.5, -50, 0.5, -25)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+ToggleButton.Text = "Auto-Punch"
+ToggleButton.Parent = ScreenGui
 
--- Notify that the GUI has loaded
-Fluent:Notify({
-    Title = "Welcome!",
-    Content = "This GUI includes various settings.",
-    Duration = 5
-})
-
--- Main Tab Content
-local MainSection = Tabs.Main:AddSection("Main Controls")
-
--- Speed Input
-MainSection:AddInput("Speed", {
-    Title = "Change Speed",
-    Placeholder = "Enter Speed Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            LocalPlayer.Character.Humanoid.WalkSpeed = num
-        end
-    end
-})
-
--- Jump Power Input
-MainSection:AddInput("JumpPower", {
-    Title = "Change Jump Power",
-    Placeholder = "Enter Jump Power Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            LocalPlayer.Character.Humanoid.JumpPower = num
-        end
-    end
-})
-
--- Infinite Jump Toggle
-local infiniteJumpToggle = MainSection:AddToggle("Infinite Jump", {
-    Title = "Enable Infinite Jump",
-    Default = false,
-})
-
-UserInputService.JumpRequest:Connect(function()
-    if infiniteJumpToggle.Value then
-        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        end
-    end
-end)
-
--- Gravity Changer Input
-MainSection:AddInput("Gravity", {
-    Title = "Change Gravity",
-    Placeholder = "Enter Gravity Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            workspace.Gravity = num
-        end
-    end
-    })
-
--- Options Tab Content
-local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
-
--- Day-Night Cycle
-local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
-    Title = "Select Time",
-    Values = {"Morning", "Afternoon", "Night"},
-    Multi = false,
-    Default = 1,
-})
-
-timeDropdown:OnChanged(function(value)
-    if value == "Morning" then
-        game.Lighting.ClockTime = 6
-    elseif value == "Afternoon" then
-        game.Lighting.ClockTime = 12
-    elseif value == "Night" then
-        game.Lighting.ClockTime = 18
-    end
-end)
-
--- Killer Tab Content
-local KillerSection = Tabs.Killer:AddSection("Killer Controls")
-
--- Hitspeed Input
-KillerSection:AddInput("Hitspeed", {
-    Title = "Set Hitspeed (0-100000)",
-    Placeholder = "Enter Hitspeed Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num and num >= 0 and num <= 100000 then
-            setToolValues(num)
-            showNotification("Hitspeed set to " .. num)
-        else
-            showNotification("Hitspeed must be between 0 and 100000.")
-        end
-    end
-})
-
--- Function to set specific tool values
-local function setToolValues(value)
-    local tools = {"Punch", "Ground Slam", "Stomp", "Handstands", "Pushups", "Weight", "Situps"}
-    for _, toolName in ipairs(tools) do
-        local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
-        if tool then
-            if tool:IsA("Tool") then
-                -- Change attack or rep times based on the tool
-                if toolName == "Punch" or toolName == "Ground Slam" or toolName == "Stomp" then
-                    tool.attackTime.Value = value / 1000 -- Set attackTime to specified hitspeed
-                elseif toolName == "Handstands" or toolName == "Pushups" or toolName == "Weight" or toolName == "Situps" then
-                    tool.repTime.Value = value / 1000 -- Set repTime to specified hitspeed
-                end
+-- Function to teleport all players to the local player's position
+local function teleportAllPlayers()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                -- Teleport the entire character to the local player's position
+                character:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame)
             end
         end
     end
 end
 
--- Notification function
-local ScreenGui = Instance.new("ScreenGui")
-local Notification = Instance.new("TextLabel")
+-- Function to auto-use the tool
+local function autoUseTool()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
 
--- Function to create and display notification
-local function showNotification(message)
-    Notification.Text = message
-    Notification.Size = UDim2.new(0.3, 0, 0.1, 0)
-    Notification.Position = UDim2.new(0.5, -75, 0.1, 0)
-    Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Notification.TextScaled = true
-    Notification.Parent = ScreenGui
+    if tool then
+        -- Equip the tool
+        humanoid:EquipTool(tool)
 
-    ScreenGui.Parent = game.CoreGui
-
-    -- Fade out effect
-    for i = 1, 10 do
-        wait(0.1)
-        Notification.TextTransparency = i / 10
+        while punching and tool.Parent == character do
+            tool:Activate() -- Activate the tool
+            wait(0.1) -- Adjust the wait time for punching speed
+        end
     end
-
-    Notification:Destroy()
 end
 
--- Final touches for scrollability
-Window:SelectTab(1) -- Selects the first tab on open
+-- Button click event
+ToggleButton.MouseButton1Click:Connect(function()
+    punching = not punching -- Toggle the punching state
+    ToggleButton.BackgroundColor3 = punching and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 0)
+    ToggleButton.Text = punching and "Stop Punching" or "Auto-Punch"
+
+    if punching then
+        teleportAllPlayers() -- Teleport all players at once
+        autoUseTool() -- Start auto-punching
+    end
+end)
+
+-- Ensure nothing happens until the button is pressed
+ToggleButton.Visible = true
