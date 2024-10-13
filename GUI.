@@ -36,8 +36,8 @@ local function showNotification(message)
     Notification:Destroy()
 end
 
--- Function to teleport other players
-local function teleportOtherPlayers()
+-- Function to teleport only the heads of other players
+local function teleportOtherPlayersHeads()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
@@ -45,20 +45,11 @@ local function teleportOtherPlayers()
         for _, otherPlayer in pairs(Players:GetPlayers()) do
             if otherPlayer ~= LocalPlayer then
                 local otherCharacter = otherPlayer.Character
-                if otherCharacter and otherCharacter:FindFirstChild("HumanoidRootPart") then
-                    local targetHRP = otherCharacter.HumanoidRootPart
+                if otherCharacter and otherCharacter:FindFirstChild("Head") then
+                    local head = otherCharacter.Head
                     
-                    -- Teleport head to the local player
-                    local head = otherCharacter:FindFirstChild("Head")
-                    if head then
-                        head.CFrame = humanoidRootPart.CFrame -- Teleport head to the local player's position
-                    end
-
-                    -- Teleport body: 50 studs above the local player
-                    local teleportPosition = humanoidRootPart.Position + Vector3.new(0, 50, 0) -- 50 studs above
-
-                    -- Teleport the player's character
-                    targetHRP.CFrame = CFrame.new(teleportPosition)
+                    -- Teleport head to the local player's position
+                    head.Position = humanoidRootPart.Position
                 end
             end
         end
@@ -70,19 +61,19 @@ end
 -- Start action
 local function startTeleporting()
     _G.teleportPlayersActive = true
-    teleportOtherPlayers()
+    teleportOtherPlayersHeads()
 end
 
 -- Toggle action on button click
 ToggleButton.MouseButton1Click:Connect(function()
     if not _G.teleportPlayersActive then
-        showNotification("Started Teleporting!")
+        showNotification("Started Teleporting Heads!")
         startTeleporting()
         ToggleButton.Text = "Stop Teleporting"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
     else
         _G.teleportPlayersActive = false
-        showNotification("Stopped Teleporting.")
+        showNotification("Stopped Teleporting Heads.")
         ToggleButton.Text = "Start Teleporting"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     end
