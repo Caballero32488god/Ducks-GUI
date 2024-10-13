@@ -1,26 +1,197 @@
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+
+-- Create the Fluent UI
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local Window = Fluent:CreateWindow({
+    Title = "Fluent " .. Fluent.Version,
+    SubTitle = "by dawid",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+})
+
+-- Add Tabs
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "home" }),
+    Options = Window:AddTab({ Title = "Options", Icon = "settings" }),
+    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
+}
+
+-- Notify that the GUI has loaded
+Fluent:Notify({
+    Title = "Welcome!",
+    Content = "This GUI includes various settings.",
+    Duration = 5
+})
+
+-- Main Tab Content
+local MainSection = Tabs.Main:AddSection("Main Controls")
+
+-- Speed Input
+MainSection:AddInput("Speed", {
+    Title = "Change Speed",
+    Placeholder = "Enter Speed Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            LocalPlayer.Character.Humanoid.WalkSpeed = num
+        end
+    end
+})
+
+-- Jump Power Input
+MainSection:AddInput("JumpPower", {
+    Title = "Change Jump Power",
+    Placeholder = "Enter Jump Power Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            LocalPlayer.Character.Humanoid.JumpPower = num
+        end
+    end
+})
+
+-- Infinite Jump Toggle
+local infiniteJumpToggle = MainSection:AddToggle("Infinite Jump", {
+    Title = "Enable Infinite Jump",
+    Default = false,
+})
+
+UserInputService.JumpRequest:Connect(function()
+    if infiniteJumpToggle.Value then
+        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end)
+
+-- Noclip Toggle
+local noclipToggle = MainSection:AddToggle("Noclip", {
+    Title = "Enable Noclip",
+    Default = false,
+})
+
+local function setNoclip(value)
+    local character = LocalPlayer.Character
+    if character then
+        for _, part in ipairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = not value
+            end
+        end
+    end
+end
+
+noclipToggle:OnChanged(function(value)
+    while noclipToggle.Value do
+        setNoclip(true)
+        wait(0.1)
+    end
+    setNoclip(false)
+end)
+
+-- Gravity Changer Input
+MainSection:AddInput("Gravity", {
+    Title = "Change Gravity",
+    Placeholder = "Enter Gravity Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            workspace.Gravity = num
+        end
+    end
+})
+
+-- FOV Input
+MainSection:AddInput("FOV", {
+    Title = "Change FOV",
+    Placeholder = "Enter FOV Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            Camera.FieldOfView = num
+        end
+    end
+})
+
+-- Options Tab Content
+local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
+
+-- Day-Night Cycle
+local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
+    Title = "Select Time",
+    Values = {"Morning", "Afternoon", "Night"},
+    Multi = false,
+    Default = 1,
+})
+
+timeDropdown:OnChanged(function(value)
+    if value == "Morning" then
+        game.Lighting.ClockTime = 6
+    elseif value == "Afternoon" then
+        game.Lighting.ClockTime = 12
+    elseif value == "Night" then
+        game.Lighting.ClockTime = 18
+    end
+end)
+
+-- Killer Tab Content
+local KillerSection = Tabs.Killer:AddSection("Killer Controls")
+
+-- Dropdown for Player Selection
+local selectedPlayers = {}
+local playerDropdown = KillerSection:AddDropdown("Ignore Players", {
+    Title = "Select Players to Ignore",
+    Values = {}, -- This will be populated with player names
+    Multi = true, -- Allow multiple selections
+})
+
+-- Populate dropdown with player names
+local function updatePlayerDropdown()
+    local playerNames = {}
+    for _, player in pairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+    playerDropdown:SetValues(playerNames)
+end
+
+-- Update the dropdown when players join or leave
+Players.PlayerAdded:Connect(updatePlayerDropdown)
+Players.PlayerRemoving:Connect(updatePlayerDropdown)
+
+-- Update selected players on dropdown change
+playerDropdown:OnChanged(function(selected)
+    selectedPlayers = selected
+end)
+
+-- Start Killing Toggle
+local startKillingToggle = KillerSection:AddToggle("Start Killing", {
+    Title = "Toggle Killing",
+    Default = false,
+    Callback = function(state)
+        _G.teleportPlayersActive = state
+        if state then
+            teleportPlayers()
+            showNotification("Started teleporting players.")
+        else
+            _G.teleportPlayersActive = false
+            showNotification("Stopped teleporting players.")
+        end
+    end
+})
+
+-- Notification and teleport functions
 local ScreenGui = Instance.new("ScreenGui")
-local ToggleButton = Instance.new("TextButton")
-
--- Global variables
-_G.startKilling = false
-local punching = false -- Toggle state
-local toolName = "Punch" -- Ensure this matches your tool's name
-
--- Create the toggle button
-ToggleButton.Size = UDim2.new(0, 150, 0, 50)
-ToggleButton.Position = UDim2.new(0.5, -75, 0.5, -25)
-ToggleButton.Text = "Start Killing"
-ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleButton.Parent = ScreenGui
-
-ScreenGui.Parent = game.CoreGui
+local Notification = Instance.new("TextLabel")
 
 -- Function to create and display notification
 local function showNotification(message)
-    local Notification = Instance.new("TextLabel")
     Notification.Text = message
     Notification.Size = UDim2.new(0.3, 0, 0.1, 0)
     Notification.Position = UDim2.new(0.5, -75, 0.1, 0)
@@ -28,6 +199,8 @@ local function showNotification(message)
     Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
     Notification.TextScaled = true
     Notification.Parent = ScreenGui
+
+    ScreenGui.Parent = game.CoreGui
 
     -- Fade out effect
     for i = 1, 10 do
@@ -38,71 +211,54 @@ local function showNotification(message)
     Notification:Destroy()
 end
 
--- Function to auto-use the tool
-local function autoUseTool()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
+-- Function to continuously teleport player characters
+local function teleportPlayers()
+    while _G.teleportPlayersActive do
+        wait(0.1) -- Adjust the wait time as needed for performance
 
-    if tool then
-        -- Set the NumberValue to 0 for instant hits
-        local numberValue = tool:FindFirstChildOfClass("NumberValue")
-        if numberValue then
-            numberValue.Value = 0 -- Set speed value to 0 for instant hits
-        end
-
-        wait(2) -- Wait for 2 seconds before equipping the tool
-        humanoid:EquipTool(tool)
-
-        while punching and tool.Parent == character do
-            tool:Activate() -- Activate the tool
-            wait(0) -- Wait time set to 0 for instant hits
-        end
-    end
-end
-
--- Function to teleport and attack other players
-local function startKilling()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-    _G.startKilling = true
-
-    while _G.startKilling do
         for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= LocalPlayer then
-                local otherCharacter = otherPlayer.Character
-                if otherCharacter and otherCharacter:FindFirstChild("HumanoidRootPart") then
-                    local targetHRP = otherCharacter.HumanoidRootPart
-                    
-                    -- Teleport the other player's HumanoidRootPart to your position, -5 units in Z
-                    targetHRP.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, -5) -- Adjust Z to -5
-
-                    punching = true -- Start auto-punching
-                    autoUseTool() -- Call auto-use tool function
+            if otherPlayer ~= LocalPlayer and not table.find(selectedPlayers, otherPlayer.Name) then
+                local targetCharacter = otherPlayer.Character
+                if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                    targetCharacter:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
                 end
             end
         end
-
-        wait(0) -- Wait time set to 0 for continuous execution
     end
 end
 
--- Toggle action on button click
-ToggleButton.MouseButton1Click:Connect(function()
-    if not _G.startKilling then
-        showNotification("Started Killing!")
-        startKilling()
-        ToggleButton.Text = "Stop Killing"
-        ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-    else
-        _G.startKilling = false
-        punching = false -- Stop auto-punching
-        showNotification("Stopped Killing.")
-        ToggleButton.Text = "Start Killing"
-        ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    end
+-- Function for local player actions
+local function performLocalActions()
+    pcall(function()
+        local character = LocalPlayer.Character
+        if character and character:FindFirstChild("Humanoid") then
+            local humanoid = character.Humanoid
+            
+            humanoid:ChangeState(11) -- Ensure state 11 is valid
+
+            if LocalPlayer:FindFirstChild("muscleEvent") then
+                LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+            end
+
+            if LocalPlayer.Backpack:FindFirstChild("Punch") then
+                humanoid:EquipTool(LocalPlayer.Backpack.Punch)
+            end
+        end
+    end)
+end
+
+-- Connect functions to RunService
+RunService.Stepped:Connect(function()
+    performLocalActions()
 end)
 
--- Initially show the button
-ToggleButton.Visible = true
+-- Start teleporting players
+_G.teleportPlayersActive = true
+teleportPlayers()
+showNotification("Started teleporting players.")
+
+print("Players are being teleported to you continuously.")
+
+-- Final touches for scrollability
+Window:SelectTab(1) -- Selects the first tab on open
