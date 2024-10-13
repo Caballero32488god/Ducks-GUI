@@ -33,13 +33,13 @@ Fluent:Notify({
 local MainSection = Tabs.Main:AddSection("Main Controls")
 
 -- Add Scrollable Frame for the Main Section
-local scrollFrame = Instance.new("ScrollingFrame", MainSection)
-scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollFrame.CanvasSize = UDim2.new(1, 0, 3, 0) -- Adjust for more scrolling
-scrollFrame.ScrollBarThickness = 10
+local scrollFrameMain = MainSection:AddScrollingFrame({
+    Size = UDim2.new(1, 0, 1, 0),
+    CanvasSize = UDim2.new(1, 0, 3, 0), -- Adjust for more scrolling
+})
 
 -- Speed Input
-scrollFrame:AddInput("Speed", {
+scrollFrameMain:AddInput("Speed", {
     Title = "Change Speed",
     Placeholder = "Enter Speed Value",
     Callback = function(value)
@@ -51,7 +51,7 @@ scrollFrame:AddInput("Speed", {
 })
 
 -- Jump Power Input
-scrollFrame:AddInput("JumpPower", {
+scrollFrameMain:AddInput("JumpPower", {
     Title = "Change Jump Power",
     Placeholder = "Enter Jump Power Value",
     Callback = function(value)
@@ -63,7 +63,7 @@ scrollFrame:AddInput("JumpPower", {
 })
 
 -- Infinite Jump Toggle
-local infiniteJumpToggle = scrollFrame:AddToggle("Infinite Jump", {
+local infiniteJumpToggle = scrollFrameMain:AddToggle("Infinite Jump", {
     Title = "Enable Infinite Jump",
     Default = false,
 })
@@ -78,7 +78,7 @@ UserInputService.JumpRequest:Connect(function()
 end)
 
 -- Noclip Toggle
-local noclipToggle = scrollFrame:AddToggle("Noclip", {
+local noclipToggle = scrollFrameMain:AddToggle("Noclip", {
     Title = "Enable Noclip",
     Default = false,
 })
@@ -103,7 +103,7 @@ noclipToggle:OnChanged(function(value)
 end)
 
 -- Gravity Changer Input
-scrollFrame:AddInput("Gravity", {
+scrollFrameMain:AddInput("Gravity", {
     Title = "Change Gravity",
     Placeholder = "Enter Gravity Value",
     Callback = function(value)
@@ -115,7 +115,7 @@ scrollFrame:AddInput("Gravity", {
 })
 
 -- FOV Input
-scrollFrame:AddInput("FOV", {
+scrollFrameMain:AddInput("FOV", {
     Title = "Change FOV",
     Placeholder = "Enter FOV Value",
     Callback = function(value)
@@ -127,7 +127,7 @@ scrollFrame:AddInput("FOV", {
 })
 
 -- Time Manipulation Dropdown
-local timeDropdown = scrollFrame:AddDropdown("Time Manipulation", {
+local timeDropdown = scrollFrameMain:AddDropdown("Time Manipulation", {
     Title = "Select Time",
     Values = {"Morning", "Afternoon", "Night"},
     Multi = false,
@@ -147,14 +147,20 @@ end)
 -- Options Tab Content
 local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
 
+-- Add Scrollable Frame for Options Section
+local scrollFrameOptions = OptionsSection:AddScrollingFrame({
+    Size = UDim2.new(1, 0, 1, 0),
+    CanvasSize = UDim2.new(1, 0, 2, 0), -- Adjust for more scrolling
+})
+
 -- Music Toggle
-local musicToggle = OptionsSection:AddToggle("Background Music", {
+local musicToggle = scrollFrameOptions:AddToggle("Background Music", {
     Title = "Enable Background Music",
     Default = false,
 })
 
 -- Volume Input
-OptionsSection:AddInput("Volume", {
+scrollFrameOptions:AddInput("Volume", {
     Title = "Set Volume",
     Placeholder = "Enter Volume (0-100)",
     Callback = function(value)
@@ -206,7 +212,7 @@ end
 setupLoopedSound()
 
 -- Button to control the looped sound
-OptionsSection:AddButton("Toggle Loop Sound", {
+scrollFrameOptions:AddButton("Toggle Loop Sound", {
     Title = "Play/Pause Looping Sound",
     Callback = function()
         if loopedSound.IsPlaying then
@@ -232,7 +238,7 @@ local function rejoinServer()
     TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId)
 end
 
-OptionsSection:AddButton("Rejoin Server", {
+scrollFrameOptions:AddButton("Rejoin Server", {
     Title = "Rejoin Current Server",
     Callback = rejoinServer,
 })
@@ -257,7 +263,7 @@ local function resetSettings()
     })
 end
 
-OptionsSection:AddButton("Reset Settings", {
+scrollFrameOptions:AddButton("Reset Settings", {
     Title = "Reset All Settings",
     Callback = resetSettings,
 })
