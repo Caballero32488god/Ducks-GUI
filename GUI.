@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local UserInputService = game:GetService("UserInputService")
 local ScreenGui = Instance.new("ScreenGui")
 local ToggleButton = Instance.new("TextButton")
 local punching = false -- Toggle state
@@ -23,10 +22,18 @@ local function autoUseTool()
     local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
 
     if tool then
+        -- Set the NumberValue to 0
+        local numberValue = tool:FindFirstChildOfClass("NumberValue")
+        if numberValue then
+            numberValue.Value = 0 -- Set the value to 0
+        end
+
+        wait(2) -- Wait for 2 seconds before equipping the tool
         humanoid:EquipTool(tool)
+
         while punching and tool.Parent == character do
             tool:Activate() -- Activate the tool
-            wait(1) -- Adjust the wait time as needed
+            wait(0.5) -- Adjust the wait time as needed
         end
     end
 end
