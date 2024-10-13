@@ -1,6 +1,7 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
 -- Create the Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -43,7 +44,7 @@ MainSection:AddInput("Speed", {
 })
 
 -- Jump Power Input
-MainSection:AddInput("JumpPower", {
+MainSection:AddInput("Jump Power", {
     Title = "Change Jump Power",
     Placeholder = "Enter Jump Power Value",
     Callback = function(value)
@@ -54,68 +55,95 @@ MainSection:AddInput("JumpPower", {
     end
 })
 
--- Killer Tab Content
-local KillerSection = Tabs.Killer:AddSection("Killer Controls")
+-- Options Tab Content
+local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
 
--- Attack/Rep Time Input
-KillerSection:AddInput("Set Attack/Rep Time", {
-    Title = "Change Attack/Rep Time",
-    Placeholder = "Enter Value",
+-- Gravity Changer Input
+OptionsSection:AddInput("Gravity", {
+    Title = "Change Gravity",
+    Placeholder = "Enter Gravity Value",
     Callback = function(value)
         local num = tonumber(value)
         if num then
-            setToolValues(num)
-            showNotification("Set attackTime and repTime to " .. num)
-        else
-            showNotification("Please enter a valid number.")
+            workspace.Gravity = num
         end
     end
 })
 
--- Function to set specific tool values
-local function setToolValues(value)
-    local tools = {"Punch", "Ground Slam", "Stomp", "Handstands", "Pushups", "Weight", "Situps"}
-    for _, toolName in ipairs(tools) do
-        local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
-        if tool and tool:IsA("Tool") then
-            -- Safely check for attackTime and repTime
-            local attackTime = tool:FindFirstChild("attackTime")
-            local repTime = tool:FindFirstChild("repTime")
+-- Music Toggle
+local musicPlaying = false
+local sound
 
-            if attackTime and attackTime:IsA("NumberValue") then
-                attackTime.Value = value -- Set attack time
+OptionsSection:AddToggle("Play Music", {
+    Title = "Enable Music",
+    Default = false,
+    Callback = function(state)
+        if state then
+            if not musicPlaying then
+                sound = Instance.new("Sound", workspace)
+                sound.SoundId = "rbxassetid://139235100" -- Replace with your asset ID
+                sound:Play()
+                musicPlaying = true
             end
-            if repTime and repTime:IsA("NumberValue") then
-                repTime.Value = value -- Set rep time
+        else
+            if musicPlaying then
+                sound:Stop()
+                musicPlaying = false
             end
         end
     end
-end
+})
 
--- Notification function
-local ScreenGui = Instance.new("ScreenGui")
-local Notification = Instance.new("TextLabel")
+-- Killer Tab Content
+local KillerSection = Tabs.Killer:AddSection("Killer Controls")
 
--- Function to create and display notification
-local function showNotification(message)
-    Notification.Text = message
-    Notification.Size = UDim2.new(0.3, 0, 0.1, 0)
-    Notification.Position = UDim2.new(0.5, -75, 0.1, 0)
-    Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Notification.TextScaled = true
-    Notification.Parent = ScreenGui
-
-    ScreenGui.Parent = game.CoreGui
-
-    -- Fade out effect
-    for i = 1, 10 do
-        wait(0.1)
-        Notification.TextTransparency = i / 10
+-- Function to set attack time
+local function setAttackTime(value)
+    local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+    if punchTool then
+        local attackTime = punchTool:FindFirstChild("attackTime")
+        if attackTime then
+            attackTime.Value = value
+            Fluent:Notify({
+                Title = "Success",
+                Content = "Attack time set to " .. value,
+                Duration = 3
+            })
+        else
+            warn("attackTime property not found in Punch tool.")
+            Fluent:Notify({
+                Title = "Error",
+                Content = "attackTime property not found.",
+                Duration = 3
+            })
+        end
+    else
+        warn("Punch tool not found in backpack.")
+        Fluent:Notify({
+            Title = "Error",
+            Content = "Punch tool not found in backpack.",
+            Duration = 3
+        })
     end
-
-    Notification:Destroy()
 end
+
+-- Input for Attack Time
+KillerSection:AddInput("Attack Time", {
+    Title = "Set Attack Time",
+    Placeholder = "Enter Attack Time Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            setAttackTime(num)
+        else
+            Fluent:Notify({
+                Title = "Invalid Input",
+                Content = "Please enter a valid number.",
+                Duration = 3
+            })
+        end
+    end
+})
 
 -- Final touches for scrollability
 Window:SelectTab(1) -- Selects the first tab on open
