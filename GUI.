@@ -32,11 +32,11 @@ Fluent:Notify({
 -- Main Tab Content
 local MainSection = Tabs.Main:AddSection("Main Controls")
 
--- Create a Scrolling Frame for the Main Section
-local scrollFrame = Instance.new("ScrollingFrame", MainSection)
-scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollFrame.CanvasSize = UDim2.new(1, 0, 2, 0) -- Extend canvas size for more scrollable area
-scrollFrame.ScrollBarThickness = 10
+-- Add Scrollable Frame for the Main Section
+local scrollFrame = MainSection:AddScrollingFrame({
+    Size = UDim2.new(1, 0, 1, 0),
+    CanvasSize = UDim2.new(1, 0, 3, 0), -- Adjust for more scrolling
+})
 
 -- Speed Input
 scrollFrame:AddInput("Speed", {
@@ -161,7 +161,7 @@ OptionsSection:AddInput("Volume", {
         local num = tonumber(value)
         if num and num >= 0 and num <= 100 then
             if musicSound then
-                musicSound.Volume = num / 100 -- Set volume based on user input
+                musicSound.Volume = num / 100
             end
             print("Volume set to: " .. num)
         else
@@ -178,19 +178,19 @@ OptionsSection:AddInput("Volume", {
 local musicSound
 local function setupMusic()
     musicSound = Instance.new("Sound")
-    musicSound.SoundId = "rbxassetid://139235100" -- Your audio asset ID
-    musicSound.Looped = true -- Set to loop
-    musicSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- Parent to PlayerGui
+    musicSound.SoundId = "rbxassetid://139235100"
+    musicSound.Looped = true
+    musicSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 end
 
-setupMusic() -- Set up the music when the script runs
+setupMusic()
 
 -- Toggle music on and off
 musicToggle:OnChanged(function(value)
     if value then
-        musicSound:Play() -- Play the music
+        musicSound:Play()
     else
-        musicSound:Stop() -- Stop the music
+        musicSound:Stop()
     end
 end)
 
@@ -198,26 +198,26 @@ end)
 local loopedSound
 local function setupLoopedSound()
     loopedSound = Instance.new("Sound")
-    loopedSound.SoundId = "rbxassetid://6847929757" -- Your audio asset ID
-    loopedSound.Looped = true -- Set to loop
-    loopedSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- Parent to PlayerGui
+    loopedSound.SoundId = "rbxassetid://6847929757"
+    loopedSound.Looped = true
+    loopedSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 end
 
-setupLoopedSound() -- Set up the looped sound when the script runs
+setupLoopedSound()
 
 -- Button to control the looped sound
 OptionsSection:AddButton("Toggle Loop Sound", {
     Title = "Play/Pause Looping Sound",
     Callback = function()
         if loopedSound.IsPlaying then
-            loopedSound:Stop() -- Stop if currently playing
+            loopedSound:Stop()
             Fluent:Notify({
                 Title = "Loop Sound",
                 Content = "Looping sound paused.",
                 Duration = 3
             })
         else
-            loopedSound:Play() -- Play if currently stopped
+            loopedSound:Play()
             Fluent:Notify({
                 Title = "Loop Sound",
                 Content = "Looping sound playing.",
@@ -242,14 +242,14 @@ local function resetSettings()
     infiniteJumpToggle.Value = false
     noclipToggle.Value = false
     musicToggle.Value = false
-    musicSound:Stop() -- Stop background music
-    loopedSound:Stop() -- Stop looped sound
-    LocalPlayer.Character.Humanoid.WalkSpeed = 16 -- Reset WalkSpeed to default
-    LocalPlayer.Character.Humanoid.JumpPower = 50 -- Reset JumpPower to default
-    workspace.Gravity = 196.2 -- Reset Gravity to default
-    Camera.FieldOfView = 70 -- Reset FOV to default
-    game.Lighting.ClockTime = 12 -- Reset Time to default (Afternoon)
-    
+    musicSound:Stop()
+    loopedSound:Stop()
+    LocalPlayer.Character.Humanoid.WalkSpeed = 16
+    LocalPlayer.Character.Humanoid.JumpPower = 50
+    workspace.Gravity = 196.2
+    Camera.FieldOfView = 70
+    game.Lighting.ClockTime = 12
+
     Fluent:Notify({
         Title = "Settings Reset",
         Content = "All settings have been reset to defaults.",
