@@ -45,10 +45,10 @@ local function autoUseTool()
     local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
 
     if tool then
-        -- Set the NumberValue to 0.1 for speed
+        -- Set the NumberValue to 0 for instant hits
         local numberValue = tool:FindFirstChildOfClass("NumberValue")
         if numberValue then
-            numberValue.Value = 0.1 -- Set speed value to 0.1
+            numberValue.Value = 0 -- Set speed value to 0 for instant hits
         end
 
         wait(2) -- Wait for 2 seconds before equipping the tool
@@ -56,7 +56,7 @@ local function autoUseTool()
 
         while punching and tool.Parent == character do
             tool:Activate() -- Activate the tool
-            wait(0.1) -- Adjust the wait time for punching speed
+            wait(0) -- Wait time set to 0 for instant hits
         end
     end
 end
@@ -75,8 +75,8 @@ local function startKilling()
                 if otherCharacter and otherCharacter:FindFirstChild("HumanoidRootPart") then
                     local targetHRP = otherCharacter.HumanoidRootPart
                     
-                    -- Teleport the other player's HumanoidRootPart to your position
-                    targetHRP.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, 5) -- Adjust as needed
+                    -- Teleport the other player's HumanoidRootPart to your position, -5 units in Z
+                    targetHRP.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, -5) -- Adjust Z to -5
 
                     punching = true -- Start auto-punching
                     autoUseTool() -- Call auto-use tool function
@@ -84,7 +84,7 @@ local function startKilling()
             end
         end
 
-        wait(1) -- Adjust the wait time as needed
+        wait(0) -- Wait time set to 0 for continuous execution
     end
 end
 
