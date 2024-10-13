@@ -24,35 +24,33 @@ local function setNormalSize(character)
     end
 end
 
--- Function to teleport players' bellies (HumanoidRootPart) and position their arms
-local function teleportPlayersBellies()
-    while punching do
-        for _, player in ipairs(Players:GetPlayers()) do
-            local character = player.Character
-            if character then
-                setNormalSize(character) -- Set size to normal
-                -- Teleport the HumanoidRootPart to the local player's position
-                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                if humanoidRootPart then
-                    humanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame -- Teleport to local player's position
-                    
-                    -- Position arms 5000 studs away from the local player in a random direction
-                    local leftArm = character:FindFirstChild("Left Arm") or character:FindFirstChild("LeftArm")
-                    local rightArm = character:FindFirstChild("Right Arm") or character:FindFirstChild("RightArm")
-                    
-                    if leftArm then
-                        local randomOffset = Vector3.new(math.random(-5000, 5000), math.random(-5000, 5000), math.random(-5000, 5000))
-                        leftArm.Position = LocalPlayer.Character.HumanoidRootPart.Position + randomOffset
-                    end
-                    
-                    if rightArm then
-                        local randomOffset = Vector3.new(math.random(-5000, 5000), math.random(-5000, 5000), math.random(-5000, 5000))
-                        rightArm.Position = LocalPlayer.Character.HumanoidRootPart.Position + randomOffset
-                    end
+-- Function to teleport all players to the local player's position
+local function teleportAllPlayers()
+    for _, player in ipairs(Players:GetPlayers()) do
+        local character = player.Character
+        if character then
+            setNormalSize(character) -- Set size to normal
+            
+            -- Teleport the HumanoidRootPart to the local player's position
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                humanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame -- Teleport to local player's position
+                
+                -- Position arms 250 studs away from the local player in a random direction
+                local leftArm = character:FindFirstChild("Left Arm") or character:FindFirstChild("LeftArm")
+                local rightArm = character:FindFirstChild("Right Arm") or character:FindFirstChild("RightArm")
+                
+                local randomOffset = Vector3.new(math.random(-250, 250), math.random(-250, 250), math.random(-250, 250))
+                
+                if leftArm then
+                    leftArm.Position = LocalPlayer.Character.HumanoidRootPart.Position + randomOffset
+                end
+                
+                if rightArm then
+                    rightArm.Position = LocalPlayer.Character.HumanoidRootPart.Position + randomOffset
                 end
             end
         end
-        wait(0.85) -- Wait 0.85 seconds before teleporting again
     end
 end
 
@@ -87,7 +85,7 @@ ToggleButton.MouseButton1Click:Connect(function()
 
     if punching then
         autoUseTool() -- Start auto-punching
-        teleportPlayersBellies() -- Start teleporting players' bellies
+        teleportAllPlayers() -- Teleport all players at once
     end
 end)
 
