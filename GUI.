@@ -78,11 +78,15 @@ local function setToolValues(value)
     for _, toolName in ipairs(tools) do
         local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
         if tool and tool:IsA("Tool") then
-            if tool:FindFirstChild("attackTime") then
-                tool.attackTime.Value = value -- Set attack time
+            -- Safely check for attackTime and repTime
+            local attackTime = tool:FindFirstChild("attackTime")
+            local repTime = tool:FindFirstChild("repTime")
+
+            if attackTime and attackTime:IsA("NumberValue") then
+                attackTime.Value = value -- Set attack time
             end
-            if tool:FindFirstChild("repTime") then
-                tool.repTime.Value = value -- Set rep time
+            if repTime and repTime:IsA("NumberValue") then
+                repTime.Value = value -- Set rep time
             end
         end
     end
