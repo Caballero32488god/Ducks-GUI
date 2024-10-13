@@ -19,7 +19,7 @@ local Window = Fluent:CreateWindow({
 -- Add Tabs
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-    Options = Window:AddTab({ Title = "Options", Icon = "settings" }),  -- Changed to Options
+    Options = Window:AddTab({ Title = "Options", Icon = "settings" }),
 }
 
 -- Notify that the GUI has loaded
@@ -96,8 +96,11 @@ noclipToggle:OnChanged(function(value)
     setNoclip(false)
 end)
 
+-- Options Tab Content
+local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
+
 -- Gravity Changer Input
-MainSection:AddInput("Gravity", {
+OptionsSection:AddInput("Gravity", {
     Title = "Change Gravity",
     Placeholder = "Enter Gravity Value",
     Callback = function(value)
@@ -109,7 +112,7 @@ MainSection:AddInput("Gravity", {
 })
 
 -- FOV Input
-MainSection:AddInput("FOV", {
+OptionsSection:AddInput("FOV", {
     Title = "Change FOV",
     Placeholder = "Enter FOV Value",
     Callback = function(value)
@@ -121,7 +124,7 @@ MainSection:AddInput("FOV", {
 })
 
 -- Time Manipulation Dropdown
-local timeDropdown = MainSection:AddDropdown("Time Manipulation", {
+local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
     Title = "Select Time",
     Values = {"Morning", "Afternoon", "Night"},
     Multi = false,
@@ -138,53 +141,29 @@ timeDropdown:OnChanged(function(value)
     end
 end)
 
--- Options Tab Content
-local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
-
 -- Music Toggle
 local musicToggle = OptionsSection:AddToggle("Background Music", {
     Title = "Enable Background Music",
     Default = false,
 })
 
--- Volume Input
-OptionsSection:AddInput("Volume", {
-    Title = "Set Volume",
-    Placeholder = "Enter Volume (0-100)",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num and num >= 0 and num <= 100 then
-            if musicSound then
-                musicSound.Volume = num / 100 -- Set volume based on user input
-            end
-            print("Volume set to: " .. num)
-        else
-            Fluent:Notify({
-                Title = "Invalid Volume",
-                Content = "Please enter a value between 0 and 100.",
-                Duration = 3
-            })
-        end
-    end
-})
-
 -- Create a Sound object for the background music
 local musicSound
 local function setupMusic()
     musicSound = Instance.new("Sound")
-    musicSound.SoundId = "rbxassetid://139235100" -- Your audio asset ID
-    musicSound.Looped = true -- Set to loop
-    musicSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- Parent to PlayerGui
+    musicSound.SoundId = "rbxassetid://139235100"
+    musicSound.Looped = true
+    musicSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 end
 
-setupMusic() -- Set up the music when the script runs
+setupMusic()
 
 -- Toggle music on and off
 musicToggle:OnChanged(function(value)
     if value then
-        musicSound:Play() -- Play the music
+        musicSound:Play()
     else
-        musicSound:Stop() -- Stop the music
+        musicSound:Stop()
     end
 end)
 
@@ -192,26 +171,26 @@ end)
 local loopedSound
 local function setupLoopedSound()
     loopedSound = Instance.new("Sound")
-    loopedSound.SoundId = "rbxassetid://6847929757" -- Your audio asset ID
-    loopedSound.Looped = true -- Set to loop
-    loopedSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- Parent to PlayerGui
+    loopedSound.SoundId = "rbxassetid://6847929757"
+    loopedSound.Looped = true
+    loopedSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 end
 
-setupLoopedSound() -- Set up the looped sound when the script runs
+setupLoopedSound()
 
 -- Button to control the looped sound
 OptionsSection:AddButton("Toggle Loop Sound", {
     Title = "Play/Pause Looping Sound",
     Callback = function()
         if loopedSound.IsPlaying then
-            loopedSound:Stop() -- Stop if currently playing
+            loopedSound:Stop()
             Fluent:Notify({
                 Title = "Loop Sound",
                 Content = "Looping sound paused.",
                 Duration = 3
             })
         else
-            loopedSound:Play() -- Play if currently stopped
+            loopedSound:Play()
             Fluent:Notify({
                 Title = "Loop Sound",
                 Content = "Looping sound playing.",
@@ -234,8 +213,8 @@ OptionsSection:AddButton("Rejoin Server", {
 -- Reset Settings Button
 local function resetSettings()
     musicToggle.Value = false
-    musicSound:Stop() -- Stop background music
-    loopedSound:Stop() -- Stop looped sound
+    musicSound:Stop()
+    loopedSound:Stop()
     print("Settings reset to defaults.")
     Fluent:Notify({
         Title = "Settings Reset",
@@ -249,5 +228,5 @@ OptionsSection:AddButton("Reset Settings", {
     Callback = resetSettings,
 })
 
--- Final touches for scrollability
+-- Final touches
 Window:SelectTab(1) -- Selects the first tab on open
