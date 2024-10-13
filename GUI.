@@ -37,40 +37,51 @@ local function showNotification(message)
 end
 
 -- Function to teleport players and remove their arms and hands
-local function teleportAndRemoveLimbs()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local targetPosition = humanoidRootPart.Position -- Store the local player's position
+local function teleportAndRemoveLimbs(otherCharacter, targetPosition)
+    if otherCharacter then
+        -- Teleport the entire character to the local player's position
+        otherCharacter:SetPrimaryPartCFrame(CFrame.new(targetPosition))
+
+        -- Remove arms and hands
+        local leftArm = otherCharacter:FindFirstChild("Left Arm")
+        local rightArm = otherCharacter:FindFirstChild("Right Arm")
+        local leftHand = otherCharacter:FindFirstChild("LeftHand")
+        local rightHand = otherCharacter:FindFirstChild("RightHand")
+
+        if leftArm then leftArm:Destroy() end
+        if rightArm then rightArm:Destroy() end
+        if leftHand then leftHand:Destroy() end
+        if rightHand then rightHand:Destroy() end
+    end
+end
+
+-- Function to continuously teleport players
+local function teleportPlayers()
+    local targetPosition = LocalPlayer.Character.HumanoidRootPart.Position -- Store the local player's position
 
     while _G.teleportPlayersActive do
         for _, otherPlayer in pairs(Players:GetPlayers()) do
             if otherPlayer ~= LocalPlayer then
                 local otherCharacter = otherPlayer.Character
-                if otherCharacter then
-                    -- Teleport the entire character to the local player's position
-                    otherCharacter:SetPrimaryPartCFrame(CFrame.new(targetPosition))
-
-                    -- Remove arms and hands
-                    local leftArm = otherCharacter:FindFirstChild("Left Arm")
-                    local rightArm = otherCharacter:FindFirstChild("Right Arm")
-                    local leftHand = otherCharacter:FindFirstChild("LeftHand")
-                    local rightHand = otherCharacter:FindFirstChild("RightHand")
-
-                    if leftArm then leftArm:Destroy() end
-                    if rightArm then rightArm:Destroy() end
-                    if leftHand then leftHand:Destroy() end
-                    if rightHand then rightHand:Destroy() end
-                end
+                teleportAndRemoveLimbs(otherCharacter, targetPosition)
             end
         end
-        wait(0.1) -- Reduced wait time for faster teleportation
+        wait(0.1) -- Faster teleportation
+    end
+end
+
+-- Function to handle player respawn
+local function onCharacterAdded(character)
+    while _G.teleportPlayersActive do
+        teleportAndRemoveLimbs(character, LocalPlayer.Character.HumanoidRootPart.Position)
+        wait(0.1) -- Wait for a moment before teleporting again
     end
 end
 
 -- Start action
 local function startTeleporting()
     _G.teleportPlayersActive = true
-    teleportAndRemoveLimbs()
+    teleportPlayers()
 end
 
 -- Toggle action on button click
@@ -85,6 +96,14 @@ ToggleButton.MouseButton1Click:Connect(function()
         showNotification("Stopped Teleporting.")
         ToggleButton.Text = "Start Teleporting"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    end
+end)
+
+-- Connect to CharacterAdded for the local player
+LocalPlayer.CharacterAdded:Connect(function(character)
+    if _G.teleportPlayersActive then
+        character:WaitForChild("HumanoidRootPart")
+        onCharacterAdded(character)
     end
 end)
 
