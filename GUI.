@@ -4,9 +4,6 @@ local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
-local RunService = game:GetService("RunService")
-local ScreenGui = Instance.new("ScreenGui")
-local Notification = Instance.new("TextLabel")
 
 -- Create the Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -23,7 +20,7 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
     Options = Window:AddTab({ Title = "Options", Icon = "settings" }),
-    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" })
+    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
 }
 
 -- Notify that the GUI has loaded
@@ -127,6 +124,24 @@ MainSection:AddInput("FOV", {
 -- Options Tab Content
 local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
 
+-- Day-Night Dropdown
+local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
+    Title = "Select Time",
+    Values = {"Morning", "Afternoon", "Night"},
+    Multi = false,
+    Default = 1,
+})
+
+timeDropdown:OnChanged(function(value)
+    if value == "Morning" then
+        game.Lighting.ClockTime = 6
+    elseif value == "Afternoon" then
+        game.Lighting.ClockTime = 12
+    elseif value == "Night" then
+        game.Lighting.ClockTime = 18
+    end
+end)
+
 -- Music Toggle
 local musicToggle = OptionsSection:AddToggle("Background Music", {
     Title = "Enable Background Music",
@@ -137,46 +152,34 @@ local musicToggle = OptionsSection:AddToggle("Background Music", {
 local musicSound
 local function setupMusic()
     musicSound = Instance.new("Sound")
-    musicSound.SoundId = "rbxassetid://139235100" -- Your audio asset ID
-    musicSound.Looped = true -- Set to loop
-    musicSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- Parent to PlayerGui
+    musicSound.SoundId = "rbxassetid://139235100"
+    musicSound.Looped = true
+    musicSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 end
 
-setupMusic() -- Set up the music when the script runs
+setupMusic()
 
--- Toggle music on and off
 musicToggle:OnChanged(function(value)
     if value then
-        musicSound:Play() -- Play the music
+        musicSound:Play()
     else
-        musicSound:Stop() -- Stop the music
+        musicSound:Stop()
     end
 end)
-
--- Create a Sound object for the looping sound
-local loopedSound
-local function setupLoopedSound()
-    loopedSound = Instance.new("Sound")
-    loopedSound.SoundId = "rbxassetid://6847929757" -- Your audio asset ID
-    loopedSound.Looped = true -- Set to loop
-    loopedSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- Parent to PlayerGui
-end
-
-setupLoopedSound() -- Set up the looped sound when the script runs
 
 -- Button to control the looped sound
 OptionsSection:AddButton("Toggle Loop Sound", {
     Title = "Play/Pause Looping Sound",
     Callback = function()
         if loopedSound.IsPlaying then
-            loopedSound:Stop() -- Stop if currently playing
+            loopedSound:Stop()
             Fluent:Notify({
                 Title = "Loop Sound",
                 Content = "Looping sound paused.",
                 Duration = 3
             })
         else
-            loopedSound:Play() -- Play if currently stopped
+            loopedSound:Play()
             Fluent:Notify({
                 Title = "Loop Sound",
                 Content = "Looping sound playing.",
@@ -199,9 +202,8 @@ OptionsSection:AddButton("Rejoin Server", {
 -- Reset Settings Button
 local function resetSettings()
     musicToggle.Value = false
-    musicSound:Stop() -- Stop background music
-    loopedSound:Stop() -- Stop looped sound
-    print("Settings reset to defaults.")
+    musicSound:Stop()
+    loopedSound:Stop()
     Fluent:Notify({
         Title = "Settings Reset",
         Content = "All settings have been reset to defaults.",
@@ -214,65 +216,23 @@ OptionsSection:AddButton("Reset Settings", {
     Callback = resetSettings,
 })
 
--- Killer Tab Content
+-- Killer Tab
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
-
--- Global variable for teleportation state
-_G.teleportPlayersActive = true
-
--- Function to create and display notification
-local function showNotification(message)
-    Notification.Text = message
-    Notification.Size = UDim2.new(0.3, 0, 0.1, 0)
-    Notification.Position = UDim2.new(0.5, -75, 0.1, 0)
-    Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Notification.TextScaled = true
-    Notification.Parent = ScreenGui
-
-    ScreenGui.Parent = game.CoreGui
-
-    -- Fade out effect
-    for i = 1, 10 do
-        wait(0.1)
-        Notification.TextTransparency = i / 10
-    end
-
-    Notification:Destroy()
-end
-
--- Function to continuously teleport player characters
-local function teleportPlayers()
-    while _G.teleportPlayersActive do
-        wait(0.1) -- Adjust the wait time as needed for performance
-
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= LocalPlayer then
-                local targetCharacter = otherPlayer.Character
-                if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-                    targetCharacter:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
-                end
-            end
-        end
-    end
-end
 
 -- Kill All Button
 KillerSection:AddButton("Kill All", {
-    Title = "Eliminate All Players",
+    Title = "Kill All Players",
     Callback = function()
         for _, player in ipairs(Players:GetPlayers()) do
             if player ~= LocalPlayer then
-                if player.Character then
-                    player.Character:BreakJoints()  -- This will eliminate the player
+                local character = player.Character
+                if character and character:FindFirstChild("Humanoid") then
+                    character.Humanoid.Health = 0
                 end
             end
         end
-        -- Start teleporting players after killing them
-        teleportPlayers()
-        showNotification("Started teleporting players.")
     end
 })
 
 -- Final touches
-Window:SelectTab(1) -- Ensure the first tab is selected on open
+Window:SelectTab(1) -- Selects the first tab on open
