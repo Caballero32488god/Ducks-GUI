@@ -1,55 +1,83 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 local ScreenGui = Instance.new("ScreenGui")
 local ToggleButton = Instance.new("TextButton")
-local punching = false -- Toggle state
 
--- Tool name
-local toolName = "Punch" -- Ensure this matches your tool's name
+-- Global variable for teleportation and attacking state
+_G.teleportPlayersActive = false
 
--- Configure the GUI
-ScreenGui.Parent = game.CoreGui
+-- Create the toggle button
 ToggleButton.Size = UDim2.new(0, 100, 0, 50)
 ToggleButton.Position = UDim2.new(0.5, -50, 0.5, -25)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-ToggleButton.Text = "Auto-Punch"
+ToggleButton.Text = "Start Killing"
+ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleButton.Parent = ScreenGui
 
--- Function to auto-use the tool
-local function autoUseTool()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
+ScreenGui.Parent = game.CoreGui
 
-    if tool then
-        -- Set the NumberValue to 0
-        local numberValue = tool:FindFirstChildOfClass("NumberValue")
-        if numberValue then
-            numberValue.Value = 0 -- Set the value to 0
+-- Function to create and display notification
+local function showNotification(message)
+    local Notification = Instance.new("TextLabel")
+    Notification.Text = message
+    Notification.Size = UDim2.new(0.3, 0, 0.1, 0)
+    Notification.Position = UDim2.new(0.5, -75, 0.1, 0)
+    Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Notification.TextScaled = true
+    Notification.Parent = ScreenGui
+
+    -- Fade out effect
+    for i = 1, 10 do
+        wait(0.1)
+        Notification.TextTransparency = i / 10
+    end
+
+    Notification:Destroy()
+end
+
+-- Function to teleport all players to local player and hit them
+local function teleportAndHitPlayers()
+    while _G.teleportPlayersActive do
+        for _, v in pairs(Players:GetPlayers()) do
+            if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                -- Teleport player to local player
+                v.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
+
+                -- Equip punch tool and perform punches
+                local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+                if punchTool then
+                    LocalPlayer.Character.Humanoid:EquipTool(punchTool)
+                    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                end
+            end
         end
-
-        wait(2) -- Wait for 2 seconds before equipping the tool
-        humanoid:EquipTool(tool)
-
-        while punching and tool.Parent == character do
-            tool:Activate() -- Activate the tool
-            wait(0.5) -- Adjust the wait time as needed
-        end
+        wait(0.1) -- Adjust frequency of actions
     end
 end
 
--- Button click event
+-- Start action
+local function startAction()
+    _G.teleportPlayersActive = true
+    teleportAndHitPlayers()
+end
+
+-- Toggle action on button click
 ToggleButton.MouseButton1Click:Connect(function()
-    punching = not punching -- Toggle the punching state
-    ToggleButton.BackgroundColor3 = punching and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 0)
-    ToggleButton.Text = punching and "Stop Punching" or "Auto-Punch"
-    
-    if punching then
-        autoUseTool() -- Start auto-punching
+    if not _G.teleportPlayersActive then
+        showNotification("Started Killing!")
+        startAction()
+        ToggleButton.Text = "Stop Killing"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    else
+        _G.teleportPlayersActive = false
+        showNotification("Stopped Killing.")
+        ToggleButton.Text = "Start Killing"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     end
 end)
 
--- Start auto-use process if the character is already loaded
-if LocalPlayer.Character then
-    autoUseTool()
-end
+-- Initially hide the button
+ToggleButton.Visible = true
