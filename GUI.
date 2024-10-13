@@ -36,20 +36,29 @@ local function showNotification(message)
     Notification:Destroy()
 end
 
--- Function to teleport only the heads of other players
-local function teleportOtherPlayersHeads()
+-- Function to teleport players and remove their arms and hands
+local function teleportAndRemoveLimbs()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local targetPosition = humanoidRootPart.Position -- Store the position of the local player
+    local targetPosition = humanoidRootPart.Position -- Store the local player's position
 
     for _, otherPlayer in pairs(Players:GetPlayers()) do
         if otherPlayer ~= LocalPlayer then
             local otherCharacter = otherPlayer.Character
-            if otherCharacter and otherCharacter:FindFirstChild("Head") then
-                local head = otherCharacter.Head
-                
-                -- Teleport head to the local player's position
-                head.Position = targetPosition
+            if otherCharacter then
+                -- Teleport the entire character to the local player's position
+                otherCharacter:SetPrimaryPartCFrame(CFrame.new(targetPosition))
+
+                -- Remove arms and hands
+                local leftArm = otherCharacter:FindFirstChild("Left Arm")
+                local rightArm = otherCharacter:FindFirstChild("Right Arm")
+                local leftHand = otherCharacter:FindFirstChild("LeftHand")
+                local rightHand = otherCharacter:FindFirstChild("RightHand")
+
+                if leftArm then leftArm:Destroy() end
+                if rightArm then rightArm:Destroy() end
+                if leftHand then leftHand:Destroy() end
+                if rightHand then rightHand:Destroy() end
             end
         end
     end
@@ -58,19 +67,19 @@ end
 -- Start action
 local function startTeleporting()
     _G.teleportPlayersActive = true
-    teleportOtherPlayersHeads()
+    teleportAndRemoveLimbs()
 end
 
 -- Toggle action on button click
 ToggleButton.MouseButton1Click:Connect(function()
     if not _G.teleportPlayersActive then
-        showNotification("Teleporting Heads!")
+        showNotification("Teleporting Players and Removing Limbs!")
         startTeleporting()
         ToggleButton.Text = "Stop Teleporting"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
     else
         _G.teleportPlayersActive = false
-        showNotification("Stopped Teleporting Heads.")
+        showNotification("Stopped Teleporting.")
         ToggleButton.Text = "Start Teleporting"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     end
