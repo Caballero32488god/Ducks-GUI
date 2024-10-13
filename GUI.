@@ -1,79 +1,18 @@
--- Options Tab Content
-local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
+local button = script.Parent
+local soundId = "rbxassetid://6847929757" -- Your audio asset ID
 
--- Music Toggle
-local musicToggle = OptionsSection:AddToggle("Background Music", {
-    Title = "Enable Background Music",
-    Default = false,
-})
+local function changeMusic()
+    -- Create a new Sound object
+    local sound = Instance.new("Sound")
+    sound.SoundId = soundId
+    sound.Volume = 1 -- Adjust the volume as needed
+    sound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- Parent it to PlayerGui for local playback
+    sound:Play()
 
--- Volume Input
-OptionsSection:AddInput("Volume", {
-    Title = "Set Volume",
-    Placeholder = "Enter Volume (0-100)",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num and num >= 0 and num <= 100 then
-            if musicSound then
-                musicSound.Volume = num / 100 -- Set volume based on user input
-            end
-            print("Volume set to: " .. num)
-        else
-            Fluent:Notify({
-                Title = "Invalid Volume",
-                Content = "Please enter a value between 0 and 100.",
-                Duration = 3
-            })
-        end
-    end
-})
-
--- Create a Sound object
-local musicSound
-local function setupMusic()
-    musicSound = Instance.new("Sound")
-    musicSound.SoundId = "rbxassetid://139235100" -- Your audio asset ID
-    musicSound.Looped = true -- Loop the music
-    musicSound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- Make it a child of PlayerGui for local play
+    -- Optional: Destroy the sound after it finishes playing
+    sound.Ended:Connect(function()
+        sound:Destroy()
+    end)
 end
 
-setupMusic() -- Set up the music when the script runs
-
--- Toggle music on and off
-musicToggle:OnChanged(function(value)
-    if value then
-        musicSound:Play() -- Play the music
-    else
-        musicSound:Stop() -- Stop the music
-    end
-end)
-
--- Rejoin Button
-local function rejoinServer()
-    TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId)
-end
-
-OptionsSection:AddButton("Rejoin Server", {
-    Title = "Rejoin Current Server",
-    Callback = rejoinServer,
-})
-
--- Reset Settings Button
-local function resetSettings()
-    musicToggle.Value = false
-    musicSound:Stop() -- Stop music on reset
-    print("Settings reset to defaults.")
-    Fluent:Notify({
-        Title = "Settings Reset",
-        Content = "All settings have been reset to defaults.",
-        Duration = 3
-    })
-end
-
-OptionsSection:AddButton("Reset Settings", {
-    Title = "Reset All Settings",
-    Callback = resetSettings,
-})
-
--- Final touches for scrollability
-Window:SelectTab(1) -- Selects the first tab on open
+button.MouseButton1Click:Connect(changeMusic)
