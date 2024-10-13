@@ -124,13 +124,7 @@ MainSection:AddInput("FOV", {
 -- Options Tab Content
 local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
 
--- Music Toggle
-local musicToggle = OptionsSection:AddToggle("Background Music", {
-    Title = "Enable Background Music",
-    Default = false,
-})
-
--- Time Manipulation Dropdown
+-- Day/Night Dropdown
 local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
     Title = "Select Time",
     Values = {"Morning", "Afternoon", "Night"},
@@ -152,15 +146,16 @@ end)
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
 
 -- Start Killing Toggle
-local startKillingToggle = KillerSection:AddToggle("StartKilling", {
+local startKillingToggle = KillerSection:AddToggle("Start Killing", {
     Title = "Start Killing",
-    Description = "Toggle to start killing",
     Default = false,
     Callback = function(state)
         if state then
-            print("Killing started")
+            print("Killing started.")
+            -- You can add the kill logic here later
         else
-            print("Killing stopped")
+            print("Killing stopped.")
+            -- You can add logic to stop killing here later
         end
     end
 })
