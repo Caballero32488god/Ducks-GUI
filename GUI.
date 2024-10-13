@@ -67,8 +67,4 @@ ToggleButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Start auto-use process if the character is already loaded
-if LocalPlayer.Character then
-    teleportPlayersBellies() -- Teleport players' bellies to you
-    autoUseTool()
-end
+-- Ensure nothing happens until the button is pressed
