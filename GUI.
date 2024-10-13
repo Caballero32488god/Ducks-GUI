@@ -15,27 +15,15 @@ ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 ToggleButton.Text = "Auto-Punch"
 ToggleButton.Parent = ScreenGui
 
--- Function to teleport players' arms above the local player
-local function teleportPlayersArms()
+-- Function to teleport players' bellies (HumanoidRootPart) to the local player
+local function teleportPlayersBellies()
     for _, player in ipairs(Players:GetPlayers()) do
         local character = player.Character
         if character then
-            -- Teleport character to the local player's position
-            character:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame)
-
-            -- Move arms 500 studs above the local player
-            local rightArm = character:FindFirstChild("RightArm")
-            local leftArm = character:FindFirstChild("LeftArm")
-            local positionAbove = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 500, 0) -- 500 studs above
-
-            if rightArm then
-                rightArm.CFrame = CFrame.new(positionAbove)
-                rightArm.Transparency = 1 -- Make right arm invisible
-            end
-            
-            if leftArm then
-                leftArm.CFrame = CFrame.new(positionAbove)
-                leftArm.Transparency = 1 -- Make left arm invisible
+            -- Teleport the HumanoidRootPart to the local player's position
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                humanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame -- Teleport to local player's position
             end
         end
     end
@@ -73,16 +61,16 @@ ToggleButton.MouseButton1Click:Connect(function()
     if punching then
         autoUseTool() -- Start auto-punching
         while punching do
-            teleportPlayersArms() -- Teleport players' arms
-            wait(3) -- Wait 3 seconds before teleporting again
+            teleportPlayersBellies() -- Teleport players' bellies to you
+            wait(0.85) -- Wait 0.85 seconds before teleporting again
         end
     else
-        teleportPlayersArms() -- Teleport players' arms if toggled off
+        teleportPlayersBellies() -- Teleport players' bellies if toggled off
     end
 end)
 
 -- Start auto-use process if the character is already loaded
 if LocalPlayer.Character then
-    teleportPlayersArms() -- Teleport players' arms
+    teleportPlayersBellies() -- Teleport players' bellies to you
     autoUseTool()
 end
