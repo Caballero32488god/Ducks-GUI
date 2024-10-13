@@ -120,70 +120,8 @@ MainSection:AddInput("FOV", {
     end
 })
 
--- Options Tab Content
-local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
-
--- Day-Night Cycle
-local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
-    Title = "Select Time",
-    Values = {"Morning", "Afternoon", "Night"},
-    Multi = false,
-    Default = 1,
-})
-
-timeDropdown:OnChanged(function(value)
-    if value == "Morning" then
-        game.Lighting.ClockTime = 6
-    elseif value == "Afternoon" then
-        game.Lighting.ClockTime = 12
-    elseif value == "Night" then
-        game.Lighting.ClockTime = 18
-    end
-end)
-
 -- Killer Tab Content
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
-
--- Hitspeed Input
-local hitspeedValue = 1
-KillerSection:AddInput("Hitspeed", {
-    Title = "Set Hitspeed (0-100000)",
-    Placeholder = "Enter Hitspeed Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num and num >= 0 and num <= 100000 then
-            hitspeedValue = num
-        else
-            showNotification("Hitspeed must be between 0 and 100000.")
-        end
-    end
-})
-
--- Dropdown for Player Selection
-local selectedPlayers = {}
-local playerDropdown = KillerSection:AddDropdown("Ignore Players", {
-    Title = "Select Players to Ignore",
-    Values = {}, -- This will be populated with player names
-    Multi = true, -- Allow multiple selections
-})
-
--- Populate dropdown with player names
-local function updatePlayerDropdown()
-    local playerNames = {}
-    for _, player in pairs(Players:GetPlayers()) do
-        table.insert(playerNames, player.Name)
-    end
-    playerDropdown:SetValues(playerNames)
-end
-
--- Update the dropdown when players join or leave
-Players.PlayerAdded:Connect(updatePlayerDropdown)
-Players.PlayerRemoving:Connect(updatePlayerDropdown)
-
--- Update selected players on dropdown change
-playerDropdown:OnChanged(function(selected)
-    selectedPlayers = selected
-end)
 
 -- Start Auto Hit Toggle
 local autoHitToggle = KillerSection:AddToggle("Auto Hit", {
@@ -201,18 +139,25 @@ local autoHitToggle = KillerSection:AddToggle("Auto Hit", {
     end
 })
 
--- Function for auto-hitting
+-- Function for auto-hitting and teleporting
 local function autoHit()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    
     while _G.autoHitActive do
         for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= LocalPlayer and not table.find(selectedPlayers, otherPlayer.Name) then
+            if otherPlayer ~= LocalPlayer then
                 local targetCharacter = otherPlayer.Character
-                if targetCharacter and targetCharacter:FindFirstChild("Humanoid") then
+                if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                    -- Teleport the other player's HumanoidRootPart to your position
+                    targetCharacter.HumanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, 5) -- Adjust the distance as needed
+
+                    -- Deal damage to the player
                     targetCharacter.Humanoid:TakeDamage(10) -- Adjust damage as needed
                 end
             end
         end
-        wait(hitspeedValue / 1000) -- Convert hitspeed to seconds
+        wait(1) -- Default interval for hits; adjust as needed
     end
 end
 
