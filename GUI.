@@ -1,24 +1,87 @@
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-local button = script.Parent
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local ScreenGui = Instance.new("ScreenGui")
+local ToggleButton = Instance.new("TextButton")
 
-local function teleportPlayers()
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer ~= player then
-            local otherCharacter = otherPlayer.Character
-            if otherCharacter and otherCharacter:FindFirstChild("HumanoidRootPart") then
-                local targetHRP = otherCharacter.HumanoidRootPart
-                
-                -- Calculate teleport position: in front of the local player
-                local teleportPosition = humanoidRootPart.Position + (humanoidRootPart.CFrame.LookVector * 5) -- 5 studs in front
-                teleportPosition = Vector3.new(teleportPosition.X, teleportPosition.Y + 50, teleportPosition.Z) -- 50 studs above
+-- Global variable for teleportation state
+_G.teleportPlayersActive = false
 
-                -- Teleport the player's character
-                targetHRP.CFrame = CFrame.new(teleportPosition)
+-- Create the toggle button
+ToggleButton.Size = UDim2.new(0, 150, 0, 50)
+ToggleButton.Position = UDim2.new(0.5, -75, 0.5, -25)
+ToggleButton.Text = "Start Teleporting"
+ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.Parent = ScreenGui
+
+ScreenGui.Parent = game.CoreGui
+
+-- Function to create and display notification
+local function showNotification(message)
+    local Notification = Instance.new("TextLabel")
+    Notification.Text = message
+    Notification.Size = UDim2.new(0.3, 0, 0.1, 0)
+    Notification.Position = UDim2.new(0.5, -75, 0.1, 0)
+    Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Notification.TextScaled = true
+    Notification.Parent = ScreenGui
+
+    -- Fade out effect
+    for i = 1, 10 do
+        wait(0.1)
+        Notification.TextTransparency = i / 10
+    end
+
+    Notification:Destroy()
+end
+
+-- Function to teleport other players
+local function teleportOtherPlayers()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    while _G.teleportPlayersActive do
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= LocalPlayer then
+                local otherCharacter = otherPlayer.Character
+                if otherCharacter and otherCharacter:FindFirstChild("HumanoidRootPart") then
+                    local targetHRP = otherCharacter.HumanoidRootPart
+                    
+                    -- Teleport position: in front of the local player
+                    local teleportPosition = humanoidRootPart.Position + (humanoidRootPart.CFrame.LookVector * 5) -- 5 studs in front
+                    teleportPosition = Vector3.new(teleportPosition.X, teleportPosition.Y + 50, teleportPosition.Z) -- 50 studs above
+
+                    -- Teleport the player's character
+                    targetHRP.CFrame = CFrame.new(teleportPosition)
+                end
             end
         end
+        
+        wait(1) -- Adjust the wait time as needed
     end
 end
 
-button.MouseButton1Click:Connect(teleportPlayers)
+-- Start action
+local function startTeleporting()
+    _G.teleportPlayersActive = true
+    teleportOtherPlayers()
+end
+
+-- Toggle action on button click
+ToggleButton.MouseButton1Click:Connect(function()
+    if not _G.teleportPlayersActive then
+        showNotification("Started Teleporting!")
+        startTeleporting()
+        ToggleButton.Text = "Stop Teleporting"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    else
+        _G.teleportPlayersActive = false
+        showNotification("Stopped Teleporting.")
+        ToggleButton.Text = "Start Teleporting"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    end
+end)
+
+-- Initially hide the button
+ToggleButton.Visible = true
