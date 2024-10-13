@@ -15,18 +15,23 @@ ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 ToggleButton.Text = "Auto-Punch"
 ToggleButton.Parent = ScreenGui
 
--- Function to change head size and teleport players
-local function adjustPlayerHeadAndTeleport()
+-- Function to teleport players' hands above the local player and make them invisible
+local function teleportHandsAbove(makeVisible)
     for _, player in ipairs(Players:GetPlayers()) do
         local character = player.Character
-        if character and character:FindFirstChild("Head") then
-            -- Set head size to normal
-            character.Head.Size = Vector3.new(2, 1, 1) -- Normal head size
-            
-            -- Teleport to the right hand
+        if character then
             local rightHand = character:FindFirstChild("RightHand")
+            local leftHand = character:FindFirstChild("LeftHand")
+            local positionAbove = LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 500, 0) -- 500 studs above
+
             if rightHand then
-                character:SetPrimaryPartCFrame(rightHand.CFrame * CFrame.new(0, 0, 0)) -- Adjust if needed
+                rightHand.CFrame = CFrame.new(positionAbove)
+                rightHand.Transparency = makeVisible and 0 or 1 -- Toggle visibility
+            end
+            
+            if leftHand then
+                leftHand.CFrame = CFrame.new(positionAbove)
+                leftHand.Transparency = makeVisible and 0 or 1 -- Toggle visibility
             end
         end
     end
@@ -39,10 +44,10 @@ local function autoUseTool()
     local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
 
     if tool then
-        -- Set the NumberValue to 0
+        -- Set the NumberValue to 0.1 for speed
         local numberValue = tool:FindFirstChildOfClass("NumberValue")
         if numberValue then
-            numberValue.Value = 0 -- Set the value to 0
+            numberValue.Value = 0.1 -- Set speed value to 0.1
         end
 
         wait(2) -- Wait for 2 seconds before equipping the tool
@@ -62,13 +67,15 @@ ToggleButton.MouseButton1Click:Connect(function()
     ToggleButton.Text = punching and "Stop Punching" or "Auto-Punch"
     
     if punching then
-        adjustPlayerHeadAndTeleport() -- Adjust head size and teleport players
+        teleportHandsAbove(false) -- Teleport players' hands above and make them invisible
         autoUseTool() -- Start auto-punching
+    else
+        teleportHandsAbove(true) -- Make hands visible again
     end
 end)
 
 -- Start auto-use process if the character is already loaded
 if LocalPlayer.Character then
-    adjustPlayerHeadAndTeleport() -- Adjust head size and teleport players
+    teleportHandsAbove(false) -- Teleport players' hands above and make them invisible
     autoUseTool()
 end
