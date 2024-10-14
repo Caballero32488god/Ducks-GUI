@@ -21,6 +21,8 @@ local Tabs = {
 
 -- Main Tab Content
 local MainSection = Tabs.Main:AddSection("Main Controls")
+
+-- Speed Changer
 MainSection:AddInput("Speed", {
     Title = "Change Speed",
     Placeholder = "Enter Speed Value",
@@ -32,6 +34,7 @@ MainSection:AddInput("Speed", {
     end
 })
 
+-- Jump Power Changer
 MainSection:AddInput("Jump Power", {
     Title = "Change Jump Power",
     Placeholder = "Enter Jump Power Value",
@@ -42,6 +45,71 @@ MainSection:AddInput("Jump Power", {
         end
     end
 })
+
+-- Infinite Jump
+local infiniteJumpEnabled = false
+MainSection:AddToggle("Infinite Jump", {
+    Title = "Toggle Infinite Jump",
+    Default = false,
+    Callback = function(state)
+        infiniteJumpEnabled = state
+    end
+})
+
+UserInputService.JumpRequest:Connect(function()
+    if infiniteJumpEnabled then
+        LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+end)
+
+-- Anti AFK
+local afkEnabled = false
+MainSection:AddToggle("Anti AFK", {
+    Title = "Toggle Anti AFK",
+    Default = false,
+    Callback = function(state)
+        afkEnabled = state
+    end
+})
+
+-- Gravity Changer
+MainSection:AddInput("Gravity", {
+    Title = "Change Gravity",
+    Placeholder = "Enter Gravity Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            workspace.Gravity = num
+        end
+    end
+})
+
+-- FPS Unlocker
+local fpsUnlockerEnabled = false
+MainSection:AddToggle("FPS Unlocker", {
+    Title = "Toggle FPS Unlocker",
+    Default = false,
+    Callback = function(state)
+        fpsUnlockerEnabled = state
+        if state then
+            settings().Rendering.QualityLevel = 10 -- Max quality
+            game:GetService("RunService").RenderStepped:Connect(function()
+                RunService.Heartbeat:Wait() -- Keep the game running smoothly
+            end)
+        else
+            settings().Rendering.QualityLevel = 2 -- Reset to low quality
+        end
+    end
+})
+
+-- Anti AFK Loop
+while true do
+    if afkEnabled then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0.1)
+        wait(2) -- Adjust the frequency as needed
+    end
+    wait(1)
+end
 
 -- Killer Tab Content
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
@@ -56,17 +124,21 @@ local playerDropdown = KillerSection:AddDropdown("Select Players to Ignore", {
 
 local function updatePlayerDropdown()
     local playerNames = {}
-    for _, player in pairs(Players:GetPlayers()) do
+    for _, player in ipairs(Players:GetPlayers()) do
         table.insert(playerNames, player.Name)
     end
     playerDropdown:SetValues(playerNames)
 end
 
-Players.PlayerAdded:Connect(updatePlayerDropdown)
-Players.PlayerRemoving:Connect(updatePlayerDropdown)
+-- Call this function initially to populate the dropdown
 updatePlayerDropdown()
 
+-- Update dropdown when players join/leave
+Players.PlayerAdded:Connect(updatePlayerDropdown)
+Players.PlayerRemoving:Connect(updatePlayerDropdown)
+
 -- Auto-Punch Toggle
+local punching = false
 local autoPunchToggle = KillerSection:AddToggle("Auto Punch", {
     Title = "Toggle Auto Punch",
     Default = false,
@@ -81,7 +153,7 @@ local autoPunchToggle = KillerSection:AddToggle("Auto Punch", {
 local function autoUseTool()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local tool = LocalPlayer.Backpack:FindFirstChild("Punch")
+    local tool = LocalPlayer.Backpack:FindFirstChild("Punch") -- Ensure this matches your tool's name
 
     if tool then
         humanoid:EquipTool(tool)
@@ -89,6 +161,32 @@ local function autoUseTool()
         while punching and tool.Parent == character do
             tool:Activate() -- Activate the tool
             wait(0.1) -- Adjust the wait time for punching speed
+        end
+    end
+end
+
+-- Auto Killer Function
+local autoKillerEnabled = false
+KillerSection:AddToggle("Auto Killer", {
+    Title = "Toggle Auto Killer",
+    Default = false,
+    Callback = function(state)
+        autoKillerEnabled = state
+        if state then
+            teleportAllPlayers()
+            autoUseTool()
+        end
+    end
+})
+
+-- Function to teleport all players to the local player's position
+local function teleportAllPlayers()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and not table.find(selectedPlayers, player.Name) then
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                character:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame)
+            end
         end
     end
 end
