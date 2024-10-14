@@ -21,13 +21,6 @@ local Tabs = {
     Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
 }
 
--- Notify that the GUI has loaded
-Fluent:Notify({
-    Title = "Welcome!",
-    Content = "This GUI includes various settings.",
-    Duration = 5
-})
-
 -- Main Tab Content
 local MainSection = Tabs.Main:AddSection("Main Controls")
 
@@ -44,7 +37,7 @@ MainSection:AddInput("Speed", {
 })
 
 -- Jump Power Input
-MainSection:AddInput("Jump Power", {
+MainSection:AddInput("JumpPower", {
     Title = "Change Jump Power",
     Placeholder = "Enter Jump Power Value",
     Callback = function(value)
@@ -55,11 +48,48 @@ MainSection:AddInput("Jump Power", {
     end
 })
 
--- Options Tab Content
-local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
+-- Infinite Jump Toggle
+local infiniteJumpToggle = MainSection:AddToggle("Infinite Jump", {
+    Title = "Enable Infinite Jump",
+    Default = false,
+})
 
--- Gravity Changer Input
-OptionsSection:AddInput("Gravity", {
+UserInputService.JumpRequest:Connect(function()
+    if infiniteJumpToggle.Value then
+        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end)
+
+-- Noclip Toggle
+local noclipToggle = MainSection:AddToggle("Noclip", {
+    Title = "Enable Noclip",
+    Default = false,
+})
+
+local function setNoclip(value)
+    local character = LocalPlayer.Character
+    if character then
+        for _, part in ipairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = not value
+            end
+        end
+    end
+end
+
+noclipToggle:OnChanged(function(value)
+    while noclipToggle.Value do
+        setNoclip(true)
+        wait(0.1)
+    end
+    setNoclip(false)
+end)
+
+-- Gravity Input
+MainSection:AddInput("Gravity", {
     Title = "Change Gravity",
     Placeholder = "Enter Gravity Value",
     Callback = function(value)
@@ -70,80 +100,76 @@ OptionsSection:AddInput("Gravity", {
     end
 })
 
--- Music Toggle
-local musicPlaying = false
-local sound
-
-OptionsSection:AddToggle("Play Music", {
-    Title = "Enable Music",
-    Default = false,
-    Callback = function(state)
-        if state then
-            if not musicPlaying then
-                sound = Instance.new("Sound", workspace)
-                sound.SoundId = "rbxassetid://139235100" -- Replace with your asset ID
-                sound:Play()
-                musicPlaying = true
-            end
-        else
-            if musicPlaying then
-                sound:Stop()
-                musicPlaying = false
-            end
+-- FOV Input
+MainSection:AddInput("FOV", {
+    Title = "Change FOV",
+    Placeholder = "Enter FOV Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            Camera.FieldOfView = num
         end
     end
 })
+
+-- Options Tab Content
+local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
+
+-- Day-Night Cycle
+local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
+    Title = "Select Time",
+    Values = {"Morning", "Afternoon", "Night"},
+    Multi = false,
+    Default = 1,
+})
+
+timeDropdown:OnChanged(function(value)
+    if value == "Morning" then
+        game.Lighting.ClockTime = 6
+    elseif value == "Afternoon" then
+        game.Lighting.ClockTime = 12
+    elseif value == "Night" then
+        game.Lighting.ClockTime = 18
+    end
+end)
 
 -- Killer Tab Content
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
 
--- Function to set attack time
-local function setAttackTime(value)
-    local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
-    if punchTool then
-        local attackTime = punchTool:FindFirstChild("attackTime")
-        if attackTime then
-            attackTime.Value = value
-            Fluent:Notify({
-                Title = "Success",
-                Content = "Attack time set to " .. value,
-                Duration = 3
-            })
-        else
-            warn("attackTime property not found in Punch tool.")
-            Fluent:Notify({
-                Title = "Error",
-                Content = "attackTime property not found.",
-                Duration = 3
-            })
+-- Auto Punch Toggle
+local ToggleButton = KillerSection:AddToggle("Auto-Punch", {
+    Title = "Enable Auto-Punch",
+    Default = false,
+})
+
+local punching = false -- Toggle state
+local toolName = "Punch" -- Ensure this matches your tool's name
+
+-- Function to auto-use the tool
+local function autoUseTool()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
+
+    if tool then
+        humanoid:EquipTool(tool)
+        while punching and tool.Parent == character do
+            tool:Activate() -- Activate the tool
+            wait(0.1) -- Adjust the wait time for punching speed
         end
-    else
-        warn("Punch tool not found in backpack.")
-        Fluent:Notify({
-            Title = "Error",
-            Content = "Punch tool not found in backpack.",
-            Duration = 3
-        })
     end
 end
 
--- Input for Attack Time
-KillerSection:AddInput("Attack Time", {
-    Title = "Set Attack Time",
-    Placeholder = "Enter Attack Time Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            setAttackTime(num)
-        else
-            Fluent:Notify({
-                Title = "Invalid Input",
-                Content = "Please enter a valid number.",
-                Duration = 3
-            })
-        end
-    end
-})
+-- Toggle action for Auto-Punch
+ToggleButton:OnChanged(function(value)
+    punching = value -- Update punching state
 
--- Final touches for scrollability
-Window:SelectTab(1) -- Selects the first tab on open
+    if punching then
+        autoUseTool() -- Start auto-punching
+    end
+end)
+
+-- Ensure all sections are visible
+MainSection.Visible = true
+OptionsSection.Visible = true
+KillerSection.Visible = true
