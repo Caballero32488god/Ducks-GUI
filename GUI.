@@ -31,3 +31,6 @@ end)
 AutoFarm:CreateToggle("Auto Rebirth", "Automatically rebirth", function(togglestate)
     -- // print(togglestate)
 end)
+
+-- Display the GUI
+library:Display()
