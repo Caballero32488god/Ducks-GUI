@@ -11,7 +11,7 @@ local function activateMuscleFeature()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
     humanoid:ChangeState(11) -- Change state to jumping
-    humanoidRootPart.CFrame = CFrame.new(-8980, -30, -6049) -- Teleport to specified coordinates
+    humanoidRootPart.CFrame = CFrame.new(-8967, 9, -6128) -- Teleport to the specified coordinates
 
     -- Perform punch actions
     LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
