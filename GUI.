@@ -165,7 +165,7 @@ local function autoUseTool()
     end
 end
 
--- Auto Killer Function
+-- Auto Killer Toggle
 local autoKillerEnabled = false
 KillerSection:AddToggle("Auto Killer", {
     Title = "Toggle Auto Killer",
