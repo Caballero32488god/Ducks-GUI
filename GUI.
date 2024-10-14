@@ -1,79 +1,54 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 
-local punching = false
-local toolName = "Punch"
+local Settings = { personal = false }
+local connection
 
-local teleportLocations = {
-    ["Tiny Rock"] = Vector3.new(17, -1, 2106),
-    ["Punching Rock"] = Vector3.new(-151, 0, 422),
-    ["Large Rock"] = Vector3.new(166, 0, -152),
-    ["Golden Rock"] = Vector3.new(311, -2, -594),
-    ["Frozen Rock"] = Vector3.new(-2551, 0, -243),
-    ["Mystic Rock"] = Vector3.new(2186, 0, 1250),
-    ["Inferno Rock"] = Vector3.new(-7262, 0, -1259),
-    ["Legend Rock"] = Vector3.new(4140, 987, -4089),
-    ["Muscle King"] = Vector3.new(-8967, 9, -6128)
-}
-
-local function autoUseTool()
+local function activateMuscleFeature()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
+    local humanoid = character:WaitForChild("Humanoid")
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
+    humanoid:ChangeState(11) -- Change state to jumping
+    humanoidRootPart.CFrame = CFrame.new(-8980, -30, -6049) -- Teleport to specified coordinates
+
+    -- Perform punch actions
+    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+
+    -- Equip the Punch tool
+    local tool = LocalPlayer.Backpack:FindFirstChild("Punch")
     if tool then
         humanoid:EquipTool(tool)
-        while punching and tool.Parent == character do
-            tool:Activate()
-            wait(1) -- Adjust the wait time as necessary
-        end
     end
 end
 
-local function teleportToRock(rockName)
-    local location = teleportLocations[rockName]
-    
-    if location then
-        LocalPlayer.Character.HumanoidRootPart.Position = location
-        print("Teleported to " .. rockName .. " at " .. tostring(location)) -- Debug message
-        return true
-    else
-        print("Invalid rock name: " .. rockName) -- Debug message
-        return false
-    end
-end
+local function toggleMuscleFeature(state)
+    Settings.personal = state
 
-local function toggleAutoPunch(value, rockName)
-    punching = value
-
-    if punching then
-        while punching do
-            if teleportToRock(rockName) then
-                autoUseTool()
+    if state then
+        connection = RunService.Stepped:Connect(function()
+            if Settings.personal then
+                activateMuscleFeature()
             end
-            wait(0.5) -- Delay before the next teleport
-        end
+        end)
     else
-        print("Auto-punching stopped.")
+        if connection then
+            connection:Disconnect() -- Stop the loop when the feature is toggled off
+        end
     end
 end
 
 -- Chat Command
-game.Players.LocalPlayer.Chatted:Connect(function(message)
-    local args = message:split(" ")
-    if args[1]:lower() == "!punch" then
-        local rockName = args[2]
-        
-        if rockName and rockName:lower() == "muscle" then
-            rockName = "Muscle King" -- Map "muscle" to "Muscle King"
-        end
-
-        if punching then
-            toggleAutoPunch(false)  -- Stop punching if it's already on
-            print("Stopped auto-punching.")
+Players.LocalPlayer.Chatted:Connect(function(message)
+    if message:lower() == ";muscle" then
+        if Settings.personal then
+            toggleMuscleFeature(false)  -- Stop if it's already on
+            print("Stopped muscle feature.")
         else
-            toggleAutoPunch(true, rockName)
-            print("Started auto-punching at " .. rockName)
+            toggleMuscleFeature(true)  -- Start the muscle feature
+            print("Started muscle feature.")
         end
     end
 end)
