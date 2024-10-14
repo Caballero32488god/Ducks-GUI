@@ -1,14 +1,7 @@
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local ScreenGui = Instance.new("ScreenGui")
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-
--- Check if Fluent was loaded correctly
-if not Fluent then
-    warn("Fluent GUI failed to load.")
-    return
-end
 
 local Window = Fluent:CreateWindow({
     Title = "Fluent GUI",
@@ -22,182 +15,150 @@ local Window = Fluent:CreateWindow({
 -- Add Tabs
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-    Options = Window:AddTab({ Title = "Options", Icon = "settings" }),
     Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "cog" }),
+    Teleport = Window:AddTab({ Title = "Teleport", Icon = "map" }),
+    PlayerStats = Window:AddTab({ Title = "Player Stats", Icon = "user" }), -- Player Stats Tab
 }
 
 -- Main Tab Content
 local MainSection = Tabs.Main:AddSection("Main Controls")
 
--- Speed Changer
-MainSection:AddInput("Speed", {
-    Title = "Change Speed",
-    Placeholder = "Enter Speed Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            LocalPlayer.Character.Humanoid.WalkSpeed = num
-        end
-    end
-})
-
--- Jump Power Changer
-MainSection:AddInput("Jump Power", {
-    Title = "Change Jump Power",
-    Placeholder = "Enter Jump Power Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            LocalPlayer.Character.Humanoid.JumpPower = num
-        end
-    end
-})
-
--- Infinite Jump
-local infiniteJumpEnabled = false
-MainSection:AddToggle("Infinite Jump", {
-    Title = "Toggle Infinite Jump",
-    Default = false,
-    Callback = function(state)
-        infiniteJumpEnabled = state
-    end
-})
-
-UserInputService.JumpRequest:Connect(function()
-    if infiniteJumpEnabled then
-        LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-    end
-end)
-
--- Anti AFK
-local afkEnabled = false
-MainSection:AddToggle("Anti AFK", {
-    Title = "Toggle Anti AFK",
-    Default = false,
-    Callback = function(state)
-        afkEnabled = state
-    end
-end)
-
--- Gravity Changer
-MainSection:AddInput("Gravity", {
-    Title = "Change Gravity",
-    Placeholder = "Enter Gravity Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            workspace.Gravity = num
-        end
-    end
-})
-
--- FPS Unlocker
-local fpsUnlockerEnabled = false
-MainSection:AddToggle("FPS Unlocker", {
-    Title = "Toggle FPS Unlocker",
-    Default = false,
-    Callback = function(state)
-        fpsUnlockerEnabled = state
-        if state then
-            settings().Rendering.QualityLevel = 10 -- Max quality
-        else
-            settings().Rendering.QualityLevel = 2 -- Reset to low quality
-        end
-    end
-})
-
--- Anti AFK Loop
-while true do
-    if afkEnabled then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0.1)
-        wait(2) -- Adjust the frequency as needed
-    end
-    wait(1)
-end
-
 -- Killer Tab Content
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
 
--- Dropdown for Player Selection
-local selectedPlayers = {}
-local playerDropdown = KillerSection:AddDropdown("Select Players to Ignore", {
-    Title = "Ignore Players",
-    Values = {}, -- Will be populated with player names
-    Multi = true,
+-- Create the input box for set tool speed
+KillerSection:AddInput("Set Tool Speed", {
+    Title = "Tool Speed",
+    Placeholder = "Enter speed value (e.g., 0.1)",
+    Callback = function(value)
+        -- Implement set tool speed functionality here
+    end,
 })
 
-local function updatePlayerDropdown()
-    local playerNames = {}
-    for _, player in ipairs(Players:GetPlayers()) do
-        table.insert(playerNames, player.Name)
-    end
-    playerDropdown:SetValues(playerNames)
-end
+-- Teleport Tab Content
+local TeleportSection = Tabs.Teleport:AddSection("Teleport Locations")
+local teleportLocations = {
+    ["Tiny Rock"] = Vector3.new(17, -1, 2106),
+    ["Punching Rock"] = Vector3.new(-151, 0, 422),
+    ["Large Rock"] = Vector3.new(166, 0, -152),
+    ["Golden Rock"] = Vector3.new(311, -2, -594),
+    ["Frozen Rock"] = Vector3.new(-2551, 0, -243),
+    ["Mystic Rock"] = Vector3.new(2186, 0, 1250),
+    ["Inferno Rock"] = Vector3.new(-7262, 0, -1259),
+    ["Legend Rock"] = Vector3.new(4140, 987, -4089),
+    ["Muscle King"] = Vector3.new(-8971, 27, -6061),
+}
 
--- Call this function initially to populate the dropdown
-updatePlayerDropdown()
-
--- Update dropdown when players join/leave
-Players.PlayerAdded:Connect(updatePlayerDropdown)
-Players.PlayerRemoving:Connect(updatePlayerDropdown)
-
--- Auto-Punch Toggle
-local punching = false
-KillerSection:AddToggle("Auto Punch", {
-    Title = "Toggle Auto Punch",
-    Default = false,
-    Callback = function(state)
-        punching = state
-        if state then
-            autoUseTool()
-        end
-    end
+-- Dropdown for teleport locations
+TeleportSection:AddDropdown("Teleport Locations", {
+    Values = table.keys(teleportLocations),
+    Callback = function(selectedLocation)
+        local position = teleportLocations[selectedLocation]
+        LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(position))
+    end,
 })
 
-local function autoUseTool()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local tool = LocalPlayer.Backpack:FindFirstChild("Punch") -- Ensure this matches your tool's name
+-- Player Stats Tab Content
+local PlayerStatsSection = Tabs.PlayerStats:AddSection("Get Player Stats")
 
-    if tool then
-        humanoid:EquipTool(tool)
-
-        while punching and tool.Parent == character do
-            tool:Activate() -- Activate the tool
-            wait(0.1) -- Adjust the wait time for punching speed
+-- Create the input box for username
+PlayerStatsSection:AddInput("Enter Username", {
+    Title = "Username",
+    Placeholder = "Enter Username",
+    Callback = function(username)
+        local stats = getPlayerStats(username)
+        if stats then
+            createStatsGui(stats) -- Show the stats GUI
+        else
+            print("Player not found or has no stats.")
         end
-    end
-end
-
--- Auto Killer Toggle
-local autoKillerEnabled = false
-KillerSection:AddToggle("Auto Killer", {
-    Title = "Toggle Auto Killer",
-    Default = false,
-    Callback = function(state)
-        autoKillerEnabled = state
-        if state then
-            teleportAllPlayers()
-            autoUseTool()
-        end
-    end
+    end,
 })
 
--- Function to teleport all players to the local player's position
-local function teleportAllPlayers()
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and not table.find(selectedPlayers, player.Name) then
-            local character = player.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                character:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame)
-            end
+-- Function to get player stats
+local function getPlayerStats(username)
+    local targetPlayer = game.Players:FindFirstChild(username)
+    if targetPlayer then
+        local leaderstats = targetPlayer:FindFirstChild("leaderstats")
+        if leaderstats then
+            local stats = {
+                Kills = leaderstats:FindFirstChild("Kills") and leaderstats.Kills.Value or "N/A",
+                Gems = leaderstats:FindFirstChild("Gems") and leaderstats.Gems.Value or "N/A",
+                Brawls = leaderstats:FindFirstChild("Brawls") and leaderstats.Brawls.Value or "N/A",
+                Rebirths = leaderstats:FindFirstChild("Rebirths") and leaderstats.Rebirths.Value or "N/A",
+                Strength = leaderstats:FindFirstChild("Strength") and leaderstats.Strength.Value or "N/A",
+                Durability = leaderstats:FindFirstChild("Durability") and leaderstats.Durability.Value or "N/A",
+                Agility = leaderstats:FindFirstChild("Agility") and leaderstats.Agility.Value or "N/A"
+            }
+            return stats
+        else
+            print("Leaderstats not found for player: " .. username)
         end
+    else
+        print("Player not found: " .. username)
     end
+    return nil
 end
 
--- Ensure GUI is visible
+-- Function to create the stats GUI
+local function createStatsGui(stats)
+    -- Create the stats GUI
+    local statsGui = Instance.new("ScreenGui")
+    statsGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+    -- Create the main frame for the stats GUI
+    local statsFrame = Instance.new("Frame")
+    statsFrame.Size = UDim2.new(0.4, 0, 0.5, 0)
+    statsFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
+    statsFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    statsFrame.Parent = statsGui
+
+    -- Create a title for the stats
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
+    titleLabel.Position = UDim2.new(0, 0, 0, 0)
+    titleLabel.Text = "Player Stats"
+    titleLabel.TextColor3 = Color3.new(1, 1, 1)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.TextScaled = true
+    titleLabel.Parent = statsFrame
+
+    -- Create a label for each stat with value counts
+    local statIndex = 0
+    for statName, value in pairs(stats) do
+        statIndex += 1
+        local displayValue = value
+        if statName == "Durability" or statName == "Agility" or statName == "Gems" then
+            displayValue = statName .. " Count: " .. tostring(value)
+        end
+
+        local statLabel = Instance.new("TextLabel")
+        statLabel.Size = UDim2.new(1, 0, 0.1, 0)
+        statLabel.Position = UDim2.new(0, 0, (statIndex) * 0.1, 0)
+        statLabel.Text = statName .. ": " .. tostring(displayValue)
+        statLabel.TextColor3 = Color3.new(1, 1, 1)
+        statLabel.BackgroundTransparency = 1
+        statLabel.TextScaled = true
+        statLabel.Parent = statsFrame
+    end
+
+    -- Create a close button for the stats GUI
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0.9, 0, 0.2, 0)
+    closeButton.Position = UDim2.new(0.05, 0, 0.85, 0)
+    closeButton.Text = "Close Stats"
+    closeButton.BackgroundColor3 = Color3.new(0.8, 0.1, 0.1) -- Red color
+    closeButton.Parent = statsFrame
+
+    -- Close button functionality
+    closeButton.MouseButton1Click:Connect(function()
+        statsGui:Destroy() -- Remove the stats GUI
+    end)
+end
+
+-- Initialize GUI
 ScreenGui.Parent = game.CoreGui
 Window:SelectTab(1) -- Selects the first tab on open
 
--- Final debug message
-print("Fluent GUI initialized successfully!")
+print("GUI initialized successfully!")
