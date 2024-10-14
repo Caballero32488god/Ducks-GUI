@@ -18,67 +18,102 @@ local Tabs = {
     Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "cog" }),
     Teleport = Window:AddTab({ Title = "Teleport", Icon = "map" }),
-    PlayerStats = Window:AddTab({ Title = "Player Stats", Icon = "user" }), -- Player Stats Tab
+    PlayerStats = Window:AddTab({ Title = "Player Stats", Icon = "user" }),
 }
-
--- Main Tab Content
-local MainSection = Tabs.Main:AddSection("Main Controls")
 
 -- Killer Tab Content
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
 
--- Create the input box for set tool speed
+-- Auto Kill Button
+KillerSection:AddButton("Auto Kill", {
+    Callback = function()
+        -- Implement Auto Kill functionality here
+    end,
+})
+
+-- Teleport Section
+KillerSection:AddButton("Teleport to User", {
+    Callback = function()
+        -- Implement Teleport to User functionality here
+    end,
+})
+
+-- Set Tool Speed Section
 KillerSection:AddInput("Set Tool Speed", {
-    Title = "Tool Speed",
-    Placeholder = "Enter speed value (e.g., 0.1)",
+    Title = "Enter Speed Value",
+    Placeholder = "Type value here",
     Callback = function(value)
-        -- Implement set tool speed functionality here
+        -- Implement Set Tool Speed functionality here
+    end,
+})
+
+-- Settings Tab Content
+local SettingsSection = Tabs.Settings:AddSection("Day Cycle")
+
+SettingsSection:AddDropdown("Daycycle", {
+    Values = {"Morning", "Afternoon", "Night"},
+    Callback = function(selectedCycle)
+        -- Implement Daycycle functionality here
     end,
 })
 
 -- Teleport Tab Content
-local TeleportSection = Tabs.Teleport:AddSection("Teleport Locations")
-local teleportLocations = {
-    ["Tiny Rock"] = Vector3.new(17, -1, 2106),
-    ["Punching Rock"] = Vector3.new(-151, 0, 422),
-    ["Large Rock"] = Vector3.new(166, 0, -152),
-    ["Golden Rock"] = Vector3.new(311, -2, -594),
-    ["Frozen Rock"] = Vector3.new(-2551, 0, -243),
-    ["Mystic Rock"] = Vector3.new(2186, 0, 1250),
-    ["Inferno Rock"] = Vector3.new(-7262, 0, -1259),
-    ["Legend Rock"] = Vector3.new(4140, 987, -4089),
-    ["Muscle King"] = Vector3.new(-8971, 27, -6061),
-}
+local TeleportSection = Tabs.Teleport:AddSection("Teleport Controls")
 
--- Dropdown for teleport locations
-TeleportSection:AddDropdown("Teleport Locations", {
-    Values = table.keys(teleportLocations),
-    Callback = function(selectedLocation)
-        local position = teleportLocations[selectedLocation]
-        LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(position))
-    end,
-})
-
--- Player Stats Tab Content
-local PlayerStatsSection = Tabs.PlayerStats:AddSection("Get Player Stats")
-
--- Create the input box for username
-PlayerStatsSection:AddInput("Enter Username", {
-    Title = "Username",
-    Placeholder = "Enter Username",
-    Callback = function(username)
-        local stats = getPlayerStats(username)
-        if stats then
-            createStatsGui(stats) -- Show the stats GUI
-        else
-            print("Player not found or has no stats.")
+-- Create Dropdown for Teleporting to Users
+TeleportSection:AddDropdown("Teleport to User", {
+    Values = {},
+    Callback = function(selectedPlayer)
+        local playerToTeleport = Players:FindFirstChild(selectedPlayer)
+        if playerToTeleport and playerToTeleport.Character and playerToTeleport.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character:SetPrimaryPartCFrame(playerToTeleport.Character.HumanoidRootPart.CFrame)
         end
     end,
 })
 
+-- Update Dropdown Values with Current Players
+local function updateUserDropdown()
+    local playerNames = {}
+    for _, player in pairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+    TeleportSection:UpdateDropdown("Teleport to User", playerNames)
+end
+
+-- Call the update function initially and whenever players are added/removed
+updateUserDropdown()
+Players.PlayerAdded:Connect(updateUserDropdown)
+Players.PlayerRemoving:Connect(updateUserDropdown)
+
+-- Player Stats Tab Content
+local PlayerStatsSection = Tabs.PlayerStats:AddSection("Player Stats")
+
+-- Create the main GUI for stats input
+local inputFrame = Instance.new("Frame")
+inputFrame.Size = UDim2.new(0.4, 0, 0.5, 0)
+inputFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
+inputFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+inputFrame.Parent = ScreenGui
+
+-- Input box for username
+local inputBox = Instance.new("TextBox")
+inputBox.Size = UDim2.new(0.9, 0, 0.2, 0)
+inputBox.Position = UDim2.new(0.05, 0, 0.05, 0)
+inputBox.BackgroundColor3 = Color3.new(1, 1, 1)
+inputBox.PlaceholderText = "Enter Username"
+inputBox.Parent = inputFrame
+
+-- Button to get stats
+local getStatsButton = Instance.new("TextButton")
+getStatsButton.Size = UDim2.new(0.9, 0, 0.2, 0)
+getStatsButton.Position = UDim2.new(0.05, 0, 0.3, 0)
+getStatsButton.Text = "Get Stats"
+getStatsButton.BackgroundColor3 = Color3.new(0.3, 0.6, 0.3)
+getStatsButton.Parent = inputFrame
+
 -- Function to get player stats
 local function getPlayerStats(username)
-    local targetPlayer = game.Players:FindFirstChild(username)
+    local targetPlayer = Players:FindFirstChild(username)
     if targetPlayer then
         local leaderstats = targetPlayer:FindFirstChild("leaderstats")
         if leaderstats then
@@ -91,30 +126,24 @@ local function getPlayerStats(username)
                 Durability = leaderstats:FindFirstChild("Durability") and leaderstats.Durability.Value or "N/A",
                 Agility = leaderstats:FindFirstChild("Agility") and leaderstats.Agility.Value or "N/A"
             }
+
             return stats
-        else
-            print("Leaderstats not found for player: " .. username)
         end
-    else
-        print("Player not found: " .. username)
     end
     return nil
 end
 
 -- Function to create the stats GUI
 local function createStatsGui(stats)
-    -- Create the stats GUI
     local statsGui = Instance.new("ScreenGui")
-    statsGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+    statsGui.Parent = playerGui
 
-    -- Create the main frame for the stats GUI
     local statsFrame = Instance.new("Frame")
     statsFrame.Size = UDim2.new(0.4, 0, 0.5, 0)
     statsFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
     statsFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
     statsFrame.Parent = statsGui
 
-    -- Create a title for the stats
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
     titleLabel.Position = UDim2.new(0, 0, 0, 0)
@@ -124,26 +153,19 @@ local function createStatsGui(stats)
     titleLabel.TextScaled = true
     titleLabel.Parent = statsFrame
 
-    -- Create a label for each stat with value counts
     local statIndex = 0
     for statName, value in pairs(stats) do
         statIndex += 1
-        local displayValue = value
-        if statName == "Durability" or statName == "Agility" or statName == "Gems" then
-            displayValue = statName .. " Count: " .. tostring(value)
-        end
-
         local statLabel = Instance.new("TextLabel")
         statLabel.Size = UDim2.new(1, 0, 0.1, 0)
         statLabel.Position = UDim2.new(0, 0, (statIndex) * 0.1, 0)
-        statLabel.Text = statName .. ": " .. tostring(displayValue)
+        statLabel.Text = statName .. ": " .. tostring(value)
         statLabel.TextColor3 = Color3.new(1, 1, 1)
         statLabel.BackgroundTransparency = 1
         statLabel.TextScaled = true
         statLabel.Parent = statsFrame
     end
 
-    -- Create a close button for the stats GUI
     local closeButton = Instance.new("TextButton")
     closeButton.Size = UDim2.new(0.9, 0, 0.2, 0)
     closeButton.Position = UDim2.new(0.05, 0, 0.85, 0)
@@ -151,11 +173,22 @@ local function createStatsGui(stats)
     closeButton.BackgroundColor3 = Color3.new(0.8, 0.1, 0.1) -- Red color
     closeButton.Parent = statsFrame
 
-    -- Close button functionality
     closeButton.MouseButton1Click:Connect(function()
-        statsGui:Destroy() -- Remove the stats GUI
+        statsGui:Destroy()
+        mainGui.Enabled = true -- Re-enable the input GUI
     end)
 end
+
+-- Button click event
+getStatsButton.MouseButton1Click:Connect(function()
+    local username = inputBox.Text
+    local stats = getPlayerStats(username)
+    if stats then
+        createStatsGui(stats)
+    else
+        print("Player not found or has no stats.")
+    end
+end)
 
 -- Initialize GUI
 ScreenGui.Parent = game.CoreGui
