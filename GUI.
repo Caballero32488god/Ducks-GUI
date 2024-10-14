@@ -1,175 +1,68 @@
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
+local ScreenGui = Instance.new("ScreenGui")
+local Dropdown = Instance.new("Frame") -- This will be the dropdown menu
+local Button = Instance.new("TextButton") -- Button to execute the teleport
+local PlayerList = Instance.new("TextLabel") -- To show the selected player
 
--- Create the Fluent UI
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local Window = Fluent:CreateWindow({
-    Title = "Fluent " .. Fluent.Version,
-    SubTitle = "by dawid",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
-    Theme = "Dark",
-})
+ScreenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+Dropdown.Parent = ScreenGui
+Dropdown.Size = UDim2.new(0, 200, 0, 100)
+Dropdown.Position = UDim2.new(0.5, -100, 0.5, -50)
 
--- Add Tabs
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-    Options = Window:AddTab({ Title = "Options", Icon = "settings" }),
-    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
-}
+Button.Parent = Dropdown
+Button.Size = UDim2.new(1, 0, 0, 50)
+Button.Text = "Select Player to Teleport"
 
--- Main Tab Content
-local MainSection = Tabs.Main:AddSection("Main Controls")
+PlayerList.Parent = Dropdown
+PlayerList.Size = UDim2.new(1, 0, 0, 50)
+PlayerList.Position = UDim2.new(0, 0, 0, 50)
+PlayerList.Text = "No Player Selected"
 
--- Speed Input
-MainSection:AddInput("Speed", {
-    Title = "Change Speed",
-    Placeholder = "Enter Speed Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            LocalPlayer.Character.Humanoid.WalkSpeed = num
+local function updateDropdown()
+    local players = Players:GetPlayers()
+    local playerNames = {}
+    
+    for _, player in ipairs(players) do
+        if player ~= Players.LocalPlayer then
+            table.insert(playerNames, player.Name)
         end
     end
-})
 
--- Jump Power Input
-MainSection:AddInput("JumpPower", {
-    Title = "Change Jump Power",
-    Placeholder = "Enter Jump Power Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            LocalPlayer.Character.Humanoid.JumpPower = num
-        end
+    Button.Text = "Select Player: " .. (playerNames[1] or "None")
+    
+    -- Create a dropdown for player selection
+    local dropdownList = Instance.new("Frame")
+    dropdownList.Size = UDim2.new(1, 0, 0, 100)
+    dropdownList.Position = UDim2.new(0, 0, 1, 0)
+    dropdownList.Parent = Dropdown
+
+    for i, playerName in ipairs(playerNames) do
+        local playerButton = Instance.new("TextButton")
+        playerButton.Size = UDim2.new(1, 0, 0, 30)
+        playerButton.Position = UDim2.new(0, 0, 0, (i - 1) * 30)
+        playerButton.Text = playerName
+        playerButton.Parent = dropdownList
+
+        playerButton.MouseButton1Click:Connect(function()
+            Button.Text = "Select Player: " .. playerName
+            PlayerList.Text = "Selected: " .. playerName
+            dropdownList.Visible = false
+        end)
     end
-})
 
--- Infinite Jump Toggle
-local infiniteJumpToggle = MainSection:AddToggle("Infinite Jump", {
-    Title = "Enable Infinite Jump",
-    Default = false,
-})
-
-UserInputService.JumpRequest:Connect(function()
-    if infiniteJumpToggle.Value then
-        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        end
-    end
-end)
-
--- Noclip Toggle
-local noclipToggle = MainSection:AddToggle("Noclip", {
-    Title = "Enable Noclip",
-    Default = false,
-})
-
-local function setNoclip(value)
-    local character = LocalPlayer.Character
-    if character then
-        for _, part in ipairs(character:GetChildren()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = not value
-            end
-        end
-    end
+    Button.MouseButton1Click:Connect(function()
+        dropdownList.Visible = not dropdownList.Visible
+    end)
 end
 
-noclipToggle:OnChanged(function(value)
-    while noclipToggle.Value do
-        setNoclip(true)
-        wait(0.1)
-    end
-    setNoclip(false)
-end)
+updateDropdown()
 
--- Gravity Input
-MainSection:AddInput("Gravity", {
-    Title = "Change Gravity",
-    Placeholder = "Enter Gravity Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            workspace.Gravity = num
+Button.MouseButton1Click:Connect(function()
+    local selectedPlayerName = PlayerList.Text:match("Selected: (.+)")
+    if selectedPlayerName then
+        local targetPlayer = Players:FindFirstChild(selectedPlayerName)
+        if targetPlayer and targetPlayer.Character then
+            Players.LocalPlayer.Character.HumanoidRootPart.Position = targetPlayer.Character.HumanoidRootPart.Position
         end
     end
-})
-
--- FOV Input
-MainSection:AddInput("FOV", {
-    Title = "Change FOV",
-    Placeholder = "Enter FOV Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num then
-            Camera.FieldOfView = num
-        end
-    end
-})
-
--- Options Tab Content
-local OptionsSection = Tabs.Options:AddSection("Advanced Controls")
-
--- Day-Night Cycle
-local timeDropdown = OptionsSection:AddDropdown("Time Manipulation", {
-    Title = "Select Time",
-    Values = {"Morning", "Afternoon", "Night"},
-    Multi = false,
-    Default = 1,
-})
-
-timeDropdown:OnChanged(function(value)
-    if value == "Morning" then
-        game.Lighting.ClockTime = 6
-    elseif value == "Afternoon" then
-        game.Lighting.ClockTime = 12
-    elseif value == "Night" then
-        game.Lighting.ClockTime = 18
-    end
 end)
-
--- Killer Tab Content
-local KillerSection = Tabs.Killer:AddSection("Killer Controls")
-
--- Auto Punch Toggle
-local ToggleButton = KillerSection:AddToggle("Auto-Punch", {
-    Title = "Enable Auto-Punch",
-    Default = false,
-})
-
-local punching = false -- Toggle state
-local toolName = "Punch" -- Ensure this matches your tool's name
-
--- Function to auto-use the tool
-local function autoUseTool()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
-
-    if tool then
-        humanoid:EquipTool(tool)
-        while punching and tool.Parent == character do
-            tool:Activate() -- Activate the tool
-            wait(0.1) -- Adjust the wait time for punching speed
-        end
-    end
-end
-
--- Toggle action for Auto-Punch
-ToggleButton:OnChanged(function(value)
-    punching = value -- Update punching state
-
-    if punching then
-        autoUseTool() -- Start auto-punching
-    end
-end)
-
--- Ensure all sections are visible
-MainSection.Visible = true
-OptionsSection.Visible = true
-KillerSection.Visible = true
