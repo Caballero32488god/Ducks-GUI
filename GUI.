@@ -47,8 +47,11 @@ local function toggleAutoPunch(value, rockName)
     punching = value
 
     if punching then
-        if teleportToRock(rockName) then
-            autoUseTool()
+        while punching do
+            if teleportToRock(rockName) then
+                autoUseTool()
+            end
+            wait(0.5) -- Delay before the next teleport
         end
     else
         print("Auto-punching stopped.")
