@@ -1,136 +1,155 @@
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game.CoreGui
+\local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- Create Main Frame
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0.5, 0, 0.5, 0)
-mainFrame.Position = UDim2.new(0.25, 0, 0.25, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-mainFrame.Parent = ScreenGui
+local Window = Rayfield:CreateWindow({
+    Name = "Script Muscle Legends Window",
+    LoadingTitle = "Farming Script Muscle Legends",
+    LoadingSubtitle = "by bubleknight roblox",
+    ConfigurationSaving = {
+        Enabled = false,
+        FolderName = nil,
+        FileName = "Roblox Muscle Legends Hub"
+    },
+    Discord = {
+        Enabled = false,
+        Invite = "noinvitelink",
+        RememberJoins = true
+    },
+    KeySystem = false,
+    KeySettings = {
+        Title = "Untitled",
+        Subtitle = "Key System",
+        Note = "No method of obtaining the key is provided",
+        FileName = "Key",
+        SaveKey = true,
+        GrabKeyFromSite = false,
+        Key = {"Hello"}
+    }
+})
 
--- Function to create a new tab
-local function createTab(name)
-    local tab = Instance.new("Frame")
-    tab.Name = name
-    tab.Size = UDim2.new(1, 0, 1, 0)
-    tab.Visible = false
-    tab.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-    tab.Parent = mainFrame
-    return tab
-end
+-- Auto Farming Tab
+local AutoFarmingTab = Window:CreateTab("Auto Farming", nil)
+local AutoFarmingSection = AutoFarmingTab:CreateSection("Auto Farming Section")
 
--- Create Tabs
-local mainTab = createTab("Main")
-local killerTab = createTab("Killer")
-local autoFarmTab = createTab("AutoFarm")
-local teleportTab = createTab("Teleport")
-local settingsTab = createTab("Settings")
-local statsTab = createTab("Stats")
+Rayfield:Notify({
+    Title = "Script Notification",
+    Content = "Muscle Legends Script",
+    Duration = 5,
+    Image = nil,
+    Actions = {
+        Ignore = {
+            Name = "Okay!",
+            Callback = function()
+                print("The user tapped Okay!")
+            end
+        },
+    },
+})
 
--- Function to switch between tabs
-local function switchTab(selectedTab)
-    mainTab.Visible = false
-    killerTab.Visible = false
-    autoFarmTab.Visible = false
-    teleportTab.Visible = false
-    settingsTab.Visible = false
-    statsTab.Visible = false
-    selectedTab.Visible = true
-end
+-- Auto Click Section
+local AutoClickSection = AutoFarmingTab:CreateSection("Auto Click")
 
--- Create Tab Buttons
-local tabButtons = {}
-local function createTabButton(name)
-    local button = Instance.new("TextButton")
-    button.Text = name
-    button.Size = UDim2.new(0.2, 0, 0.1, 0)
-    button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    button.Parent = mainFrame
-    button.MouseButton1Click:Connect(function() switchTab(createTab(name)) end)
-    return button
-end
+local autoClicking = false
 
--- Adding tab buttons
-tabButtons.Main = createTabButton("Main")
-tabButtons.Killer = createTabButton("Killer")
-tabButtons.AutoFarm = createTabButton("AutoFarm")
-tabButtons.Teleport = createTabButton("Teleport")
-tabButtons.Settings = createTabButton("Settings")
-tabButtons.Stats = createTabButton("Stats")
+local autoClickButton = AutoFarmingTab:CreateButton({
+    Name = "Auto Click (Off)",
+    Callback = function()
+        autoClicking = not autoClicking
+        while autoClicking do
+            local VirtualUser = game:GetService("VirtualUser")
+            VirtualUser:Button1Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+            wait(0.1) -- Adjust the delay as needed
+            VirtualUser:Button1Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        end
+    end,
+})
 
--- Default tab
-switchTab(mainTab)
+-- Options Tab
+local OptionsTab = Window:CreateTab("Options", nil)
 
--- Main Tab Buttons
-local speedButton = Instance.new("TextButton", mainTab)
-speedButton.Text = "Speed Changer"
-speedButton.Size = UDim2.new(0, 200, 0, 50)
-speedButton.Position = UDim2.new(0.5, -100, 0.1, 0)
-speedButton.MouseButton1Click:Connect(function()
-    -- Speed changing logic here
-end)
+-- Speed Settings Section
+local SpeedSection = OptionsTab:CreateSection("Speed Settings")
 
--- Killer Tab Buttons
-local autoKillButton = Instance.new("TextButton", killerTab)
-autoKillButton.Text = "Auto Kill"
-autoKillButton.Size = UDim2.new(0, 200, 0, 50)
-autoKillButton.Position = UDim2.new(0.5, -100, 0.1, 0)
-autoKillButton.MouseButton1Click:Connect(function()
-    -- Auto Kill logic here
-end)
+local WalkSpeedSlider = OptionsTab:CreateSlider({
+    Name = "Walk Speed",
+    Range = {16, 2000}, -- Default Roblox walk speed is 16
+    Increment = 1,
+    Suffix = "Speed",
+    CurrentValue = 16,
+    Flag = "WalkSpeedSlider",
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = Value
+        end
+    end,
+})
+
+-- Jump Height Slider
+local JumpSection = OptionsTab:CreateSection("Jump Settings")
+
+local JumpHeightSlider = OptionsTab:CreateSlider({
+    Name = "Jump Height",
+    Range = {50, 1000}, -- Default Roblox jump height is around 50
+    Increment = 10,
+    Suffix = "Height",
+    CurrentValue = 50,
+    Flag = "JumpHeightSlider",
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.JumpPower = Value
+        end
+    end,
+})
+
+-- Freeze Character Button
+local frozen = false
+local originalPosition
+
+local freezeCharacterButton = OptionsTab:CreateButton({
+    Name = "Freeze Character",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                if not frozen then
+                    frozen = true
+                    originalPosition = character.PrimaryPart.CFrame
+                    while frozen do
+                        character:SetPrimaryPartCFrame(originalPosition)
+                        wait()
+                    end
+                else
+                    frozen = false
+                end
+            end
+        end
+    end,
+})
 
 -- Teleport Tab
-local teleportDropdown = Instance.new("TextButton", teleportTab)
-teleportDropdown.Text = "Teleport to Player"
-teleportDropdown.Size = UDim2.new(0, 200, 0, 50)
-teleportDropdown.Position = UDim2.new(0.5, -100, 0.1, 0)
+local TeleportTab = Window:CreateTab("Teleport", nil)
+local TeleportSection = TeleportTab:CreateSection("Teleport Section")
 
-teleportDropdown.MouseButton1Click:Connect(function()
-    local playerName = "PlayerName" -- Replace with input for actual player name
-    local targetPlayer = Players:FindFirstChild(playerName)
-    if targetPlayer and targetPlayer.Character then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+local teleportPosition = Vector3.new(890, 20, 320) -- Change this to your desired coordinates
+
+local function teleportPlayer()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    if character then
+        character:SetPrimaryPartCFrame(CFrame.new(teleportPosition))
     end
-end)
+end
 
--- Settings Tab
-local toggleFPSButton = Instance.new("TextButton", settingsTab)
-toggleFPSButton.Text = "Toggle FPS Display"
-toggleFPSButton.Size = UDim2.new(0, 200, 0, 50)
-toggleFPSButton.Position = UDim2.new(0.5, -100, 0.1, 0)
-
-toggleFPSButton.MouseButton1Click:Connect(function()
-    -- Toggle FPS logic here
-end)
-
--- Stats Tab
-local statsInput = Instance.new("TextBox", statsTab)
-statsInput.Size = UDim2.new(0.9, 0, 0.1, 0)
-statsInput.Position = UDim2.new(0.05, 0, 0.1, 0)
-statsInput.PlaceholderText = "Enter Username"
-
-local getStatsButton = Instance.new("TextButton", statsTab)
-getStatsButton.Text = "Get Stats"
-getStatsButton.Size = UDim2.new(0.9, 0, 0.1, 0)
-getStatsButton.Position = UDim2.new(0.05, 0, 0.3, 0)
-
-getStatsButton.MouseButton1Click:Connect(function()
-    local username = statsInput.Text
-    -- Function to get player stats
-    local targetPlayer = Players:FindFirstChild(username)
-    if targetPlayer then
-        local leaderstats = targetPlayer:FindFirstChild("leaderstats")
-        if leaderstats then
-            -- Display stats logic here
-        else
-            print("Leaderstats not found.")
-        end
-    else
-        print("Player not found.")
-    end
-end)
-
--- Initialize
-print("GUI initialized successfully!")
+local teleportButton = TeleportTab:CreateButton({
+    Name = "Teleport to Safe AFK Zone",
+    Callback = function()
+        teleportPlayer()
+    end,
+})
