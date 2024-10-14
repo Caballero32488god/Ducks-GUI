@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local UserInputService = game:GetService("UserInputService")
 
 local punching = false
 local toolName = "Punch"
@@ -36,9 +35,10 @@ local function teleportToRock(rockName)
     
     if location then
         LocalPlayer.Character.HumanoidRootPart.Position = location
+        print("Teleported to " .. rockName .. " at " .. tostring(location)) -- Debug message
         return true
     else
-        print("Invalid rock name.")
+        print("Invalid rock name: " .. rockName) -- Debug message
         return false
     end
 end
@@ -50,6 +50,8 @@ local function toggleAutoPunch(value, rockName)
         if teleportToRock(rockName) then
             autoUseTool()
         end
+    else
+        print("Auto-punching stopped.")
     end
 end
 
@@ -58,6 +60,11 @@ game.Players.LocalPlayer.Chatted:Connect(function(message)
     local args = message:split(" ")
     if args[1]:lower() == "!punch" then
         local rockName = args[2]
+        
+        if rockName and rockName:lower() == "muscle" then
+            rockName = "Muscle King" -- Map "muscle" to "Muscle King"
+        end
+
         if punching then
             toggleAutoPunch(false)  -- Stop punching if it's already on
             print("Stopped auto-punching.")
