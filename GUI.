@@ -1,36 +1,119 @@
-local library = loadstring(game:HttpGet('https://raw.githubusercontent.com/jakepscripts/moonlib/main/moonlibv1.lua'))()
-local window = library:CreateWindow("MoonLIB", "#b36419", 9160626035)
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local ScreenGui = Instance.new("ScreenGui")
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
-local Home = window:CreateTab("Home")
-local Killer = window:CreateTab("Killer")
-local AutoFarm = window:CreateTab("AutoFarm")
-local PlayerStats = window:CreateTab("Player Stats")
-local Teleport = window:CreateTab("Teleport")
-local Settings = window:CreateTab("Settings")
+local Window = Fluent:CreateWindow({
+    Title = "Fluent GUI",
+    SubTitle = "by dawid",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+})
 
-Home:CreateLabel("Label", "Home")
-Killer:CreateLabel("Label", "Killer")
-AutoFarm:CreateLabel("Label", "AutoFarm")
-PlayerStats:CreateLabel("Label", "Player Stats")
-Teleport:CreateLabel("Label", "Teleport")
-Settings:CreateLabel("Label", "Settings")
+-- Add Tabs
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "home" }),
+    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
+    Teleport = Window:AddTab({ Title = "Teleport", Icon = "map" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "cog" }),
+}
 
--- Toggles for specified tabs
-Home:CreateToggle("Infinite Jump", "Enable infinite jumping", function(togglestate)
-    -- // print(togglestate)
-end)
+-- Main Tab Content
+local MainSection = Tabs.Main:AddSection("Main Controls")
+MainSection:AddButton("Auto Punch", {
+    Callback = function()
+        -- Add Auto Punch Logic Here
+    end
+})
 
-Home:CreateToggle("FPS Unlocker", "Unlock FPS", function(togglestate)
-    -- // print(togglestate)
-end)
+-- Killer Tab Content
+local KillerSection = Tabs.Killer:AddSection("Killer Controls")
+KillerSection:AddButton("Auto Kill", {
+    Callback = function()
+        -- Add Auto Kill Logic Here
+    end
+})
+KillerSection:AddButton("Teleport to User", {
+    Callback = function()
+        -- Add Teleport Logic Here
+    end
+})
 
-Killer:CreateToggle("Auto Kill", "Automatically kill enemies", function(togglestate)
-    -- // print(togglestate)
-end)
+-- Teleport Tab Content
+local TeleportSection = Tabs.Teleport:AddSection("Teleport Controls")
+local teleportLocations = {
+    ["Tiny Rock"] = Vector3.new(17, -1, 2106),
+    ["Punching Rock"] = Vector3.new(-151, 0, 422),
+    ["Large Rock"] = Vector3.new(166, 0, -152),
+    ["Golden Rock"] = Vector3.new(311, -2, -594),
+    ["Frozen Rock"] = Vector3.new(-2551, 0, -243),
+    ["Mystic Rock"] = Vector3.new(2186, 0, 1250),
+    ["Inferno Rock"] = Vector3.new(-7262, 0, -1259),
+    ["Legend Rock"] = Vector3.new(4140, 987, -4089),
+    ["Muscle King"] = Vector3.new(-8971, 27, -6061)
+}
 
-AutoFarm:CreateToggle("Auto Rebirth", "Automatically rebirth", function(togglestate)
-    -- // print(togglestate)
-end)
+TeleportSection:AddDropdown("Teleport to Location", {
+    Values = table.keys(teleportLocations),
+    Callback = function(selectedLocation)
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(teleportLocations[selectedLocation])
+    end,
+})
 
--- Display the GUI
-library:Display()
+-- Settings Tab Content
+local SettingsSection = Tabs.Settings:AddSection("Settings")
+SettingsSection:AddDropdown("Graphics Quality", {
+    Values = {"Low", "Medium", "High"},
+    Callback = function(selectedQuality)
+        if selectedQuality == "Low" then
+            game:GetService("UserSettings").GameSettings.GraphicsQuality = 1
+        elseif selectedQuality == "Medium" then
+            game:GetService("UserSettings").GameSettings.GraphicsQuality = 3
+        elseif selectedQuality == "High" then
+            game:GetService("UserSettings").GameSettings.GraphicsQuality = 5
+        end
+    end,
+})
+
+SettingsSection:AddToggle("Show FPS", {
+    Default = false,
+    Callback = function(state)
+        if state then
+            -- Enable FPS display
+            local fpsLabel = Instance.new("TextLabel")
+            fpsLabel.Size = UDim2.new(0.1, 0, 0.05, 0)
+            fpsLabel.Position = UDim2.new(0, 10, 0, 10)
+            fpsLabel.TextColor3 = Color3.new(1, 1, 1)
+            fpsLabel.BackgroundTransparency = 1
+            fpsLabel.Parent = game.CoreGui
+
+            -- Update FPS label
+            game:GetService("RunService").RenderStepped:Connect(function()
+                local fps = math.floor(1 / game:GetService("RunService").Heartbeat.Wait())
+                fpsLabel.Text = "FPS: " .. fps
+            end)
+        else
+            -- Disable FPS display
+            for _, child in pairs(game.CoreGui:GetChildren()) do
+                if child:IsA("TextLabel") and child.Text:match("FPS:") then
+                    child:Destroy()
+                end
+            end
+        end
+    end,
+})
+
+SettingsSection:AddButton("Reset Settings", {
+    Callback = function()
+        game:GetService("UserSettings").GameSettings.GraphicsQuality = 3 -- Reset to Medium
+        print("Settings have been reset to default.")
+    end,
+})
+
+-- Initialize GUI
+ScreenGui.Parent = game.CoreGui
+Window:SelectTab(1) -- Selects the first tab on open
+
+print("GUI initialized successfully!")
