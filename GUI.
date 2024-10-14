@@ -136,39 +136,7 @@ end)
 -- Killer Tab Content
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
 
--- Hitspeed Input
-KillerSection:AddInput("Hitspeed", {
-    Title = "Set Hitspeed (0-100000)",
-    Placeholder = "Enter Hitspeed Value",
-    Callback = function(value)
-        local num = tonumber(value)
-        if num and num >= 0 and num <= 100000 then
-            changeHitSpeed(num)
-        else
-            showNotification("Hitspeed must be between 0 and 100000.")
-        end
-    end
-})
-
--- Function to change hitspeed for tools in backpack
-local function changeHitSpeed(hitspeed)
-    local tools = {"Punch", "Ground Slam", "Stomp", "Handstands", "Pushups", "Weight", "Situps"}
-    for _, toolName in ipairs(tools) do
-        local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
-        if tool then
-            if tool:IsA("Tool") then
-                -- Change attack or rep times based on the tool
-                if toolName == "Punch" or toolName == "Ground Slam" or toolName == "Stomp" then
-                    tool.attackTime.Value = hitspeed / 1000 -- Convert to seconds
-                elseif toolName == "Handstands" or toolName == "Pushups" or toolName == "Weight" or toolName == "Situps" then
-                    tool.repTime.Value = hitspeed / 1000 -- Convert to seconds
-                end
-            end
-        end
-    end
-end
-
--- Auto Punch Toggle
+-- Auto-Punch Toggle
 local ToggleButton = KillerSection:AddToggle("Auto-Punch", {
     Title = "Enable Auto-Punch",
     Default = false,
@@ -201,7 +169,7 @@ ToggleButton:OnChanged(function(value)
     end
 end)
 
--- Dropdown for Player Selection
+-- Player Selection Dropdown
 local selectedPlayers = {}
 local playerDropdown = KillerSection:AddDropdown("Ignore Players", {
     Title = "Select Players to Ignore",
@@ -213,7 +181,9 @@ local playerDropdown = KillerSection:AddDropdown("Ignore Players", {
 local function updatePlayerDropdown()
     local playerNames = {}
     for _, player in pairs(Players:GetPlayers()) do
-        table.insert(playerNames, player.Name)
+        if player ~= LocalPlayer then
+            table.insert(playerNames, player.Name)
+        end
     end
     playerDropdown:SetValues(playerNames)
 end
@@ -225,6 +195,26 @@ Players.PlayerRemoving:Connect(updatePlayerDropdown)
 -- Update selected players on dropdown change
 playerDropdown:OnChanged(function(selected)
     selectedPlayers = selected
+end)
+
+-- Auto-Kill Toggle
+local autoKillToggle = KillerSection:AddToggle("Auto-Kill", {
+    Title = "Enable Auto-Kill",
+    Default = false,
+})
+
+autoKillToggle:OnChanged(function(value)
+    while autoKillToggle.Value do
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= LocalPlayer and not table.find(selectedPlayers, otherPlayer.Name) then
+                local targetCharacter = otherPlayer.Character
+                if targetCharacter and targetCharacter:FindFirstChild("Humanoid") then
+                    targetCharacter.Humanoid:TakeDamage(10) -- Adjust damage as needed
+                end
+            end
+        end
+        wait(1) -- Default hit interval; adjust if necessary
+    end
 end)
 
 -- Notification function
@@ -256,3 +246,6 @@ end
 MainSection.Visible = true
 OptionsSection.Visible = true
 KillerSection.Visible = true
+
+-- Initial population of player dropdown
+updatePlayerDropdown()
