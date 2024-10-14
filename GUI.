@@ -1,51 +1,69 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local Notification = Instance.new("TextLabel")
-local ScreenGui = Instance.new("ScreenGui")
+local UserInputService = game:GetService("UserInputService")
 
--- Function to create and display a notification
-local function showNotification(message)
-    Notification.Text = message
-    Notification.Size = UDim2.new(0.3, 0, 0.1, 0)
-    Notification.Position = UDim2.new(0.5, -75, 0.1, 0)
-    Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Notification.TextScaled = true
-    Notification.Parent = ScreenGui
+local punching = false
+local toolName = "Punch"
 
-    ScreenGui.Parent = game.CoreGui
+local teleportLocations = {
+    ["Tiny Rock"] = Vector3.new(17, -1, 2106),
+    ["Punching Rock"] = Vector3.new(-151, 0, 422),
+    ["Large Rock"] = Vector3.new(166, 0, -152),
+    ["Golden Rock"] = Vector3.new(311, -2, -594),
+    ["Frozen Rock"] = Vector3.new(-2551, 0, -243),
+    ["Mystic Rock"] = Vector3.new(2186, 0, 1250),
+    ["Inferno Rock"] = Vector3.new(-7262, 0, -1259),
+    ["Legend Rock"] = Vector3.new(4140, 987, -4089),
+    ["Muscle King"] = Vector3.new(-8967, 9, -6128)
+}
 
-    -- Fade out effect
-    for i = 1, 10 do
-        wait(0.1)
-        Notification.TextTransparency = i / 10
+local function autoUseTool()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
+
+    if tool then
+        humanoid:EquipTool(tool)
+        while punching and tool.Parent == character do
+            tool:Activate()
+            wait(1) -- Adjust the wait time as necessary
+        end
     end
-
-    -- Remove notification after fading out
-    ScreenGui:Destroy()
 end
 
--- Command to get coordinates
-LocalPlayer.Chatted:Connect(function(message)
+local function teleportToRock(rockName)
+    local location = teleportLocations[rockName]
+    
+    if location then
+        LocalPlayer.Character.HumanoidRootPart.Position = location
+        return true
+    else
+        print("Invalid rock name.")
+        return false
+    end
+end
+
+local function toggleAutoPunch(value, rockName)
+    punching = value
+
+    if punching then
+        if teleportToRock(rockName) then
+            autoUseTool()
+        end
+    end
+end
+
+-- Chat Command
+game.Players.LocalPlayer.Chatted:Connect(function(message)
     local args = message:split(" ")
-
-    if args[1]:lower() == ";cords" then
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            local position = LocalPlayer.Character.HumanoidRootPart.Position
-            local coordMessage = string.format("Your coordinates: (X: %.2f, Y: %.2f, Z: %.2f)", position.X, position.Y, position.Z)
-            showNotification(coordMessage)
-
-            -- Repeat every second for 45 seconds
-            for i = 1, 45 do
-                wait(1)
-                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                    position = LocalPlayer.Character.HumanoidRootPart.Position
-                    coordMessage = string.format("Your coordinates: (X: %.2f, Y: %.2f, Z: %.2f)", position.X, position.Y, position.Z)
-                    showNotification(coordMessage)
-                end
-            end
+    if args[1]:lower() == "!punch" then
+        local rockName = args[2]
+        if punching then
+            toggleAutoPunch(false)  -- Stop punching if it's already on
+            print("Stopped auto-punching.")
+        else
+            toggleAutoPunch(true, rockName)
+            print("Started auto-punching at " .. rockName)
         end
     end
 end)
-
-print("Type ';cords' to get your current coordinates.")
