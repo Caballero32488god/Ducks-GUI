@@ -3,6 +3,13 @@ local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local ScreenGui = Instance.new("ScreenGui")
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+
+-- Check if Fluent was loaded correctly
+if not Fluent then
+    warn("Fluent GUI failed to load.")
+    return
+end
+
 local Window = Fluent:CreateWindow({
     Title = "Fluent GUI",
     SubTitle = "by dawid",
@@ -93,9 +100,6 @@ MainSection:AddToggle("FPS Unlocker", {
         fpsUnlockerEnabled = state
         if state then
             settings().Rendering.QualityLevel = 10 -- Max quality
-            game:GetService("RunService").RenderStepped:Connect(function()
-                RunService.Heartbeat:Wait() -- Keep the game running smoothly
-            end)
         else
             settings().Rendering.QualityLevel = 2 -- Reset to low quality
         end
@@ -191,5 +195,9 @@ local function teleportAllPlayers()
     end
 end
 
--- Initialize GUI
+-- Ensure GUI is visible
+ScreenGui.Parent = game.CoreGui
 Window:SelectTab(1) -- Selects the first tab on open
+
+-- Final debug message
+print("Fluent GUI initialized successfully!")
