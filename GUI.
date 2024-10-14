@@ -136,6 +136,38 @@ end)
 -- Killer Tab Content
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
 
+-- Hitspeed Input
+KillerSection:AddInput("Hitspeed", {
+    Title = "Set Hitspeed (0-100000)",
+    Placeholder = "Enter Hitspeed Value",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num and num >= 0 and num <= 100000 then
+            changeHitSpeed(num)
+        else
+            showNotification("Hitspeed must be between 0 and 100000.")
+        end
+    end
+})
+
+-- Function to change hitspeed for tools in backpack
+local function changeHitSpeed(hitspeed)
+    local tools = {"Punch", "Ground Slam", "Stomp", "Handstands", "Pushups", "Weight", "Situps"}
+    for _, toolName in ipairs(tools) do
+        local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
+        if tool then
+            if tool:IsA("Tool") then
+                -- Change attack or rep times based on the tool
+                if toolName == "Punch" or toolName == "Ground Slam" or toolName == "Stomp" then
+                    tool.attackTime.Value = hitspeed / 1000 -- Convert to seconds
+                elseif toolName == "Handstands" or toolName == "Pushups" or toolName == "Weight" or toolName == "Situps" then
+                    tool.repTime.Value = hitspeed / 1000 -- Convert to seconds
+                end
+            end
+        end
+    end
+end
+
 -- Auto Punch Toggle
 local ToggleButton = KillerSection:AddToggle("Auto-Punch", {
     Title = "Enable Auto-Punch",
@@ -168,6 +200,57 @@ ToggleButton:OnChanged(function(value)
         autoUseTool() -- Start auto-punching
     end
 end)
+
+-- Dropdown for Player Selection
+local selectedPlayers = {}
+local playerDropdown = KillerSection:AddDropdown("Ignore Players", {
+    Title = "Select Players to Ignore",
+    Values = {}, -- This will be populated with player names
+    Multi = true, -- Allow multiple selections
+})
+
+-- Populate dropdown with player names
+local function updatePlayerDropdown()
+    local playerNames = {}
+    for _, player in pairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+    playerDropdown:SetValues(playerNames)
+end
+
+-- Update the dropdown when players join or leave
+Players.PlayerAdded:Connect(updatePlayerDropdown)
+Players.PlayerRemoving:Connect(updatePlayerDropdown)
+
+-- Update selected players on dropdown change
+playerDropdown:OnChanged(function(selected)
+    selectedPlayers = selected
+end)
+
+-- Notification function
+local ScreenGui = Instance.new("ScreenGui")
+local Notification = Instance.new("TextLabel")
+
+-- Function to create and display notification
+local function showNotification(message)
+    Notification.Text = message
+    Notification.Size = UDim2.new(0.3, 0, 0.1, 0)
+    Notification.Position = UDim2.new(0.5, -75, 0.1, 0)
+    Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Notification.TextScaled = true
+    Notification.Parent = ScreenGui
+
+    ScreenGui.Parent = game.CoreGui
+
+    -- Fade out effect
+    for i = 1, 10 do
+        wait(0.1)
+        Notification.TextTransparency = i / 10
+    end
+
+    Notification:Destroy()
+end
 
 -- Ensure all sections are visible
 MainSection.Visible = true
