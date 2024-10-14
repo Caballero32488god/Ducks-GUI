@@ -1,119 +1,136 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local ScreenGui = Instance.new("ScreenGui")
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-
-local Window = Fluent:CreateWindow({
-    Title = "Fluent GUI",
-    SubTitle = "by dawid",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
-    Theme = "Dark",
-})
-
--- Add Tabs
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-    Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
-    Teleport = Window:AddTab({ Title = "Teleport", Icon = "map" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "cog" }),
-}
-
--- Main Tab Content
-local MainSection = Tabs.Main:AddSection("Main Controls")
-MainSection:AddButton("Auto Punch", {
-    Callback = function()
-        -- Add Auto Punch Logic Here
-    end
-})
-
--- Killer Tab Content
-local KillerSection = Tabs.Killer:AddSection("Killer Controls")
-KillerSection:AddButton("Auto Kill", {
-    Callback = function()
-        -- Add Auto Kill Logic Here
-    end
-})
-KillerSection:AddButton("Teleport to User", {
-    Callback = function()
-        -- Add Teleport Logic Here
-    end
-})
-
--- Teleport Tab Content
-local TeleportSection = Tabs.Teleport:AddSection("Teleport Controls")
-local teleportLocations = {
-    ["Tiny Rock"] = Vector3.new(17, -1, 2106),
-    ["Punching Rock"] = Vector3.new(-151, 0, 422),
-    ["Large Rock"] = Vector3.new(166, 0, -152),
-    ["Golden Rock"] = Vector3.new(311, -2, -594),
-    ["Frozen Rock"] = Vector3.new(-2551, 0, -243),
-    ["Mystic Rock"] = Vector3.new(2186, 0, 1250),
-    ["Inferno Rock"] = Vector3.new(-7262, 0, -1259),
-    ["Legend Rock"] = Vector3.new(4140, 987, -4089),
-    ["Muscle King"] = Vector3.new(-8971, 27, -6061)
-}
-
-TeleportSection:AddDropdown("Teleport to Location", {
-    Values = table.keys(teleportLocations),
-    Callback = function(selectedLocation)
-        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(teleportLocations[selectedLocation])
-    end,
-})
-
--- Settings Tab Content
-local SettingsSection = Tabs.Settings:AddSection("Settings")
-SettingsSection:AddDropdown("Graphics Quality", {
-    Values = {"Low", "Medium", "High"},
-    Callback = function(selectedQuality)
-        if selectedQuality == "Low" then
-            game:GetService("UserSettings").GameSettings.GraphicsQuality = 1
-        elseif selectedQuality == "Medium" then
-            game:GetService("UserSettings").GameSettings.GraphicsQuality = 3
-        elseif selectedQuality == "High" then
-            game:GetService("UserSettings").GameSettings.GraphicsQuality = 5
-        end
-    end,
-})
-
-SettingsSection:AddToggle("Show FPS", {
-    Default = false,
-    Callback = function(state)
-        if state then
-            -- Enable FPS display
-            local fpsLabel = Instance.new("TextLabel")
-            fpsLabel.Size = UDim2.new(0.1, 0, 0.05, 0)
-            fpsLabel.Position = UDim2.new(0, 10, 0, 10)
-            fpsLabel.TextColor3 = Color3.new(1, 1, 1)
-            fpsLabel.BackgroundTransparency = 1
-            fpsLabel.Parent = game.CoreGui
-
-            -- Update FPS label
-            game:GetService("RunService").RenderStepped:Connect(function()
-                local fps = math.floor(1 / game:GetService("RunService").Heartbeat.Wait())
-                fpsLabel.Text = "FPS: " .. fps
-            end)
-        else
-            -- Disable FPS display
-            for _, child in pairs(game.CoreGui:GetChildren()) do
-                if child:IsA("TextLabel") and child.Text:match("FPS:") then
-                    child:Destroy()
-                end
-            end
-        end
-    end,
-})
-
-SettingsSection:AddButton("Reset Settings", {
-    Callback = function()
-        game:GetService("UserSettings").GameSettings.GraphicsQuality = 3 -- Reset to Medium
-        print("Settings have been reset to default.")
-    end,
-})
-
--- Initialize GUI
 ScreenGui.Parent = game.CoreGui
-Window:SelectTab(1) -- Selects the first tab on open
 
+-- Create Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0.5, 0, 0.5, 0)
+mainFrame.Position = UDim2.new(0.25, 0, 0.25, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.Parent = ScreenGui
+
+-- Function to create a new tab
+local function createTab(name)
+    local tab = Instance.new("Frame")
+    tab.Name = name
+    tab.Size = UDim2.new(1, 0, 1, 0)
+    tab.Visible = false
+    tab.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    tab.Parent = mainFrame
+    return tab
+end
+
+-- Create Tabs
+local mainTab = createTab("Main")
+local killerTab = createTab("Killer")
+local autoFarmTab = createTab("AutoFarm")
+local teleportTab = createTab("Teleport")
+local settingsTab = createTab("Settings")
+local statsTab = createTab("Stats")
+
+-- Function to switch between tabs
+local function switchTab(selectedTab)
+    mainTab.Visible = false
+    killerTab.Visible = false
+    autoFarmTab.Visible = false
+    teleportTab.Visible = false
+    settingsTab.Visible = false
+    statsTab.Visible = false
+    selectedTab.Visible = true
+end
+
+-- Create Tab Buttons
+local tabButtons = {}
+local function createTabButton(name)
+    local button = Instance.new("TextButton")
+    button.Text = name
+    button.Size = UDim2.new(0.2, 0, 0.1, 0)
+    button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    button.Parent = mainFrame
+    button.MouseButton1Click:Connect(function() switchTab(createTab(name)) end)
+    return button
+end
+
+-- Adding tab buttons
+tabButtons.Main = createTabButton("Main")
+tabButtons.Killer = createTabButton("Killer")
+tabButtons.AutoFarm = createTabButton("AutoFarm")
+tabButtons.Teleport = createTabButton("Teleport")
+tabButtons.Settings = createTabButton("Settings")
+tabButtons.Stats = createTabButton("Stats")
+
+-- Default tab
+switchTab(mainTab)
+
+-- Main Tab Buttons
+local speedButton = Instance.new("TextButton", mainTab)
+speedButton.Text = "Speed Changer"
+speedButton.Size = UDim2.new(0, 200, 0, 50)
+speedButton.Position = UDim2.new(0.5, -100, 0.1, 0)
+speedButton.MouseButton1Click:Connect(function()
+    -- Speed changing logic here
+end)
+
+-- Killer Tab Buttons
+local autoKillButton = Instance.new("TextButton", killerTab)
+autoKillButton.Text = "Auto Kill"
+autoKillButton.Size = UDim2.new(0, 200, 0, 50)
+autoKillButton.Position = UDim2.new(0.5, -100, 0.1, 0)
+autoKillButton.MouseButton1Click:Connect(function()
+    -- Auto Kill logic here
+end)
+
+-- Teleport Tab
+local teleportDropdown = Instance.new("TextButton", teleportTab)
+teleportDropdown.Text = "Teleport to Player"
+teleportDropdown.Size = UDim2.new(0, 200, 0, 50)
+teleportDropdown.Position = UDim2.new(0.5, -100, 0.1, 0)
+
+teleportDropdown.MouseButton1Click:Connect(function()
+    local playerName = "PlayerName" -- Replace with input for actual player name
+    local targetPlayer = Players:FindFirstChild(playerName)
+    if targetPlayer and targetPlayer.Character then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+    end
+end)
+
+-- Settings Tab
+local toggleFPSButton = Instance.new("TextButton", settingsTab)
+toggleFPSButton.Text = "Toggle FPS Display"
+toggleFPSButton.Size = UDim2.new(0, 200, 0, 50)
+toggleFPSButton.Position = UDim2.new(0.5, -100, 0.1, 0)
+
+toggleFPSButton.MouseButton1Click:Connect(function()
+    -- Toggle FPS logic here
+end)
+
+-- Stats Tab
+local statsInput = Instance.new("TextBox", statsTab)
+statsInput.Size = UDim2.new(0.9, 0, 0.1, 0)
+statsInput.Position = UDim2.new(0.05, 0, 0.1, 0)
+statsInput.PlaceholderText = "Enter Username"
+
+local getStatsButton = Instance.new("TextButton", statsTab)
+getStatsButton.Text = "Get Stats"
+getStatsButton.Size = UDim2.new(0.9, 0, 0.1, 0)
+getStatsButton.Position = UDim2.new(0.05, 0, 0.3, 0)
+
+getStatsButton.MouseButton1Click:Connect(function()
+    local username = statsInput.Text
+    -- Function to get player stats
+    local targetPlayer = Players:FindFirstChild(username)
+    if targetPlayer then
+        local leaderstats = targetPlayer:FindFirstChild("leaderstats")
+        if leaderstats then
+            -- Display stats logic here
+        else
+            print("Leaderstats not found.")
+        end
+    else
+        print("Player not found.")
+    end
+end)
+
+-- Initialize
 print("GUI initialized successfully!")
