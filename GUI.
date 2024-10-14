@@ -70,7 +70,7 @@ MainSection:AddToggle("Anti AFK", {
     Callback = function(state)
         afkEnabled = state
     end
-})
+end)
 
 -- Gravity Changer
 MainSection:AddInput("Gravity", {
@@ -139,7 +139,7 @@ Players.PlayerRemoving:Connect(updatePlayerDropdown)
 
 -- Auto-Punch Toggle
 local punching = false
-local autoPunchToggle = KillerSection:AddToggle("Auto Punch", {
+KillerSection:AddToggle("Auto Punch", {
     Title = "Toggle Auto Punch",
     Default = false,
     Callback = function(state)
