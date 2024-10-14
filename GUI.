@@ -16,179 +16,101 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
     Killer = Window:AddTab({ Title = "Killer", Icon = "skull" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "cog" }),
     Teleport = Window:AddTab({ Title = "Teleport", Icon = "map" }),
-    PlayerStats = Window:AddTab({ Title = "Player Stats", Icon = "user" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "cog" }),
 }
+
+-- Main Tab Content
+local MainSection = Tabs.Main:AddSection("Main Controls")
+MainSection:AddButton("Auto Punch", {
+    Callback = function()
+        -- Add Auto Punch Logic Here
+    end
+})
 
 -- Killer Tab Content
 local KillerSection = Tabs.Killer:AddSection("Killer Controls")
-
--- Auto Kill Button
 KillerSection:AddButton("Auto Kill", {
     Callback = function()
-        -- Implement Auto Kill functionality here
-    end,
+        -- Add Auto Kill Logic Here
+    end
 })
-
--- Teleport Section
 KillerSection:AddButton("Teleport to User", {
     Callback = function()
-        -- Implement Teleport to User functionality here
-    end,
-})
-
--- Set Tool Speed Section
-KillerSection:AddInput("Set Tool Speed", {
-    Title = "Enter Speed Value",
-    Placeholder = "Type value here",
-    Callback = function(value)
-        -- Implement Set Tool Speed functionality here
-    end,
-})
-
--- Settings Tab Content
-local SettingsSection = Tabs.Settings:AddSection("Day Cycle")
-
-SettingsSection:AddDropdown("Daycycle", {
-    Values = {"Morning", "Afternoon", "Night"},
-    Callback = function(selectedCycle)
-        -- Implement Daycycle functionality here
-    end,
+        -- Add Teleport Logic Here
+    end
 })
 
 -- Teleport Tab Content
 local TeleportSection = Tabs.Teleport:AddSection("Teleport Controls")
+local teleportLocations = {
+    ["Tiny Rock"] = Vector3.new(17, -1, 2106),
+    ["Punching Rock"] = Vector3.new(-151, 0, 422),
+    ["Large Rock"] = Vector3.new(166, 0, -152),
+    ["Golden Rock"] = Vector3.new(311, -2, -594),
+    ["Frozen Rock"] = Vector3.new(-2551, 0, -243),
+    ["Mystic Rock"] = Vector3.new(2186, 0, 1250),
+    ["Inferno Rock"] = Vector3.new(-7262, 0, -1259),
+    ["Legend Rock"] = Vector3.new(4140, 987, -4089),
+    ["Muscle King"] = Vector3.new(-8971, 27, -6061)
+}
 
--- Create Dropdown for Teleporting to Users
-TeleportSection:AddDropdown("Teleport to User", {
-    Values = {},
-    Callback = function(selectedPlayer)
-        local playerToTeleport = Players:FindFirstChild(selectedPlayer)
-        if playerToTeleport and playerToTeleport.Character and playerToTeleport.Character:FindFirstChild("HumanoidRootPart") then
-            LocalPlayer.Character:SetPrimaryPartCFrame(playerToTeleport.Character.HumanoidRootPart.CFrame)
+TeleportSection:AddDropdown("Teleport to Location", {
+    Values = table.keys(teleportLocations),
+    Callback = function(selectedLocation)
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(teleportLocations[selectedLocation])
+    end,
+})
+
+-- Settings Tab Content
+local SettingsSection = Tabs.Settings:AddSection("Settings")
+SettingsSection:AddDropdown("Graphics Quality", {
+    Values = {"Low", "Medium", "High"},
+    Callback = function(selectedQuality)
+        if selectedQuality == "Low" then
+            game:GetService("UserSettings").GameSettings.GraphicsQuality = 1
+        elseif selectedQuality == "Medium" then
+            game:GetService("UserSettings").GameSettings.GraphicsQuality = 3
+        elseif selectedQuality == "High" then
+            game:GetService("UserSettings").GameSettings.GraphicsQuality = 5
         end
     end,
 })
 
--- Update Dropdown Values with Current Players
-local function updateUserDropdown()
-    local playerNames = {}
-    for _, player in pairs(Players:GetPlayers()) do
-        table.insert(playerNames, player.Name)
-    end
-    TeleportSection:UpdateDropdown("Teleport to User", playerNames)
-end
+SettingsSection:AddToggle("Show FPS", {
+    Default = false,
+    Callback = function(state)
+        if state then
+            -- Enable FPS display
+            local fpsLabel = Instance.new("TextLabel")
+            fpsLabel.Size = UDim2.new(0.1, 0, 0.05, 0)
+            fpsLabel.Position = UDim2.new(0, 10, 0, 10)
+            fpsLabel.TextColor3 = Color3.new(1, 1, 1)
+            fpsLabel.BackgroundTransparency = 1
+            fpsLabel.Parent = game.CoreGui
 
--- Call the update function initially and whenever players are added/removed
-updateUserDropdown()
-Players.PlayerAdded:Connect(updateUserDropdown)
-Players.PlayerRemoving:Connect(updateUserDropdown)
-
--- Player Stats Tab Content
-local PlayerStatsSection = Tabs.PlayerStats:AddSection("Player Stats")
-
--- Create the main GUI for stats input
-local inputFrame = Instance.new("Frame")
-inputFrame.Size = UDim2.new(0.4, 0, 0.5, 0)
-inputFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
-inputFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-inputFrame.Parent = ScreenGui
-
--- Input box for username
-local inputBox = Instance.new("TextBox")
-inputBox.Size = UDim2.new(0.9, 0, 0.2, 0)
-inputBox.Position = UDim2.new(0.05, 0, 0.05, 0)
-inputBox.BackgroundColor3 = Color3.new(1, 1, 1)
-inputBox.PlaceholderText = "Enter Username"
-inputBox.Parent = inputFrame
-
--- Button to get stats
-local getStatsButton = Instance.new("TextButton")
-getStatsButton.Size = UDim2.new(0.9, 0, 0.2, 0)
-getStatsButton.Position = UDim2.new(0.05, 0, 0.3, 0)
-getStatsButton.Text = "Get Stats"
-getStatsButton.BackgroundColor3 = Color3.new(0.3, 0.6, 0.3)
-getStatsButton.Parent = inputFrame
-
--- Function to get player stats
-local function getPlayerStats(username)
-    local targetPlayer = Players:FindFirstChild(username)
-    if targetPlayer then
-        local leaderstats = targetPlayer:FindFirstChild("leaderstats")
-        if leaderstats then
-            local stats = {
-                Kills = leaderstats:FindFirstChild("Kills") and leaderstats.Kills.Value or "N/A",
-                Gems = leaderstats:FindFirstChild("Gems") and leaderstats.Gems.Value or "N/A",
-                Brawls = leaderstats:FindFirstChild("Brawls") and leaderstats.Brawls.Value or "N/A",
-                Rebirths = leaderstats:FindFirstChild("Rebirths") and leaderstats.Rebirths.Value or "N/A",
-                Strength = leaderstats:FindFirstChild("Strength") and leaderstats.Strength.Value or "N/A",
-                Durability = leaderstats:FindFirstChild("Durability") and leaderstats.Durability.Value or "N/A",
-                Agility = leaderstats:FindFirstChild("Agility") and leaderstats.Agility.Value or "N/A"
-            }
-
-            return stats
+            -- Update FPS label
+            game:GetService("RunService").RenderStepped:Connect(function()
+                local fps = math.floor(1 / game:GetService("RunService").Heartbeat.Wait())
+                fpsLabel.Text = "FPS: " .. fps
+            end)
+        else
+            -- Disable FPS display
+            for _, child in pairs(game.CoreGui:GetChildren()) do
+                if child:IsA("TextLabel") and child.Text:match("FPS:") then
+                    child:Destroy()
+                end
+            end
         end
-    end
-    return nil
-end
+    end,
+})
 
--- Function to create the stats GUI
-local function createStatsGui(stats)
-    local statsGui = Instance.new("ScreenGui")
-    statsGui.Parent = playerGui
-
-    local statsFrame = Instance.new("Frame")
-    statsFrame.Size = UDim2.new(0.4, 0, 0.5, 0)
-    statsFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
-    statsFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-    statsFrame.Parent = statsGui
-
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
-    titleLabel.Position = UDim2.new(0, 0, 0, 0)
-    titleLabel.Text = "Player Stats"
-    titleLabel.TextColor3 = Color3.new(1, 1, 1)
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.TextScaled = true
-    titleLabel.Parent = statsFrame
-
-    local statIndex = 0
-    for statName, value in pairs(stats) do
-        statIndex += 1
-        local statLabel = Instance.new("TextLabel")
-        statLabel.Size = UDim2.new(1, 0, 0.1, 0)
-        statLabel.Position = UDim2.new(0, 0, (statIndex) * 0.1, 0)
-        statLabel.Text = statName .. ": " .. tostring(value)
-        statLabel.TextColor3 = Color3.new(1, 1, 1)
-        statLabel.BackgroundTransparency = 1
-        statLabel.TextScaled = true
-        statLabel.Parent = statsFrame
-    end
-
-    local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0.9, 0, 0.2, 0)
-    closeButton.Position = UDim2.new(0.05, 0, 0.85, 0)
-    closeButton.Text = "Close Stats"
-    closeButton.BackgroundColor3 = Color3.new(0.8, 0.1, 0.1) -- Red color
-    closeButton.Parent = statsFrame
-
-    closeButton.MouseButton1Click:Connect(function()
-        statsGui:Destroy()
-        mainGui.Enabled = true -- Re-enable the input GUI
-    end)
-end
-
--- Button click event
-getStatsButton.MouseButton1Click:Connect(function()
-    local username = inputBox.Text
-    local stats = getPlayerStats(username)
-    if stats then
-        createStatsGui(stats)
-    else
-        print("Player not found or has no stats.")
-    end
-end)
+SettingsSection:AddButton("Reset Settings", {
+    Callback = function()
+        game:GetService("UserSettings").GameSettings.GraphicsQuality = 3 -- Reset to Medium
+        print("Settings have been reset to default.")
+    end,
+})
 
 -- Initialize GUI
 ScreenGui.Parent = game.CoreGui
