@@ -14,6 +14,29 @@ ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 ToggleButton.Text = "Enable Tool Cooldown"
 ToggleButton.Parent = ScreenGui
 
+-- Function to set tool cooldowns
+local function setToolCooldowns()
+    local tools = {
+        {name = "Punch", type = "attackTime"},
+        {name = "Ground Slam", type = "attackTime"},
+        {name = "Stomp", type = "attackTime"},
+        {name = "Handstands", type = "repTime"},
+        {name = "Pushups", type = "repTime"},
+        {name = "Weight", type = "repTime"},
+        {name = "Situps", type = "repTime"}
+    }
+    
+    for _, toolInfo in pairs(tools) do
+        local tool = LocalPlayer.Backpack:FindFirstChild(toolInfo.name)
+        if tool then
+            local cooldown = tool:FindFirstChild(toolInfo.type) -- Assuming attackTime and repTime are objects
+            if cooldown then
+                cooldown.Value = 0.1 -- Set the value
+            end
+        end
+    end
+end
+
 -- Function to toggle the button
 local function toggleButton()
     buttonEnabled = not buttonEnabled
@@ -22,6 +45,8 @@ local function toggleButton()
 
     if buttonEnabled then
         setToolCooldowns() -- Call the function to set cooldowns when enabled
+    else
+        -- Reset cooldowns or add any logic needed when disabled
     end
 end
 
