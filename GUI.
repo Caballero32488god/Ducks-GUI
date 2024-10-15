@@ -1,181 +1,156 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
-local Window = OrionLib:MakeWindow({Name = "Game Features", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+local Window = OrionLib:MakeWindow({ Name = "Game Hacks", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest" })
 
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local workspace = game:GetService("Workspace")
-
--- Speed Change Function
-local function changeSpeed(speedValue)
-    for _, player in ipairs(Players:GetPlayers()) do
-        local character = player.Character
-        if character then
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.WalkSpeed = speedValue
-            end
-        end
-    end
-end
-
--- Jump Power Change Function
-local function changeJumpPower(jumpPowerValue)
-    for _, player in ipairs(Players:GetPlayers()) do
-        local character = player.Character
-        if character then
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.JumpPower = jumpPowerValue
-            end
-        end
-    end
-end
-
--- Gravity Change Function
-local function changeGravity(gravityValue)
-    workspace.Gravity = gravityValue
-end
-
--- No Clip Function
-local function setNoClip(character, value)
-    for _, part in ipairs(character:GetDescendants()) do
-        if part:IsA("BasePart") then
-            part.CanCollide = not value
-        end
-    end
-end
-
-local function enableNoClip()
-    for _, player in ipairs(Players:GetPlayers()) do
-        local character = player.Character
-        if character then
-            setNoClip(character, true)
-            player.CharacterAdded:Connect(function(newCharacter)
-                setNoClip(newCharacter, true)
-            end)
-        end
-    end
-end
-
-local function disableNoClip()
-    for _, player in ipairs(Players:GetPlayers()) do
-        local character = player.Character
-        if character then
-            setNoClip(character, false)
-        end
-    end
-end
-
--- Infinite Jump Function
-local function enableInfiniteJump()
-    for _, player in ipairs(Players:GetPlayers()) do
-        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            UserInputService.JumpRequest:Connect(function()
-                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-            end)
-        end
-    end
-end
-
--- Time Setting Function
-local function setGameTime(timeOfDay)
-    if timeOfDay == "Morning" then
-        game.Lighting.ClockTime = 6
-    elseif timeOfDay == "Afternoon" then
-        game.Lighting.ClockTime = 12
-    elseif timeOfDay == "Night" then
-        game.Lighting.ClockTime = 18
-    else
-        print("Invalid time of day.")
-    end
-end
-
--- Tabs Creation
-local featuresTab = Window:MakeTab({
-    Name = "Features",
+-- Home Tab
+local homeTab = Window:MakeTab({
+    Name = "Home",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
--- Speed Input
-featuresTab:AddTextbox({
+homeTab:AddSection({
+    Name = "Player Features"
+})
+
+homeTab:AddTextbox({
     Name = "Speed",
     Default = "16",
-    TextDisappear = false,
+    TextDisappear = true,
     Callback = function(Value)
-        changeSpeed(tonumber(Value))
+        local speedValue = tonumber(Value) or 16
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            local character = player.Character
+            if character then
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = speedValue
+                end
+            end
+        end
     end
 })
 
--- Jump Power Input
-featuresTab:AddTextbox({
+homeTab:AddTextbox({
     Name = "Jump Power",
     Default = "50",
-    TextDisappear = false,
+    TextDisappear = true,
     Callback = function(Value)
-        changeJumpPower(tonumber(Value))
+        local jumpPowerValue = tonumber(Value) or 50
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            local character = player.Character
+            if character then
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.JumpPower = jumpPowerValue
+                end
+            end
+        end
     end
 })
 
--- Gravity Input
-featuresTab:AddTextbox({
-    Name = "Gravity",
-    Default = "196.2",
-    TextDisappear = false,
-    Callback = function(Value)
-        changeGravity(tonumber(Value))
-    end
-})
-
--- No Clip Buttons
-featuresTab:AddButton({
-    Name = "Enable No-Clip",
+homeTab:AddButton({
+    Name = "Enable No Clip",
     Callback = function()
-        enableNoClip()
+        local function setNoClip(character, value)
+            for _, part in ipairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = not value
+                end
+            end
+        end
+        
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            local character = player.Character
+            if character then
+                setNoClip(character, true) -- Enable no clip
+            end
+        end
     end
 })
 
-featuresTab:AddButton({
-    Name = "Disable No-Clip",
-    Callback = function()
-        disableNoClip()
-    end
-})
-
--- Infinite Jump Button
-featuresTab:AddButton({
+homeTab:AddButton({
     Name = "Enable Infinite Jump",
     Callback = function()
-        enableInfiniteJump()
+        local UserInputService = game:GetService("UserInputService")
+        
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                UserInputService.JumpRequest:Connect(function()
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end)
+            end
+        end
     end
 })
 
--- Dropdown for Game Time
-featuresTab:AddDropdown({
+homeTab:AddDropdown({
     Name = "Set Game Time",
     Default = "Morning",
     Options = {"Morning", "Afternoon", "Night"},
     Callback = function(Value)
-        setGameTime(Value)
+        if Value == "Morning" then
+            game.Lighting.ClockTime = 6
+        elseif Value == "Afternoon" then
+            game.Lighting.ClockTime = 12
+        elseif Value == "Night" then
+            game.Lighting.ClockTime = 18
+        end
+    end    
+})
+
+-- Rebirths Tab
+local rebirthsTab = Window:MakeTab({
+    Name = "Rebirths",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local elias782k = 0
+local rebirthLimit = math.huge -- Default to "infinite"
+
+rebirthsTab:AddToggle({
+    Name = "Auto Rebirth",
+    Default = false,
+    Callback = function(Value2)
+        elias782k = 1
+        while elias782k == 1 do
+            if not Value2 then
+                elias782k = 0
+                break
+            end
+            wait(1)
+            local args = { [1] = "rebirthRequest" }
+            game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack(args))
+
+            if rebirthLimit < math.huge then
+                local currentRebirths = --[[Get the current number of rebirths]]
+                if currentRebirths >= rebirthLimit then
+                    elias782k = 0
+                end
+            end
+        end
+    end    
+})
+
+rebirthsTab:AddTextbox({
+    Name = "Rebirth Limit",
+    Default = "0",
+    TextDisappear = false,
+    Callback = function(Value)
+        if Value == "0" then
+            rebirthLimit = math.huge -- No limit
+        else
+            rebirthLimit = tonumber(Value) or math.huge -- Convert to number, or keep as infinite
+        end
     end
 })
 
--- Create other tabs (replace "Other Tab Name" with your desired names)
-local mainTab = Window:MakeTab({ Name = "Main", Icon = "rbxassetid://4483345998", PremiumOnly = false })
-local rebirthsTab = Window:MakeTab({ Name = "Rebirths", Icon = "rbxassetid://4483345998", PremiumOnly = false })
-local killerTab = Window:MakeTab({ Name = "Killer", Icon = "rbxassetid://4483345998", PremiumOnly = false })
-local crystalTab = Window:MakeTab({ Name = "Crystal", Icon = "rbxassetid://4483345998", PremiumOnly = false })
-local statsTab = Window:MakeTab({ Name = "Stats", Icon = "rbxassetid://4483345998", PremiumOnly = false })
-local miscTab = Window:MakeTab({ Name = "Misc", Icon = "rbxassetid://4483345998", PremiumOnly = false })
-
--- Add features or buttons to other tabs as needed
--- Example for Main tab:
-mainTab:AddButton({
-    Name = "Example Button",
+rebirthsTab:AddButton({
+    Name = "Stop Auto Rebirth",
     Callback = function()
-        print("Example button pressed in Main tab")
+        elias782k = 0
     end
 })
 
