@@ -1,44 +1,36 @@
-local player = game.Players.LocalPlayer
-local backpack = player:WaitForChild("Backpack")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
--- List of tools to modify
-local tools = {
-    "Punch",
-    "Ground Slam",
-    "Stomp",
-    "Handstands",
-    "Pushups",
-    "Weight",
-    "Situps"
-}
+-- Create GUI
+local ScreenGui = Instance.new("ScreenGui")
+local ToggleButton = Instance.new("TextButton")
+local buttonEnabled = false -- Initial state
 
--- Function to modify tools
-local function modifyTools()
-    for _, tool in pairs(tools) do
-        local existingTool = backpack:FindFirstChild(tool)
-        if existingTool then
-            existingTool:Destroy() -- Remove tool from backpack
-        end
-    end
+-- Configure the GUI
+ScreenGui.Parent = game.CoreGui
+ToggleButton.Size = UDim2.new(0, 200, 0, 50)
+ToggleButton.Position = UDim2.new(0.5, -100, 0.5, -25)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+ToggleButton.Text = "Enable Tool Cooldown"
+ToggleButton.Parent = ScreenGui
 
-    -- Create new tools with modified properties
-    for _, toolName in pairs(tools) do
-        local newTool = Instance.new("Tool")
-        newTool.Name = toolName
-        
-        local attackTime = Instance.new("NumberValue")
-        attackTime.Name = "attackTime"
-        attackTime.Value = 0.1
-        attackTime.Parent = newTool
+-- Function to toggle the button
+local function toggleButton()
+    buttonEnabled = not buttonEnabled
+    ToggleButton.BackgroundColor3 = buttonEnabled and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 0)
+    ToggleButton.Text = buttonEnabled and "Disable Tool Cooldown" or "Enable Tool Cooldown"
 
-        local repTime = Instance.new("NumberValue")
-        repTime.Name = "repTime"
-        repTime.Value = 0.1
-        repTime.Parent = newTool
-
-        newTool.Parent = backpack
+    if buttonEnabled then
+        setToolCooldowns() -- Call the function to set cooldowns when enabled
     end
 end
 
--- Run the function
-modifyTools()
+-- Button click event
+ToggleButton.MouseButton1Click:Connect(toggleButton)
+
+-- Chat command to close the button
+LocalPlayer.Chatted:Connect(function(message)
+    if message:lower() == "close" then
+        ScreenGui:Destroy() -- Close the GUI
+    end
+end)
