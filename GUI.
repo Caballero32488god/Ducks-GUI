@@ -1,158 +1,25 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
-local Window = OrionLib:MakeWindow({ Name = "Game Hacks", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest" })
+local Window = OrionLib:MakeWindow({Name = "Game Hacks", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
 
--- Home Tab
-local homeTab = Window:MakeTab({
-    Name = "Home",
+-- Simple Test Button
+Window:MakeTab({
+    Name = "Test Tab",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-homeTab:AddSection({
-    Name = "Player Features"
-})
-
-homeTab:AddTextbox({
-    Name = "Speed",
-    Default = "16",
-    TextDisappear = true,
-    Callback = function(Value)
-        local speedValue = tonumber(Value) or 16
-        for _, player in ipairs(game.Players:GetPlayers()) do
-            local character = player.Character
-            if character then
-                local humanoid = character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.WalkSpeed = speedValue
-                end
-            end
-        end
-    end
-})
-
-homeTab:AddTextbox({
-    Name = "Jump Power",
-    Default = "50",
-    TextDisappear = true,
-    Callback = function(Value)
-        local jumpPowerValue = tonumber(Value) or 50
-        for _, player in ipairs(game.Players:GetPlayers()) do
-            local character = player.Character
-            if character then
-                local humanoid = character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.JumpPower = jumpPowerValue
-                end
-            end
-        end
-    end
-})
-
-homeTab:AddButton({
-    Name = "Enable No Clip",
-    Callback = function()
-        local function setNoClip(character, value)
-            for _, part in ipairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = not value
-                end
-            end
-        end
-        
-        for _, player in ipairs(game.Players:GetPlayers()) do
-            local character = player.Character
-            if character then
-                setNoClip(character, true) -- Enable no clip
-            end
-        end
-    end
-})
-
-homeTab:AddButton({
-    Name = "Enable Infinite Jump",
-    Callback = function()
-        local UserInputService = game:GetService("UserInputService")
-        
-        for _, player in ipairs(game.Players:GetPlayers()) do
-            local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                UserInputService.JumpRequest:Connect(function()
-                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                end)
-            end
-        end
-    end
-})
-
-homeTab:AddDropdown({
-    Name = "Set Game Time",
-    Default = "Morning",
-    Options = {"Morning", "Afternoon", "Night"},
-    Callback = function(Value)
-        if Value == "Morning" then
-            game.Lighting.ClockTime = 6
-        elseif Value == "Afternoon" then
-            game.Lighting.ClockTime = 12
-        elseif Value == "Night" then
-            game.Lighting.ClockTime = 18
-        end
-    end    
-})
-
--- Rebirths Tab
-local rebirthsTab = Window:MakeTab({
-    Name = "Rebirths",
+local TestTab = Window:MakeTab({
+    Name = "Main",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-local elias782k = 0
-local rebirthLimit = math.huge -- Default to "infinite"
-
-rebirthsTab:AddToggle({
-    Name = "Auto Rebirth",
-    Default = false,
-    Callback = function(Value2)
-        elias782k = 1
-        while elias782k == 1 do
-            if not Value2 then
-                elias782k = 0
-                break
-            end
-            wait(1)
-            local args = { [1] = "rebirthRequest" }
-            game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack(args))
-
-            if rebirthLimit < math.huge then
-                local currentRebirths = --[[Get the current number of rebirths]]
-                if currentRebirths >= rebirthLimit then
-                    elias782k = 0
-                end
-            end
-        end
-    end    
-})
-
-rebirthsTab:AddTextbox({
-    Name = "Rebirth Limit",
-    Default = "0",
-    TextDisappear = false,
-    Callback = function(Value)
-        if Value == "0" then
-            rebirthLimit = math.huge -- No limit
-        else
-            rebirthLimit = tonumber(Value) or math.huge -- Convert to number, or keep as infinite
-        end
-    end
-})
-
-rebirthsTab:AddButton({
-    Name = "Stop Auto Rebirth",
+TestTab:AddButton({
+    Name = "Test Button",
     Callback = function()
-        elias782k = 0
+        print("Button Pressed")
     end
 })
 
--- Finalize the UI
 OrionLib:Init()
