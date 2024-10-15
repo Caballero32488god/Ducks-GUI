@@ -1,54 +1,98 @@
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
 
-local Settings = { personal = false }
-local connection
+local Luminosity = loadstring(game:HttpGet("https://raw.githubusercontent.com/iHavoc101/Genesis-Studios/main/UserInterface/Luminosity.lua", true))()
 
-local function activateMuscleFeature()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local Window = Luminosity.new("Luminosity UI", "v1.0.0", 4370345701)
 
-    humanoid:ChangeState(11) -- Change state to jumping
-    humanoidRootPart.CFrame = CFrame.new(-8967, 9, -6128) -- Teleport to the specified coordinates
+local Tab1 = Window.Tab("Tab 1", 6026568198)
+local Folder = Tab1.Folder("Options", "A bunch of options you can use")
+Folder.Button("Button", "Click", function()
+    print("Button Clicked")
+end)
+Folder.Switch("Switch", function(Status)
+    print("Switch Triggered: " .. tostring(Status))
+end)
+Folder.Toggle("Toggle", function(Status)
+    print("Toggle Triggered: " .. tostring(Status))
+end)
+Folder.Toggle("Toggle", function(Status)
+    print("Toggle Triggered: " .. tostring(Status))
+end)
+Folder.TextBox("Textbox", "Placeholder", function(Text)
+    print("TextBox Triggered: " .. Text)
+end)[/align]
+[align=center]Folder.Slider("Slider", {Precise = true, Default = 18, Min = 10, Max = 125}, function(Status)
+    print("Slider Triggered" .. tostring(Status))
+end)
+Tab1.Folder("Lipsum Expanded", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eu mollis urna, quis feugiat tellus. Integer ut ligula sodales, sodales ipsum ut, imperdiet ipsum. In aliquet quam et venenatis pulvinar. Nullam fermentum porta felis sit amet interdum. Sed tristique fringilla mollis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam quis tempus mauris, nec ultrices metus. Suspendisse mi urna, accumsan at nisi a, tristique porta libero. Integer lobortis elementum lacus cursus consectetur. Morbi mauris ante, posuere at malesuada et, tristique non ipsum. Proin vitae purus pretium, convallis est vitae, dignissim leo. Praesent nec felis vitae.")
 
-    -- Perform punch actions
-    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+local Cheat = Tab1.Cheat("Options", "A bunch of options you can use", function(Status)
+    print("Cheat Triggered: " .. tostring(Status))
+end)
+Cheat.Button("Button", "Click", function()
+    print("Button Clicked")
+end)
+Cheat.Switch("Switch", function(Status)
+    print("Switch Triggered: " .. tostring(Status))
+end)
+Cheat.Toggle("Toggle", function(Status)
+    print("Toggle Triggered: " .. tostring(Status))
+end)
+Cheat.Toggle("Toggle", function(Status)
+    print("Toggle Triggered: " .. tostring(Status))
+end)
+Cheat.TextBox("Textbox", "Placeholder", function(Text)
+    print("TextBox Triggered: " .. Text)
+end)
 
-    -- Equip the Punch tool
-    local tool = LocalPlayer.Backpack:FindFirstChild("Punch")
-    if tool then
-        humanoid:EquipTool(tool)
-    end
-end
+Tab1.Cheat("Lipsum Expanded", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eu mollis urna, quis feugiat tellus. Integer ut ligula sodales, sodales ipsum ut, imperdiet ipsum. In aliquet quam et venenatis pulvinar. Nullam fermentum porta felis sit amet interdum. Sed tristique fringilla mollis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam quis tempus mauris, nec ultrices metus. Suspendisse mi urna, accumsan at nisi a, tristique porta libero. Integer lobortis elementum lacus cursus consectetur. Morbi mauris ante, posuere at malesuada et, tristique non ipsum. Proin vitae purus pretium, convallis est vitae, dignissim leo. Praesent nec felis vitae.", function(Status)
+    print("Cheat Triggered: " .. tostring(Status))
+end)
 
-local function toggleMuscleFeature(state)
-    Settings.personal = state
+-- Tab 2 --
+local Tab2 = Window.Tab("Tab 2", 6022668945)
+local Folder = Tab2.Folder("Options", "A bunch of options you can use")
+Folder.Button("Button", "Click", function()
+    print("Button Clicked")
+end)
+Folder.Switch("Switch", function(Status)
+    print("Switch Triggered: " .. tostring(Status))
+end)
+Folder.Toggle("Toggle", function(Status)
+    print("Toggle Triggered: " .. tostring(Status))
+end)
+Folder.Toggle("Toggle", function(Status)
+    print("Toggle Triggered: " .. tostring(Status))
+end)
+Folder.TextBox("Textbox", "Placeholder", function(Text)
+    print("TextBox Triggered: " .. Text)
+end)
+Tab2.Folder("Lipsum Expanded", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eu mollis urna, quis feugiat tellus. Integer ut ligula sodales, sodales ipsum ut, imperdiet ipsum. In aliquet quam et venenatis pulvinar. Nullam fermentum porta felis sit amet interdum. Sed tristique fringilla mollis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam quis tempus mauris, nec ultrices metus. Suspendisse mi urna, accumsan at nisi a, tristique porta libero. Integer lobortis elementum lacus cursus consectetur. Morbi mauris ante, posuere at malesuada et, tristique non ipsum. Proin vitae purus pretium, convallis est vitae, dignissim leo. Praesent nec felis vitae.")
 
-    if state then
-        connection = RunService.Stepped:Connect(function()
-            if Settings.personal then
-                activateMuscleFeature()
-            end
-        end)
-    else
-        if connection then
-            connection:Disconnect() -- Stop the loop when the feature is toggled off
-        end
-    end
-end
+local Cheat = Tab2.Cheat("Options", "A bunch of options you can use", function(Status)
+    print("Cheat Triggered: " .. tostring(Status))
+end)
+Cheat.Button("Button", "Click" function()
+    print("Button Clicked")
+end)
+Cheat.Switch("Switch", function(Status)
+    print("Switch Triggered: " .. tostring(Status))
+end)
+Cheat.Toggle("Toggle", function(Status)
+    print("Toggle Triggered: " .. tostring(Status))
+end)
+Cheat.Toggle("Toggle", function(Status)
+    print("Toggle Triggered: " .. tostring(Status))
+end)
+Cheat.TextBox("Textbox", "Placeholder", function(Text)
+print("TextBox Triggered: " .. Text)
+end)
 
--- Chat Command
-Players.LocalPlayer.Chatted:Connect(function(message)
-    if message:lower() == ";muscle" then
-        if Settings.personal then
-            toggleMuscleFeature(false)  -- Stop if it's already on
-            print("Stopped muscle feature.")
-        else
-            toggleMuscleFeature(true)  -- Start the muscle feature
-            print("Started muscle feature.")
-        end
+Tab2.Cheat("Lipsum Expanded", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eu mollis urna, quis feugiat tellus. Integer ut ligula sodales, sodales ipsum ut, imperdiet ipsum. In aliquet quam et venenatis pulvinar. Nullam fermentum porta felis sit amet interdum. Sed tristique fringilla mollis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam quis tempus mauris, nec ultrices metus. Suspendisse mi urna, accumsan at nisi a, tristique porta libero. Integer lobortis elementum lacus cursus consectetur. Morbi mauris ante, posuere at malesuada et, tristique non ipsum. Proin vitae purus pretium, convallis est vitae, dignissim leo. Praesent nec felis vitae.", function(Status)
+print("Cheat Triggered: " .. tostring(Status))
+end)
+
+game:GetService("UserInputService").InputBegan:Connect(function(Input)
+if Input.KeyCode == Enum.KeyCode.F then
+        Window:Toggle()
     end
 end)
