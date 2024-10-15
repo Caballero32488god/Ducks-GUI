@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-
 local Window = OrionLib:MakeWindow({Name = "Game Hacks", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
 
 -- Main Tab
@@ -96,11 +95,60 @@ MainTab:AddButton({
 	end
 })
 
--- Rebirth Tab
+-- Rebirths Tab
 local RebirthTab = Window:MakeTab({
 	Name = "Rebirths",
 	Icon = "rbxassetid://4483345998",
 	PremiumOnly = false
+})
+
+local rebirthCount = 0 -- Track the number of rebirths in the session
+
+-- Function to update the rebirth counter display
+local function updateRebirthCounter()
+	local leaderstats = Players.LocalPlayer:FindFirstChild("leaderstats")
+	local rebirthsStat = leaderstats and leaderstats:FindFirstChild("Rebirths")
+	local currentRebirths = rebirthsStat and rebirthsStat.Value or 0
+	
+	RebirthTab:RemoveLabel("Rebirth Counter") -- Remove old label if exists
+	RebirthTab:AddLabel("Rebirth Counter: " .. rebirthCount) -- Update counter display
+end
+
+-- Rebirth Limit Input
+RebirthTab:AddTextbox({
+	Name = "Rebirth Limit",
+	Default = "20000", -- Default rebirth limit value
+	TextDisappear = false,
+	Callback = function(Value)
+		local limit = tonumber(Value) or 20000
+
+		-- Access leaderstats and get the current rebirths
+		local leaderstats = Players.LocalPlayer:FindFirstChild("leaderstats")
+		local rebirthsStat = leaderstats and leaderstats:FindFirstChild("Rebirths")
+
+		local currentRebirths = rebirthsStat and rebirthsStat.Value or 0
+
+		-- Check if the limit is lower than current rebirths
+		if limit < currentRebirths then
+			showNotification("Too Low for your rebirths.")
+		else
+			showNotification("Rebirth limit set to " .. limit) -- Confirmation message
+		end
+	end
+})
+
+-- Manual Rebirth Button
+RebirthTab:AddButton({
+	Name = "Manual Rebirth",
+	Callback = function()
+		local args = {
+			[1] = "rebirthRequest"
+		}
+		game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack(args))
+		rebirthCount = rebirthCount + 1 -- Increment the counter
+		updateRebirthCounter() -- Update the display
+		showNotification("Manual rebirth executed.")
+	end
 })
 
 -- Auto Rebirth Toggle
@@ -109,42 +157,108 @@ RebirthTab:AddToggle({
 	Default = false,
 	Callback = function(Value)
 		local elias782k = 1
+		local desiredLimit = 20000 -- Default limit (can be adjusted)
+
 		while elias782k == 1 do
 			if not Value then
 				elias782k = 2
 			end
+
 			wait(1)
-			local args = {
-				[1] = "rebirthRequest"
-			}
-			game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack(args))
+
+			-- Access leaderstats and get the current rebirths
+			local leaderstats = Players.LocalPlayer:FindFirstChild("leaderstats")
+			local rebirthsStat = leaderstats and leaderstats:FindFirstChild("Rebirths")
+
+			local currentRebirths = rebirthsStat and rebirthsStat.Value or 0
+
+			-- Check if current rebirths are less than desired limit
+			if currentRebirths < desiredLimit then
+				local args = {
+					[1] = "rebirthRequest"
+				}
+				game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack(args))
+				rebirthCount = rebirthCount + 1 -- Increment the counter
+				updateRebirthCounter() -- Update the display
+			else
+				showNotification("Reached rebirth limit of " .. desiredLimit)
+				elias782k = 2 -- Stop the loop if limit is reached
+			end
 		end
 	end    
 })
 
--- Rebirth Limit Input
-RebirthTab:AddTextbox({
-	Name = "Rebirth Limit",
-	Default = "18980",
-	TextDisappear = false,
-	Callback = function(Value)
-		local limit = tonumber(Value) or 18980
-		local currentRebirths = Players.LocalPlayer:FindFirstChild("stat") and Players.LocalPlayer.stat.Value or 0
-
-		if currentRebirths >= limit then
-			print("Reached rebirth limit.")
-		else
-			-- Code to handle rebirthing here
-		end
-	end
-})
-
--- Killer Tab (empty)
+-- Killer Tab
 local KillerTab = Window:MakeTab({
 	Name = "Killer",
 	Icon = "rbxassetid://4483345998",
 	PremiumOnly = false
 })
+
+local selectedTarget = nil -- Variable to store the selected target
+
+-- Target Selector Dropdown
+KillerTab:AddDropdown({
+	Name = "Select Target",
+	Default = "None",
+	Options = {}, -- This will be populated with player names
+	Callback = function(Value)
+		selectedTarget = Value -- Store the selected target
+	end
+})
+
+-- Function to update the dropdown options with current players
+local function updateTargetDropdown()
+	local playerNames = {}
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player.Name ~= Players.LocalPlayer.Name then -- Exclude self
+			table.insert(playerNames, player.Name)
+		end
+	end
+	KillerTab:UpdateDropdown("Select Target", playerNames) -- Update the dropdown
+end
+
+-- Action Button
+KillerTab:AddButton({
+	Name = "Attack Target",
+	Callback = function()
+		if selectedTarget then
+			local targetPlayer = Players:FindFirstChild(selectedTarget)
+			if targetPlayer and targetPlayer.Character then
+				-- Perform action on the target player (e.g., "kill" logic)
+				-- Example: targetPlayer.Character:BreakJoints() -- This will "kill" the player
+				showNotification(selectedTarget .. " has been attacked!")
+			else
+				showNotification("Target not found.")
+			end
+		else
+			showNotification("No target selected.")
+		end
+	end
+})
+
+-- Function to show notification
+local function showNotification(message)
+	local notification = Instance.new("TextLabel")
+	notification.Size = UDim2.new(0, 300, 0, 50)
+	notification.Position = UDim2.new(0.5, -150, 0.5, -25)
+	notification.BackgroundColor3 = Color3.new(1, 0, 0) -- Red color
+	notification.Text = message
+	notification.TextColor3 = Color3.new(1, 1, 1)
+	notification.Parent = game.CoreGui
+	wait(3) -- Show for 3 seconds
+	notification:Destroy()
+end
+
+-- Update the dropdown when the script runs
+updateTargetDropdown()
+
+-- Update dropdown when players join or leave
+game.Players.PlayerAdded:Connect(updateTargetDropdown)
+game.Players.PlayerRemoving:Connect(updateTargetDropdown)
+
+-- Initialize the counter display
+updateRebirthCounter()
 
 -- Finalize the UI
 OrionLib:Init()
