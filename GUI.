@@ -1,150 +1,44 @@
-local Players = game:GetService("Players")
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local player = game.Players.LocalPlayer
+local backpack = player:WaitForChild("Backpack")
 
-local Window = OrionLib:MakeWindow({Name = "Game Hacks", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+-- List of tools to modify
+local tools = {
+    "Punch",
+    "Ground Slam",
+    "Stomp",
+    "Handstands",
+    "Pushups",
+    "Weight",
+    "Situps"
+}
 
--- Main Tab
-local MainTab = Window:MakeTab({
-	Name = "Main",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
-})
+-- Function to modify tools
+local function modifyTools()
+    for _, tool in pairs(tools) do
+        local existingTool = backpack:FindFirstChild(tool)
+        if existingTool then
+            existingTool:Destroy() -- Remove tool from backpack
+        end
+    end
 
--- Speed Input
-MainTab:AddTextbox({
-	Name = "Speed",
-	Default = "16", -- Default speed value
-	TextDisappear = false,
-	Callback = function(Value)
-		local speedValue = tonumber(Value) or 16
-		for _, player in ipairs(Players:GetPlayers()) do
-			local character = player.Character
-			if character then
-				local humanoid = character:FindFirstChildOfClass("Humanoid")
-				if humanoid then
-					humanoid.WalkSpeed = speedValue
-				end
-			end
-		end
-	end
-})
+    -- Create new tools with modified properties
+    for _, toolName in pairs(tools) do
+        local newTool = Instance.new("Tool")
+        newTool.Name = toolName
+        
+        local attackTime = Instance.new("NumberValue")
+        attackTime.Name = "attackTime"
+        attackTime.Value = 0.1
+        attackTime.Parent = newTool
 
--- Jump Power Input
-MainTab:AddTextbox({
-	Name = "Jump Power",
-	Default = "50", -- Default jump power value
-	TextDisappear = false,
-	Callback = function(Value)
-		local jumpPowerValue = tonumber(Value) or 50
-		for _, player in ipairs(Players:GetPlayers()) do
-			local character = player.Character
-			if character then
-				local humanoid = character:FindFirstChildOfClass("Humanoid")
-				if humanoid then
-					humanoid.JumpPower = jumpPowerValue
-				end
-			end
-		end
-	end
-})
+        local repTime = Instance.new("NumberValue")
+        repTime.Name = "repTime"
+        repTime.Value = 0.1
+        repTime.Parent = newTool
 
--- Gravity Input
-MainTab:AddTextbox({
-	Name = "Gravity",
-	Default = "196.2", -- Default gravity value
-	TextDisappear = false,
-	Callback = function(Value)
-		local gravityValue = tonumber(Value) or 196.2
-		workspace.Gravity = gravityValue
-	end
-})
+        newTool.Parent = backpack
+    end
+end
 
--- Noclip Button
-MainTab:AddButton({
-	Name = "Enable NoClip",
-	Callback = function()
-		local function setNoClip(character, value)
-			for _, part in ipairs(character:GetDescendants()) do
-				if part:IsA("BasePart") then
-					part.CanCollide = not value
-				end
-			end
-		end
-
-		for _, player in ipairs(Players:GetPlayers()) do
-			local character = player.Character
-			if character then
-				setNoClip(character, true) -- Enable no clip
-			end
-		end
-	end
-})
-
--- Infinite Jump Button
-MainTab:AddButton({
-	Name = "Enable Infinite Jump",
-	Callback = function()
-		local UserInputService = game:GetService("UserInputService")
-		for _, player in ipairs(Players:GetPlayers()) do
-			local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-			if humanoid then
-				UserInputService.JumpRequest:Connect(function()
-					humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-				end)
-			end
-		end
-	end
-})
-
--- Rebirth Tab
-local RebirthTab = Window:MakeTab({
-	Name = "Rebirths",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
-})
-
--- Auto Rebirth Toggle
-RebirthTab:AddToggle({
-	Name = "Auto Rebirth",
-	Default = false,
-	Callback = function(Value)
-		local elias782k = 1
-		while elias782k == 1 do
-			if not Value then
-				elias782k = 2
-			end
-			wait(1)
-			local args = {
-				[1] = "rebirthRequest"
-			}
-			game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack(args))
-		end
-	end    
-})
-
--- Rebirth Limit Input
-RebirthTab:AddTextbox({
-	Name = "Rebirth Limit",
-	Default = "18980",
-	TextDisappear = false,
-	Callback = function(Value)
-		local limit = tonumber(Value) or 18980
-		local currentRebirths = Players.LocalPlayer:FindFirstChild("stat") and Players.LocalPlayer.stat.Value or 0
-
-		if currentRebirths >= limit then
-			print("Reached rebirth limit.")
-		else
-			-- Code to handle rebirthing here
-		end
-	end
-})
-
--- Killer Tab (empty)
-local KillerTab = Window:MakeTab({
-	Name = "Killer",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
-})
-
--- Finalize the UI
-OrionLib:Init()
+-- Run the function
+modifyTools()
