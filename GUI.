@@ -1,8 +1,11 @@
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 
--- Function to teleport and scale Muscle King Mountain
-local function teleportAndScaleMountain()
+local isTeleporting = false
+local teleportCoroutine
+
+-- Function to teleport Muscle King Mountain to the player's position
+local function teleportMuscleKingMountain()
     local machinesFolder = game.Workspace:FindFirstChild("machinesFolder")
     if not machinesFolder then
         warn("machinesFolder not found!")
@@ -15,18 +18,34 @@ local function teleportAndScaleMountain()
         return
     end
 
-    -- Set the size of Muscle King Mountain (increase by 20%)
-    muscleKingMountain.Size = muscleKingMountain.Size * 1.2 -- Scale up to 120%
+    -- Make the Muscle King Mountain transparent
+    muscleKingMountain.Transparency = 1 -- Fully transparent
+    muscleKingMountain.CanCollide = false -- Prevent collisions
 
-    -- Teleport it to near the player's position
-    local positionOffset = Vector3.new(0, 2, 0) -- Adjust position to be above the player
-    muscleKingMountain:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.new(positionOffset))
+    isTeleporting = true
+
+    -- Continuous teleport to the player's position
+    teleportCoroutine = coroutine.create(function()
+        while isTeleporting do
+            muscleKingMountain:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.new(0, 2, 0)) -- Adjust position above the player
+            wait(0) -- Wait 0 seconds (effectively every frame)
+        end
+    end)
+
+    coroutine.resume(teleportCoroutine)
+end
+
+-- Function to stop teleportation
+local function stopTeleportation()
+    isTeleporting = false
 end
 
 -- Function to handle chat commands
 local function onChatted(message)
-    if message:lower() == "/teleportmountain" then
-        teleportAndScaleMountain()
+    if message:lower() == "/j" then
+        teleportMuscleKingMountain()
+    elseif message:lower() == "/k" then
+        stopTeleportation()
     end
 end
 
