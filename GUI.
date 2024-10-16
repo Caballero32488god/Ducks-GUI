@@ -4,7 +4,7 @@ local character = player.Character or player.CharacterAdded:Wait()
 local isTeleporting = false
 local teleportCoroutine
 
--- Function to teleport Muscle King Mountain to the player's position
+-- Function to teleport Muscle King Mountain to the player's hand
 local function teleportMuscleKingMountain()
     local machinesFolder = game.Workspace:FindFirstChild("machinesFolder")
     if not machinesFolder then
@@ -29,11 +29,15 @@ local function teleportMuscleKingMountain()
 
         isTeleporting = true
 
-        -- Continuous teleport to the player's position
+        -- Continuous teleport to the player's hand
         teleportCoroutine = coroutine.create(function()
             while isTeleporting do
                 if character and character.PrimaryPart then
-                    muscleKingMountain:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.new(0, 2, 0))
+                    local rightHand = character:FindFirstChild("RightHand")
+                    if rightHand then
+                        -- Teleport the muscle mountain to the right hand position
+                        muscleKingMountain:SetPrimaryPartCFrame(rightHand.CFrame * CFrame.new(0, 0, -1)) -- Adjust position in front of the hand
+                    end
                 end
                 wait(0) -- Wait 0 seconds (effectively every frame)
             end
