@@ -12,7 +12,7 @@ local MainTab = Window:MakeTab({
 -- Speed Input
 MainTab:AddTextbox({
 	Name = "Speed",
-	Default = "16", -- Default speed value
+	Default = "16",
 	TextDisappear = false,
 	Callback = function(Value)
 		local speedValue = tonumber(Value) or 16
@@ -31,7 +31,7 @@ MainTab:AddTextbox({
 -- Jump Power Input
 MainTab:AddTextbox({
 	Name = "Jump Power",
-	Default = "50", -- Default jump power value
+	Default = "50",
 	TextDisappear = false,
 	Callback = function(Value)
 		local jumpPowerValue = tonumber(Value) or 50
@@ -50,7 +50,7 @@ MainTab:AddTextbox({
 -- Gravity Input
 MainTab:AddTextbox({
 	Name = "Gravity",
-	Default = "196.2", -- Default gravity value
+	Default = "196.2",
 	TextDisappear = false,
 	Callback = function(Value)
 		local gravityValue = tonumber(Value) or 196.2
@@ -76,83 +76,11 @@ MainTab:AddDropdown({
 	end
 })
 
--- Noclip Button
-MainTab:AddButton({
-	Name = "Enable NoClip",
-	Callback = function()
-		local function setNoClip(character, value)
-			for _, part in ipairs(character:GetDescendants()) do
-				if part:IsA("BasePart") then
-					part.CanCollide = not value
-				end
-			end
-		end
-
-		for _, player in ipairs(Players:GetPlayers()) do
-			local character = player.Character
-			if character then
-				setNoClip(character, true) -- Enable no clip
-			end
-		end
-	end
-})
-
--- Infinite Jump Button
-MainTab:AddButton({
-	Name = "Enable Infinite Jump",
-	Callback = function()
-		local UserInputService = game:GetService("UserInputService")
-		for _, player in ipairs(Players:GetPlayers()) do
-			local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-			if humanoid then
-				UserInputService.JumpRequest:Connect(function()
-					humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-				end)
-			end
-		end
-	end
-})
-
 -- Rebirths Tab
 local RebirthTab = Window:MakeTab({
 	Name = "Rebirths",
 	Icon = "rbxassetid://4483345998",
 	PremiumOnly = false
-})
-
-local rebirthCount = 0 -- Track the number of rebirths in the session
-
--- Function to update the rebirth counter display
-local function updateRebirthCounter()
-	local leaderstats = Players.LocalPlayer:FindFirstChild("leaderstats")
-	local rebirthsStat = leaderstats and rebirthsStat:FindFirstChild("Rebirths")
-	local currentRebirths = rebirthsStat and rebirthsStat.Value or 0
-	
-	RebirthTab:RemoveLabel("Rebirth Counter") -- Remove old label if exists
-	RebirthTab:AddLabel("Rebirth Counter: " .. rebirthCount) -- Update counter display
-end
-
--- Rebirth Limit Input
-RebirthTab:AddTextbox({
-	Name = "Rebirth Limit",
-	Default = "20000", -- Default rebirth limit value
-	TextDisappear = false,
-	Callback = function(Value)
-		local limit = tonumber(Value) or 20000
-
-		-- Access leaderstats and get the current rebirths
-		local leaderstats = Players.LocalPlayer:FindFirstChild("leaderstats")
-		local rebirthsStat = leaderstats and leaderstats:FindFirstChild("Rebirths")
-
-		local currentRebirths = rebirthsStat and rebirthsStat.Value or 0
-
-		-- Check if the limit is lower than current rebirths
-		if limit < currentRebirths then
-			showNotification("Too Low for your rebirths.")
-		else
-			showNotification("Rebirth limit set to " .. limit) -- Confirmation message
-		end
-	end
 })
 
 -- Manual Rebirth Button
@@ -163,47 +91,8 @@ RebirthTab:AddButton({
 			[1] = "rebirthRequest"
 		}
 		game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack(args))
-		rebirthCount = rebirthCount + 1 -- Increment the counter
-		updateRebirthCounter() -- Update the display
 		showNotification("Manual rebirth executed.")
 	end
-})
-
--- Auto Rebirth Toggle
-RebirthTab:AddToggle({
-	Name = "Auto Rebirth",
-	Default = false,
-	Callback = function(Value)
-		local elias782k = 1
-		local desiredLimit = 20000 -- Default limit (can be adjusted)
-
-		while elias782k == 1 do
-			if not Value then
-				elias782k = 2
-			end
-
-			wait(1)
-
-			-- Access leaderstats and get the current rebirths
-			local leaderstats = Players.LocalPlayer:FindFirstChild("leaderstats")
-			local rebirthsStat = leaderstats and leaderstats:FindFirstChild("Rebirths")
-
-			local currentRebirths = rebirthsStat and rebirthsStat.Value or 0
-
-			-- Check if current rebirths are less than desired limit
-			if currentRebirths < desiredLimit then
-				local args = {
-					[1] = "rebirthRequest"
-				}
-				game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack(args))
-				rebirthCount = rebirthCount + 1 -- Increment the counter
-				updateRebirthCounter() -- Update the display
-			else
-				showNotification("Reached rebirth limit of " .. desiredLimit)
-				elias782k = 2 -- Stop the loop if limit is reached
-			end
-		end
-	end    
 })
 
 -- Killer Tab
@@ -279,13 +168,6 @@ KillerTab:AddButton({
 	end
 })
 
--- Update the dropdown when the script runs
-updateTargetDropdown()
-
--- Update dropdown when players join or leave
-Players.PlayerAdded:Connect(updateTargetDropdown)
-Players.PlayerRemoving:Connect(updateTargetDropdown)
-
 -- Function to show notifications
 local function showNotification(message)
 	local notification = Instance.new("ScreenGui")
@@ -302,8 +184,12 @@ local function showNotification(message)
 	notification:Destroy()
 end
 
--- Initialize the counter display
-updateRebirthCounter()
+-- Update the dropdown when the script runs
+updateTargetDropdown()
+
+-- Update dropdown when players join or leave
+Players.PlayerAdded:Connect(updateTargetDropdown)
+Players.PlayerRemoving:Connect(updateTargetDropdown)
 
 -- Finalize the UI
 OrionLib:Init()
