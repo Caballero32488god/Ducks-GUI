@@ -1,243 +1,38 @@
-local Players = game:GetService("Players")
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({Name = "Game Hacks", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+local player = game.Players.LocalPlayer
+local playersListFrame = script.Parent.ScrollingFrame
+local toggleButton = script.Parent.TextButton
+local dropdownVisible = false
 
--- Main Tab
-local MainTab = Window:MakeTab({
-	Name = "Main",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
-})
+-- Function to update the player list
+local function updatePlayerList()
+    for _, child in ipairs(playersListFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()  -- Remove previous buttons
+        end
+    end
 
--- Speed Input
-MainTab:AddTextbox({
-	Name = "Speed",
-	Default = "16",
-	TextDisappear = false,
-	Callback = function(Value)
-		local speedValue = tonumber(Value) or 16
-		for _, player in ipairs(Players:GetPlayers()) do
-			local character = player.Character
-			if character then
-				local humanoid = character:FindFirstChildOfClass("Humanoid")
-				if humanoid then
-					humanoid.WalkSpeed = speedValue
-				end
-			end
-		end
-	end
-})
+    for _, p in ipairs(game.Players:GetPlayers()) do
+        local playerButton = Instance.new("TextButton")
+        playerButton.Size = UDim2.new(1, 0, 0, 50)  -- Button size
+        playerButton.Text = p.Name
+        playerButton.Parent = playersListFrame
 
--- Jump Power Input
-MainTab:AddTextbox({
-	Name = "Jump Power",
-	Default = "50",
-	TextDisappear = false,
-	Callback = function(Value)
-		local jumpPowerValue = tonumber(Value) or 50
-		for _, player in ipairs(Players:GetPlayers()) do
-			local character = player.Character
-			if character then
-				local humanoid = character:FindFirstChildOfClass("Humanoid")
-				if humanoid then
-					humanoid.JumpPower = jumpPowerValue
-				end
-			end
-		end
-	end
-})
-
--- Gravity Input
-MainTab:AddTextbox({
-	Name = "Gravity",
-	Default = "196.2",
-	TextDisappear = false,
-	Callback = function(Value)
-		local gravityValue = tonumber(Value) or 196.2
-		workspace.Gravity = gravityValue
-	end
-})
-
--- Time of Day Selector
-MainTab:AddDropdown({
-	Name = "Time of Day",
-	Default = "Morning",
-	Options = {"Morning", "Afternoon", "Evening", "Night"},
-	Callback = function(Value)
-		if Value == "Morning" then
-			game.Lighting.TimeOfDay = "06:00:00"
-		elseif Value == "Afternoon" then
-			game.Lighting.TimeOfDay = "12:00:00"
-		elseif Value == "Evening" then
-			game.Lighting.TimeOfDay = "18:00:00"
-		elseif Value == "Night" then
-			game.Lighting.TimeOfDay = "00:00:00"
-		end
-	end
-})
-
--- Noclip Button
-MainTab:AddButton({
-	Name = "Enable NoClip",
-	Callback = function()
-		local function setNoClip(character, value)
-			for _, part in ipairs(character:GetDescendants()) do
-				if part:IsA("BasePart") then
-					part.CanCollide = not value
-				end
-			end
-		end
-
-		for _, player in ipairs(Players:GetPlayers()) do
-			local character = player.Character
-			if character then
-				setNoClip(character, true) -- Enable no clip
-			end
-		end
-		showNotification("NoClip enabled.")
-	end
-})
-
--- Infinite Jump Button
-MainTab:AddButton({
-	Name = "Enable Infinite Jump",
-	Callback = function()
-		local UserInputService = game:GetService("UserInputService")
-		UserInputService.JumpRequest:Connect(function()
-			local humanoid = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-			if humanoid then
-				humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-			end
-		end)
-		showNotification("Infinite Jump enabled.")
-	end
-})
-
--- Rebirths Tab
-local RebirthTab = Window:MakeTab({
-	Name = "Rebirths",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
-})
-
--- Auto Rebirth Toggle
-RebirthTab:AddToggle({
-	Name = "Auto Rebirth",
-	Default = false,
-	Callback = function(Value)
-		local elias782k = 1
-		while elias782k == 1 do
-			if not Value then
-				elias782k = 2
-			end
-			wait(1)
-			local args = {
-				[1] = "rebirthRequest"
-			}
-			game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack(args))
-		end
-	end    
-})
-
--- Rebirth Limit Input
-RebirthTab:AddTextbox({
-	Name = "Rebirth Limit",
-	Default = "18980",
-	TextDisappear = false,
-	Callback = function(Value)
-		local limit = tonumber(Value) or 18980
-		local currentRebirths = Players.LocalPlayer:FindFirstChild("leaderstats") and Players.LocalPlayer.leaderstats.Rebirths.Value or 0
-
-		if currentRebirths >= limit then
-			showNotification("Reached rebirth limit.")
-		else
-			showNotification("You can rebirth!")
-		end
-	end
-})
-
--- Manual Rebirth Button
-RebirthTab:AddButton({
-	Name = "Manual Rebirth",
-	Callback = function()
-		local args = {
-			[1] = "rebirthRequest"
-		}
-		game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack(args))
-		showNotification("Manual rebirth executed.")
-	end
-})
-
--- Killer Tab
-local KillerTab = Window:MakeTab({
-	Name = "Killer",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
-})
-
-local selectedTarget = nil -- Variable to store the selected target
-
--- Target Selector Dropdown
-local targetDropdown = KillerTab:AddDropdown({
-	Name = "Select Target",
-	Default = "None",
-	Options = {}, -- This will be populated with player names
-	Callback = function(Value)
-		selectedTarget = Value -- Store the selected target
-	end
-})
-
--- Function to update the dropdown options with current players
-local function updateTargetDropdown()
-	local playerNames = {}
-	for _, player in ipairs(Players:GetPlayers()) do
-		if player.Name ~= Players.LocalPlayer.Name then -- Exclude self
-			table.insert(playerNames, player.Name)
-		end
-	end
-	targetDropdown:UpdateDropdown(playerNames) -- Update the dropdown
+        -- Button click function
+        playerButton.MouseButton1Click:Connect(function()
+            print("You selected: " .. p.Name)
+        end)
+    end
 end
 
--- Action Button
-KillerTab:AddButton({
-	Name = "Attack Target",
-	Callback = function()
-		if selectedTarget then
-			local targetPlayer = Players:FindFirstChild(selectedTarget)
-			if targetPlayer and targetPlayer.Character then
-				targetPlayer.Character:BreakJoints() -- This will "kill" the target player
-				showNotification("Attacked " .. selectedTarget)
-			else
-				showNotification("Target not found.")
-			end
-		else
-			showNotification("No target selected.")
-		end
-	end
-})
+-- Toggle the dropdown
+toggleButton.MouseButton1Click:Connect(function()
+    dropdownVisible = not dropdownVisible
+    playersListFrame.Visible = dropdownVisible
+end)
 
--- Function to show notifications
-local function showNotification(message)
-	local notification = Instance.new("ScreenGui")
-	local label = Instance.new("TextLabel")
-	notification.Name = "Notification"
-	label.Text = message
-	label.Size = UDim2.new(0, 300, 0, 50)
-	label.Position = UDim2.new(0.5, -150, 0.5, -25)
-	label.BackgroundColor3 = Color3.new(1, 1, 1)
-	label.TextColor3 = Color3.new(0, 0, 0)
-	label.Parent = notification
-	notification.Parent = game.CoreGui
-	wait(3) -- Show for 3 seconds
-	notification:Destroy()
-end
+-- Update the list initially
+updatePlayerList()
 
--- Update the dropdown when the script runs
-updateTargetDropdown()
-
--- Update dropdown when players join or leave
-Players.PlayerAdded:Connect(updateTargetDropdown)
-Players.PlayerRemoving:Connect(updateTargetDropdown)
-
--- Finalize the UI
-OrionLib:Init()
+-- Listen for player changes
+game.Players.PlayerAdded:Connect(updatePlayerList)
+game.Players.PlayerRemoving:Connect(updatePlayerList)
