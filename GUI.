@@ -49,9 +49,30 @@ local function teleportMuscleKingMountain()
     end
 end
 
--- Function to stop teleportation
+-- Function to remove particle effects from Muscle King Mountain
+local function removeParticles()
+    local machinesFolder = game.Workspace:FindFirstChild("machinesFolder")
+    if machinesFolder then
+        local muscleKingMountain = machinesFolder:FindFirstChild("Muscle King Mountain")
+        if muscleKingMountain then
+            for _, child in ipairs(muscleKingMountain:GetChildren()) do
+                if child:IsA("ParticleEmitter") then
+                    child:Destroy() -- Remove the particle emitter
+                end
+            end
+            print("Particle effects have been removed from Muscle King Mountain.")
+        else
+            warn("Muscle King Mountain not found to remove particles!")
+        end
+    else
+        warn("machinesFolder not found!")
+    end
+end
+
+-- Function to stop teleportation and remove particles
 local function stopTeleportation()
     isTeleporting = false
+    removeParticles() -- Remove particle effects when stopping teleportation
 end
 
 -- Function to handle chat commands
