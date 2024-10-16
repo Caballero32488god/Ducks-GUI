@@ -1,8 +1,8 @@
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 
--- Function to teleport Muscle King Mountain to the player's position
-local function teleportMuscleKingMountain()
+-- Function to teleport and scale Muscle King Mountain
+local function teleportAndScaleMountain()
     local machinesFolder = game.Workspace:FindFirstChild("machinesFolder")
     if not machinesFolder then
         warn("machinesFolder not found!")
@@ -15,14 +15,18 @@ local function teleportMuscleKingMountain()
         return
     end
 
-    -- Teleport the Muscle King Mountain to the player's position
-    muscleKingMountain:SetPrimaryPartCFrame(character.PrimaryPart.CFrame)
+    -- Set the size of Muscle King Mountain (increase by 20%)
+    muscleKingMountain.Size = muscleKingMountain.Size * 1.2 -- Scale up to 120%
+
+    -- Teleport it to near the player's position
+    local positionOffset = Vector3.new(0, 2, 0) -- Adjust position to be above the player
+    muscleKingMountain:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.new(positionOffset))
 end
 
 -- Function to handle chat commands
 local function onChatted(message)
-    if message:lower() == "/teleportmountain" then
-        teleportMuscleKingMountain()
+    if message:lower() == "/j" then
+        teleportAndScaleMountain()
     end
 end
 
