@@ -58,6 +58,24 @@ MainTab:AddTextbox({
 	end
 })
 
+-- Time of Day Selector
+MainTab:AddDropdown({
+	Name = "Time of Day",
+	Default = "Morning",
+	Options = {"Morning", "Afternoon", "Evening", "Night"},
+	Callback = function(Value)
+		if Value == "Morning" then
+			game.Lighting.TimeOfDay = "06:00:00"
+		elseif Value == "Afternoon" then
+			game.Lighting.TimeOfDay = "12:00:00"
+		elseif Value == "Evening" then
+			game.Lighting.TimeOfDay = "18:00:00"
+		elseif Value == "Night" then
+			game.Lighting.TimeOfDay = "00:00:00"
+		end
+	end
+})
+
 -- Noclip Button
 MainTab:AddButton({
 	Name = "Enable NoClip",
@@ -107,7 +125,7 @@ local rebirthCount = 0 -- Track the number of rebirths in the session
 -- Function to update the rebirth counter display
 local function updateRebirthCounter()
 	local leaderstats = Players.LocalPlayer:FindFirstChild("leaderstats")
-	local rebirthsStat = leaderstats and leaderstats:FindFirstChild("Rebirths")
+	local rebirthsStat = leaderstats and rebirthsStat:FindFirstChild("Rebirths")
 	local currentRebirths = rebirthsStat and rebirthsStat.Value or 0
 	
 	RebirthTab:RemoveLabel("Rebirth Counter") -- Remove old label if exists
@@ -196,6 +214,7 @@ local KillerTab = Window:MakeTab({
 })
 
 local selectedTarget = nil -- Variable to store the selected target
+local killAuraActive = false -- Kill aura state
 
 -- Target Selector Dropdown
 KillerTab:AddDropdown({
@@ -218,6 +237,30 @@ local function updateTargetDropdown()
 	KillerTab:UpdateDropdown("Select Target", playerNames) -- Update the dropdown
 end
 
+-- Kill Aura Toggle
+KillerTab:AddToggle({
+	Name = "Kill Aura",
+	Default = false,
+	Callback = function(Value)
+		killAuraActive = Value
+		if killAuraActive then
+			while killAuraActive do
+				wait(0.5) -- Check every half second
+				local range = 10 -- Radius for the kill aura
+				for _, player in ipairs(Players:GetPlayers()) do
+					if player ~= Players.LocalPlayer and player.Character then
+						local character = player.Character
+						if (character.PrimaryPart.Position - Players.LocalPlayer.Character.PrimaryPart.Position).magnitude <= range then
+							-- Perform action on the target player (e.g., "kill" logic)
+							character:BreakJoints() -- This will "kill" the player
+						end
+					end
+				end
+			end
+		end
+	end
+})
+
 -- Action Button
 KillerTab:AddButton({
 	Name = "Attack Target",
@@ -225,9 +268,8 @@ KillerTab:AddButton({
 		if selectedTarget then
 			local targetPlayer = Players:FindFirstChild(selectedTarget)
 			if targetPlayer and targetPlayer.Character then
-				-- Perform action on the target player (e.g., "kill" logic)
-				-- Example: targetPlayer.Character:BreakJoints() -- This will "kill" the player
-				showNotification(selectedTarget .. " has been attacked!")
+				targetPlayer.Character:BreakJoints() -- This will "kill" the target player
+				showNotification("Attacked " .. selectedTarget)
 			else
 				showNotification("Target not found.")
 			end
@@ -237,25 +279,28 @@ KillerTab:AddButton({
 	end
 })
 
--- Function to show notification
-local function showNotification(message)
-	local notification = Instance.new("TextLabel")
-	notification.Size = UDim2.new(0, 300, 0, 50)
-	notification.Position = UDim2.new(0.5, -150, 0.5, -25)
-	notification.BackgroundColor3 = Color3.new(1, 0, 0) -- Red color
-	notification.Text = message
-	notification.TextColor3 = Color3.new(1, 1, 1)
-	notification.Parent = game.CoreGui
-	wait(3) -- Show for 3 seconds
-	notification:Destroy()
-end
-
 -- Update the dropdown when the script runs
 updateTargetDropdown()
 
 -- Update dropdown when players join or leave
-game.Players.PlayerAdded:Connect(updateTargetDropdown)
-game.Players.PlayerRemoving:Connect(updateTargetDropdown)
+Players.PlayerAdded:Connect(updateTargetDropdown)
+Players.PlayerRemoving:Connect(updateTargetDropdown)
+
+-- Function to show notifications
+local function showNotification(message)
+	local notification = Instance.new("ScreenGui")
+	local label = Instance.new("TextLabel")
+	notification.Name = "Notification"
+	label.Text = message
+	label.Size = UDim2.new(0, 300, 0, 50)
+	label.Position = UDim2.new(0.5, -150, 0.5, -25)
+	label.BackgroundColor3 = Color3.new(1, 1, 1)
+	label.TextColor3 = Color3.new(0, 0, 0)
+	label.Parent = notification
+	notification.Parent = game.CoreGui
+	wait(3) -- Show for 3 seconds
+	notification:Destroy()
+end
 
 -- Initialize the counter display
 updateRebirthCounter()
