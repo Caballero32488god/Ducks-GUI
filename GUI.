@@ -83,6 +83,43 @@ local RebirthTab = Window:MakeTab({
 	PremiumOnly = false
 })
 
+-- Auto Rebirth Toggle
+RebirthTab:AddToggle({
+	Name = "Auto Rebirth",
+	Default = false,
+	Callback = function(Value)
+		local elias782k = 1
+		while elias782k == 1 do
+			if not Value then
+				elias782k = 2
+			end
+			wait(1)
+			local args = {
+				[1] = "rebirthRequest"
+			}
+			game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack(args))
+		end
+	end    
+})
+
+-- Rebirth Limit Input
+RebirthTab:AddTextbox({
+	Name = "Rebirth Limit",
+	Default = "18980",
+	TextDisappear = false,
+	Callback = function(Value)
+		local limit = tonumber(Value) or 18980
+		local currentRebirths = Players.LocalPlayer:FindFirstChild("leaderstats") and Players.LocalPlayer.leaderstats.Rebirths.Value or 0
+
+		if currentRebirths >= limit then
+			showNotification("Reached rebirth limit.")
+		else
+			-- Code to handle rebirthing if below limit
+			showNotification("You can rebirth!")
+		end
+	end
+})
+
 -- Manual Rebirth Button
 RebirthTab:AddButton({
 	Name = "Manual Rebirth",
@@ -103,7 +140,6 @@ local KillerTab = Window:MakeTab({
 })
 
 local selectedTarget = nil -- Variable to store the selected target
-local killAuraActive = false -- Kill aura state
 
 -- Target Selector Dropdown
 KillerTab:AddDropdown({
@@ -125,30 +161,6 @@ local function updateTargetDropdown()
 	end
 	KillerTab:UpdateDropdown("Select Target", playerNames) -- Update the dropdown
 end
-
--- Kill Aura Toggle
-KillerTab:AddToggle({
-	Name = "Kill Aura",
-	Default = false,
-	Callback = function(Value)
-		killAuraActive = Value
-		if killAuraActive then
-			while killAuraActive do
-				wait(0.5) -- Check every half second
-				local range = 10 -- Radius for the kill aura
-				for _, player in ipairs(Players:GetPlayers()) do
-					if player ~= Players.LocalPlayer and player.Character then
-						local character = player.Character
-						if (character.PrimaryPart.Position - Players.LocalPlayer.Character.PrimaryPart.Position).magnitude <= range then
-							-- Perform action on the target player (e.g., "kill" logic)
-							character:BreakJoints() -- This will "kill" the player
-						end
-					end
-				end
-			end
-		end
-	end
-})
 
 -- Action Button
 KillerTab:AddButton({
