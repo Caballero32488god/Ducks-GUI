@@ -1,88 +1,94 @@
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
+-- Define services
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-local isTeleporting = false
-local teleportCoroutine
+-- Function to create and display a stats GUI
+local function createStatsGui(stats)
+    local statsGui = Instance.new("ScreenGui")
+    local frame = Instance.new("Frame")
+    local closeButton = Instance.new("TextButton")
 
--- Function to teleport Muscle King Mountain to the player's hand
-local function teleportMuscleKingMountain()
-    local machinesFolder = game.Workspace:FindFirstChild("machinesFolder")
-    if not machinesFolder then
-        warn("machinesFolder not found!")
-        return
-    end
+    statsGui.Name = "StatsGui"
+    statsGui.Parent = game.CoreGui
 
-    local muscleKingMountain = machinesFolder:FindFirstChild("Muscle King Mountain")
-    if not muscleKingMountain then
-        warn("Muscle King Mountain not found!")
-        return
-    end
+    frame.Size = UDim2.new(0.5, 0, 0.5, 0) -- Size of the frame
+    frame.Position = UDim2.new(0.5, -125, 0.5, -125) -- Centered based on size
+    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    frame.BorderSizePixel = 0 -- No border
+    frame.Parent = statsGui
 
-    -- Find the specific MeshPart inside Muscle King Mountain
-    local mountainPart = muscleKingMountain:FindFirstChildOfClass("MeshPart") -- Adjust if necessary
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0.2, 0) -- Height for title
+    titleLabel.Text = "Stats"
+    titleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.TextScaled = true
+    titleLabel.Parent = frame
 
-    if mountainPart then
-        -- Make the Muscle King Mountain part transparent and non-collidable
-        mountainPart.Transparency = 1 -- Fully transparent
-        mountainPart.CanCollide = false -- Prevent collisions
-        mountainPart.Size = Vector3.new(10, 10, 10) -- Set size to 10, 10, 10
+    local statsList = Instance.new("TextLabel")
+    statsList.Size = UDim2.new(1, 0, 0.6, 0) -- Height for stats list
+    statsList.Position = UDim2.new(0, 0, 0.2, 0) -- Adjusted position for the list
+    statsList.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    statsList.TextColor3 = Color3.fromRGB(255, 255, 255)
+    statsList.TextScaled = true
+    statsList.TextWrapped = true
+    statsList.TextSize = 20 -- Text size
+    statsList.Text = stats
+    statsList.Parent = frame
 
-        isTeleporting = true
+    closeButton.Size = UDim2.new(0.4, 0, 0.1, 0) -- Button size
+    closeButton.Position = UDim2.new(0.5, -80, 0.85, 0) -- Centered button
+    closeButton.Text = "Close"
+    closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeButton.Parent = frame
 
-        -- Continuous teleport to the player's hand
-        teleportCoroutine = coroutine.create(function()
-            while isTeleporting do
-                if character and character.PrimaryPart then
-                    local rightHand = character:FindFirstChild("RightHand")
-                    if rightHand then
-                        -- Teleport the muscle mountain to the right hand position
-                        muscleKingMountain:SetPrimaryPartCFrame(rightHand.CFrame * CFrame.new(0, 0, -1)) -- Adjust position in front of the hand
-                    end
-                end
-                wait(0) -- Wait 0 seconds (effectively every frame)
-            end
-        end)
-
-        coroutine.resume(teleportCoroutine)
-    else
-        warn("MeshPart not found in Muscle King Mountain!")
-    end
+    -- Close the GUI when the button is clicked
+    closeButton.MouseButton1Click:Connect(function()
+        statsGui:Destroy() -- Destroy the GUI when the close button is clicked
+    end)
 end
 
--- Function to remove particle effects from Muscle King Mountain
-local function removeParticles()
-    local machinesFolder = game.Workspace:FindFirstChild("machinesFolder")
-    if machinesFolder then
-        local muscleKingMountain = machinesFolder:FindFirstChild("Muscle King Mountain")
-        if muscleKingMountain then
-            for _, child in ipairs(muscleKingMountain:GetChildren()) do
-                if child:IsA("ParticleEmitter") then
-                    child:Destroy() -- Remove the particle emitter
-                end
-            end
-            print("Particle effects have been removed from Muscle King Mountain.")
-        else
-            warn("Muscle King Mountain not found to remove particles!")
+-- Function to display stats for a player
+local function displayPlayerStats(player)
+    local statsString = ""
+
+    -- Check for leaderstats and get all stats
+    local leaderstats = player:FindFirstChild("leaderstats")
+    if leaderstats then
+        for _, stat in pairs(leaderstats:GetChildren()) do
+            statsString = statsString .. stat.Name .. ": " .. tostring(stat.Value) .. "\n"
         end
     else
-        warn("machinesFolder not found!")
+        statsString = "No leaderstats found."
     end
-end
 
--- Function to stop teleportation and remove particles
-local function stopTeleportation()
-    isTeleporting = false
-    removeParticles() -- Remove particle effects when stopping teleportation
-end
-
--- Function to handle chat commands
-local function onChatted(message)
-    if message:lower() == "/j" then
-        teleportMuscleKingMountain()
-    elseif message:lower() == "/k" then
-        stopTeleportation()
+    -- Check for additional stats
+    local additionalStats = {"Durability", "Agility", "goodKarma", "evilKarma", "Gems", "Muscle King Time"}
+    for _, statName in ipairs(additionalStats) do
+        local stat = player:FindFirstChild(statName)
+        if stat then
+            statsString = statsString .. statName .. ": " .. tostring(stat.Value) .. "\n"
+        else
+            statsString = statsString .. statName .. " not found.\n"
+        end
     end
+
+    -- Show stats in GUI
+    createStatsGui(statsString)
 end
 
--- Connect the chat command
-player.Chatted:Connect(onChatted)
+-- Chat command to display stats for a user
+LocalPlayer.Chatted:Connect(function(message)
+    local args = message:split(" ")
+    if args[1]:lower() == ";stats" and args[2] then
+        local targetPlayer = Players:FindFirstChild(args[2])
+        if targetPlayer then
+            displayPlayerStats(targetPlayer)
+        else
+            createStatsGui("Player not found.")
+        end
+    end
+end)
+
+print("Use ';stats (User)' to display another player's stats.")
