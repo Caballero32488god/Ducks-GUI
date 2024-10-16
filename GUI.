@@ -18,23 +18,31 @@ local function teleportMuscleKingMountain()
         return
     end
 
-    -- Make the Muscle King Mountain transparent and non-collidable
-    muscleKingMountain.Transparency = 1
-    muscleKingMountain.CanCollide = false
+    -- Find the specific MeshPart inside Muscle King Mountain
+    local mountainPart = muscleKingMountain:FindFirstChildOfClass("MeshPart") -- Adjust if necessary
 
-    isTeleporting = true
+    if mountainPart then
+        -- Make the Muscle King Mountain part transparent and non-collidable
+        mountainPart.Transparency = 1 -- Fully transparent
+        mountainPart.CanCollide = false -- Prevent collisions
+        mountainPart.Size = Vector3.new(10, 10, 10) -- Set size to 10, 10, 10
 
-    -- Continuous teleport to the player's position
-    teleportCoroutine = coroutine.create(function()
-        while isTeleporting do
-            if character and character.PrimaryPart then
-                muscleKingMountain:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.new(0, 2, 0))
+        isTeleporting = true
+
+        -- Continuous teleport to the player's position
+        teleportCoroutine = coroutine.create(function()
+            while isTeleporting do
+                if character and character.PrimaryPart then
+                    muscleKingMountain:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.new(0, 2, 0))
+                end
+                wait(0) -- Wait 0 seconds (effectively every frame)
             end
-            wait(0) -- Wait 0 seconds (effectively every frame)
-        end
-    end)
+        end)
 
-    coroutine.resume(teleportCoroutine)
+        coroutine.resume(teleportCoroutine)
+    else
+        warn("MeshPart not found in Muscle King Mountain!")
+    end
 end
 
 -- Function to stop teleportation
