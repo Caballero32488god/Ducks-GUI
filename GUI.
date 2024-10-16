@@ -25,7 +25,7 @@ end
 
 -- Function to handle chat commands
 local function onChatted(message)
-    if message:lower() == "/j" then
+    if message:lower() == "/teleportmountain" then
         teleportAndScaleMountain()
     end
 end
