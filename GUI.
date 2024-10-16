@@ -19,7 +19,7 @@ local function createStatsGui(stats)
 
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Size = UDim2.new(1, 0, 0.2, 0) -- Height for title
-    titleLabel.Text = "Stats"
+    titleLabel.Text = "Player Stats"
     titleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     titleLabel.TextScaled = true
@@ -60,7 +60,7 @@ local function displayPlayerStats(player)
             statsString = statsString .. stat.Name .. ": " .. tostring(stat.Value) .. "\n"
         end
     else
-        statsString = "No leaderstats found."
+        statsString = "No leaderstats found.\n"
     end
 
     -- Check for additional stats
@@ -78,11 +78,32 @@ local function displayPlayerStats(player)
     createStatsGui(statsString)
 end
 
+-- Function to find a player by username or display name
+local function findPlayer(name)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Name:lower() == name:lower() or player.DisplayName:lower() == name:lower() then
+            return player
+        end
+    end
+    return nil
+end
+
 -- Chat command to display stats for a user
 LocalPlayer.Chatted:Connect(function(message)
     local args = message:split(" ")
-    if args[1]:lower() == ";stats" and args[2] then
-        local targetPlayer = Players:FindFirstChild(args[2])
+    local command = args[1]:lower()
+
+    -- Check if the command is any of the special characters
+    if command:sub(1, 2) == ":s" or command:sub(1, 1) == ";" then
+        local targetName = args[2] and args[2]:lower() or "me"
+        local targetPlayer
+
+        if targetName == "me" then
+            targetPlayer = LocalPlayer
+        else
+            targetPlayer = findPlayer(targetName)
+        end
+
         if targetPlayer then
             displayPlayerStats(targetPlayer)
         else
@@ -91,4 +112,4 @@ LocalPlayer.Chatted:Connect(function(message)
     end
 end)
 
-print("Use ';stats (User)' to display another player's stats.")
+print("Use ':s (User/DisplayName)' or ';s (User/DisplayName)' or any other variant to display player stats.")
