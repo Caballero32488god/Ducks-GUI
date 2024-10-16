@@ -18,16 +18,18 @@ local function teleportMuscleKingMountain()
         return
     end
 
-    -- Make the Muscle King Mountain transparent
-    muscleKingMountain.Transparency = 1 -- Fully transparent
-    muscleKingMountain.CanCollide = false -- Prevent collisions
+    -- Make the Muscle King Mountain transparent and non-collidable
+    muscleKingMountain.Transparency = 1
+    muscleKingMountain.CanCollide = false
 
     isTeleporting = true
 
     -- Continuous teleport to the player's position
     teleportCoroutine = coroutine.create(function()
         while isTeleporting do
-            muscleKingMountain:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.new(0, 2, 0)) -- Adjust position above the player
+            if character and character.PrimaryPart then
+                muscleKingMountain:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.new(0, 2, 0))
+            end
             wait(0) -- Wait 0 seconds (effectively every frame)
         end
     end)
