@@ -1,52 +1,30 @@
--- Ensure this script runs in a LocalScript if you want to access your character's position
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 
--- Find the machinesFolder in Workspace
-local machinesFolder = game.Workspace:FindFirstChild("machinesFolder")
-if not machinesFolder then
-    warn("machinesFolder not found!")
-    return
-end
-
--- Find the specific rock within Muscle King Mountain
-local muscleKingMountain = machinesFolder:FindFirstChild("Muscle King Mountain")
-if not muscleKingMountain then
-    warn("Muscle King Mountain not found!")
-    return
-end
-
-local rock = muscleKingMountain:FindFirstChild("Rock")
-if not rock then
-    warn("Rock not found!")
-    return
-end
-
--- Make the rock invisible and scale it down
-rock.Transparency = 1 -- Make it invisible
-rock.Size = Vector3.new(0.5, 0.5, 0.5) -- Scale it down to fit the hand
-rock.CanCollide = false -- Disable physics
-
--- Function to teleport the rock to the player's right hand
-local function teleportRockToHand()
-    if character and character:FindFirstChild("RightHand") then
-        rock.CFrame = character.RightHand.CFrame * CFrame.new(0, 0, -1) -- Adjust position in front of the right hand
+-- Function to teleport Muscle King Mountain to the player's position
+local function teleportMuscleKingMountain()
+    local machinesFolder = game.Workspace:FindFirstChild("machinesFolder")
+    if not machinesFolder then
+        warn("machinesFolder not found!")
+        return
     end
+
+    local muscleKingMountain = machinesFolder:FindFirstChild("Muscle King Mountain")
+    if not muscleKingMountain then
+        warn("Muscle King Mountain not found!")
+        return
+    end
+
+    -- Teleport the Muscle King Mountain to the player's position
+    muscleKingMountain:SetPrimaryPartCFrame(character.PrimaryPart.CFrame)
 end
 
 -- Function to handle chat commands
 local function onChatted(message)
-    -- Check for the specific command (e.g., "/teleportrock")
-    if message:lower() == "/teleportrock" then
-        teleportRockToHand()
+    if message:lower() == "/teleportmountain" then
+        teleportMuscleKingMountain()
     end
 end
 
 -- Connect the chat command
 player.Chatted:Connect(onChatted)
-
--- Optional: To teleport the rock automatically every 0.1 seconds
--- Uncomment the following lines if you still want the automatic teleportation
--- while wait(0.1) do
---     teleportRockToHand()
--- end
